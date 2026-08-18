@@ -121,12 +121,19 @@ export function canMarkClassSkill(currentClassMarks: number, rank: number): bool
   return currentClassMarks < maxClassSkillLevel(rank)
 }
 
+/** No Skill is usable above level 3, however the marks were reached (p.32). */
+export const SKILL_MAX_LEVEL = 3
+
 /**
- * Effective skill level = Class-board marks (rank-capped) + Character-board marks.
- * Character-board spaces are exempt from the rank cap and stack on top (p.80).
+ * Effective skill level = Class-board marks (rank-capped) + Character-board marks,
+ * then capped at 3.
+ *
+ * Character-board spaces are exempt from the rank cap and stack on top (p.80), so a
+ * board can legitimately be *marked* past 3 — but p.32 is explicit that "all Skills have
+ * a maximum level of 3", so the excess doesn't do anything in play.
  */
 export function effectiveSkillLevel(charBoardMarks: number, classBoardMarks: number): number {
-  return charBoardMarks + classBoardMarks
+  return Math.min(SKILL_MAX_LEVEL, charBoardMarks + classBoardMarks)
 }
 
 /** Spells may be learned up to a level equal to the character's rank (p.80). */

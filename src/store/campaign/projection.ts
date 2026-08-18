@@ -7,7 +7,16 @@
  */
 
 import type { PackRef } from '../../content/manifest'
-import type { CampaignEvent, Id, ItemRef, LevellableStat } from './events'
+import type { CampaignEvent, Id, ItemRef, LevellableStat, QuestOutcome } from './events'
+
+/** One quest as it was played — the Log tab's raw material (design §3 `QuestRecord`). */
+export interface QuestRecord {
+  name: string
+  outcome: QuestOutcome
+  renownGained: number
+  guildersGained: number
+  at: number
+}
 
 /** Marks against one skill, kept per board because the two are capped differently (p.80). */
 export interface SkillMarks {
@@ -47,6 +56,10 @@ export interface AdventurerState {
    * board, see `AdventurerDef.xpRows`.
    */
   rank: number | null
+  /** False once Left for Dead killed them outright, or a ransom went unpaid (p.79). */
+  alive: boolean
+  /** Quests this Adventurer must still sit out before they can be fielded again. */
+  questsMissed: number
 }
 
 /** An item set aside on the Base Camp board rather than carried (p.69, p.86). */
@@ -74,6 +87,8 @@ export interface PartyState {
   secureStorageUnlocked: boolean
   /** Campaign notes: objective bonuses earned, injuries costing a game, whatever else. */
   notes: string
+  /** Quests this party has played, oldest first. */
+  quests: QuestRecord[]
 }
 
 export interface CampaignState {
@@ -175,6 +190,7 @@ export function campaignReducer(state: CampaignState, event: CampaignEvent): Cam
             storage: [],
             secureStorageUnlocked: false,
             notes: '',
+            quests: [],
           },
         ],
       }
@@ -199,6 +215,8 @@ export function campaignReducer(state: CampaignState, event: CampaignEvent): Cam
               spells: [],
               statIncreases: {},
               rank: null,
+              alive: true,
+              questsMissed: 0,
             },
           ],
         }
@@ -297,6 +315,46 @@ export function campaignReducer(state: CampaignState, event: CampaignEvent): Cam
             : [...a.coveredGrants, event.grant]
           : a.coveredGrants.filter((g) => g !== event.grant),
       }))
+
+    case 'QUEST_RECORDED':
+      return updateParty(state, event.partyId, (p) => ({
+        ...p,
+        quests: [
+          ...p.quests,
+          {
+            name: event.name,
+            outcome: event.outcome,
+            renownGained: event.renownGained ?? 0,
+            guildersGained: event.guildersGained ?? 0,
+            at: event.at,
+          },
+        ],
+        renown: clampRenown(p.renown + (event.renownGained ?? 0)),
+        stash: p.stash + (event.guildersGained ?? 0),
+      }))
+
+    case 'ESCAPE_RESOLVED':
+      return updateAdventurer(state, event.advId, (a) => ({
+        ...a,
+        questsMissed: event.questsMissed,
+        // Result 1 kills outright; result 5 kills only when the ransom goes unpaid (p.79).
+        alive: !(
+          event.consequence === 'permanent-death' ||
+          (event.consequence === 'ransom' && event.ransomPaid === false)
+        ),
+        // "All of their equipment is lost" covers what they carried and wore.
+        inventory: event.equipmentLost ? [] : a.inventory,
+        armour: event.equipmentLost ? [] : a.armour,
+      }))
+
+    case 'ABSENCE_SET':
+      return updateAdventurer(state, event.advId, (a) => ({
+        ...a,
+        questsMissed: Math.max(0, event.quests),
+      }))
+
+    case 'ALIVE_SET':
+      return updateAdventurer(state, event.advId, (a) => ({ ...a, alive: event.alive }))
 
     case 'XP_SET':
       return updateAdventurer(state, event.advId, (a) => ({

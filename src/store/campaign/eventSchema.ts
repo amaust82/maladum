@@ -18,6 +18,8 @@ const XpReason = z.enum(['survived', 'escaped', 'objective', 'feat', 'other'])
 const AcquireVia = z.enum(['found', 'bought', 'reward', 'crafted'])
 const SkillSource = z.enum(['character', 'class'])
 const LevellableStat = z.enum(['health', 'skill', 'magic', 'actions'])
+const EscapeCounterName = z.enum(['wounded', 'poisoned', 'burning'])
+const QuestOutcome = z.enum(['primary-complete', 'partial', 'failed'])
 /** Mirrors `PackRef` in content/manifest.ts — the manifest a save records (§2.4). */
 const ContentPackRef = z.object({
   id: z.string(),
@@ -136,6 +138,27 @@ export const CampaignEventSchema = z.discriminatedUnion('t', [
     grant: z.string(),
     covered: z.boolean(),
   }),
+  z.object({
+    t: z.literal('QUEST_RECORDED'),
+    partyId: z.string(),
+    name: z.string(),
+    outcome: QuestOutcome,
+    renownGained: z.number().optional(),
+    guildersGained: z.number().optional(),
+    at: z.number(),
+  }),
+  z.object({
+    t: z.literal('ESCAPE_RESOLVED'),
+    advId: z.string(),
+    roll: z.number(),
+    counters: z.array(EscapeCounterName),
+    consequence: z.string(),
+    questsMissed: z.number(),
+    equipmentLost: z.boolean(),
+    ransomPaid: z.boolean().optional(),
+  }),
+  z.object({ t: z.literal('ABSENCE_SET'), advId: z.string(), quests: z.number() }),
+  z.object({ t: z.literal('ALIVE_SET'), advId: z.string(), alive: z.boolean() }),
 ])
 
 // Compile-time guarantee that the schema output stays assignable to the TS union.

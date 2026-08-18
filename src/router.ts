@@ -34,6 +34,12 @@ const routes: RouteRecordRaw[] = [
         props: true,
       },
       {
+        path: 'play',
+        name: 'play',
+        component: () => import('./screens/CampaignPhase.vue'),
+        props: true,
+      },
+      {
         path: 'camp',
         name: 'camp',
         component: () => import('./screens/BaseCamp.vue'),

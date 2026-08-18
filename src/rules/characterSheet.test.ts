@@ -41,6 +41,8 @@ const state = (over: Partial<AdventurerState> = {}): AdventurerState => ({
   spells: [],
   statIncreases: {},
   rank: null,
+  alive: true,
+  questsMissed: 0,
   ...over,
 })
 

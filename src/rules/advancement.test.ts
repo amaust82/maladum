@@ -96,6 +96,12 @@ describe('skill & spell caps (p.80)', () => {
     // rank 1: class capped at 1, but 2 char-board marks stack → level 3
     expect(effectiveSkillLevel(2, 1)).toBe(3)
   })
+  it('never exceeds level 3, however the marks were reached (p.32)', () => {
+    // Character-board marks stack past the rank cap, so a board can be marked above 3 —
+    // "all Skills have a maximum level of 3", so the surplus does nothing in play.
+    expect(effectiveSkillLevel(3, 3)).toBe(3)
+    expect(effectiveSkillLevel(5, 0)).toBe(3)
+  })
   it('caps learnable spell level at rank', () => {
     expect(maxSpellLevel(2)).toBe(2)
     expect(canLearnSpell(2, 2)).toBe(true)

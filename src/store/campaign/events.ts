@@ -31,6 +31,12 @@ export type SkillSource = 'character' | 'class'
 
 /** Statistics that levelling can raise (p.81). Experience is the track, not a target. */
 export type LevellableStat = 'health' | 'skill' | 'magic' | 'actions'
+
+/** Mirrors `EscapeCounter` in rules/escape.ts; duplicated so events don't import rules. */
+export type EscapeCounterName = 'wounded' | 'poisoned' | 'burning'
+
+/** How a quest ended — drives Experience eligibility in the Advancement Phase (p.80). */
+export type QuestOutcome = 'primary-complete' | 'partial' | 'failed'
 export type AcquireVia = 'found' | 'bought' | 'reward' | 'crafted'
 
 export type CampaignEvent =
@@ -128,5 +134,41 @@ export type CampaignEvent =
    * which side to cover, so this can only be recorded, never derived.
    */
   | { t: 'GRANT_COVERED_SET'; advId: Id; grant: string; covered: boolean }
+  /**
+   * The after-game loop (design §5, Campaign Phase wizard; rulebook p.78–87).
+   *
+   * This is the moment a session's outcome gets written down, which under the
+   * between-sessions framing is the app's single most valuable write.
+   */
+  | {
+      t: 'QUEST_RECORDED'
+      partyId: Id
+      /** What the quest was called, as the player knows it. */
+      name: string
+      outcome: QuestOutcome
+      /** Rewards claimed for objectives — the quest briefing states them (p.82). */
+      renownGained?: number
+      guildersGained?: number
+      at: number
+    }
+  /**
+   * An Adventurer left behind was resolved with the Left for Dead roll (p.78–79). The
+   * `roll` is what the player reported after physically rolling; the app never rolls.
+   */
+  | {
+      t: 'ESCAPE_RESOLVED'
+      advId: Id
+      roll: number
+      counters: EscapeCounterName[]
+      consequence: string
+      questsMissed: number
+      equipmentLost: boolean
+      /** Set on a result of 5: whether the ransom was paid, which decides survival. */
+      ransomPaid?: boolean
+    }
+  /** Quests this Adventurer must still sit out (p.78–79). */
+  | { t: 'ABSENCE_SET'; advId: Id; quests: number }
+  /** Dead for the rest of the campaign, or brought back by a correction. */
+  | { t: 'ALIVE_SET'; advId: Id; alive: boolean }
 
 export type CampaignEventType = CampaignEvent['t']

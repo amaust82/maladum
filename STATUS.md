@@ -15,7 +15,7 @@ genuine exception — a formatting sweep, a revert — with `git commit --no-ver
 
 **Phase 0 is complete; Phase 1 is under way.** Campaign management, the party builder
 and the Rules reference are in. `npm run build` is clean and `npm test` is green:
-**405 tests across 26 files**.
+**437 tests across 28 files**.
 
 **Board transcription is DONE.** All 45 boards — 25 Class, 20 Adventurer — are transcribed
 from the physical components, with **zero `_placeholder` flags anywhere in the dataset**.
@@ -53,12 +53,12 @@ first, then "Next actions" at the bottom.
 | Content pack manifest recorded in saves + compatibility report | done | `src/content/manifest.ts` |
 | Party builder — boards, default XP fill, Guilder validation | done | `src/rules/partyBuilder.ts`, `src/services/partyService.ts`, `src/screens/PartyBuilder.vue` |
 | Incomplete-content model (how the app surfaces unverified data) | done | `src/content/readiness.ts`, `src/components/ReadinessBadge.vue` |
-| Routing + tab shell (Party, Camp and Rules live; Play and Log stubbed) | done | `src/router.ts`, `src/screens/CampaignShell.vue` |
+| Routing + tab shell (only Log still stubbed) | done | `src/router.ts`, `src/screens/CampaignShell.vue` |
 | Rules reference — searchable traits/skills/spells/equipment | done | `src/content/reference.ts`, `src/screens/RulesReference.vue` |
 | Physical Class board availability (warning) | done | `src/rules/boardAvailability.ts` |
 | Character sheet | done | `src/rules/characterSheet.ts`, `src/screens/CharacterSheet.vue` |
 | Companions & Apprentices | not started | — |
-| Campaign Phase wizard (Escape → Advancement → Market → Rest) | not started | — |
+| Campaign Phase wizard (Escape → Advancement → Market → Rest) | done | `src/rules/campaignPhase.ts`, `src/screens/CampaignPhase.vue` |
 | Base Camp (Camp tab) | done | `src/rules/baseCamp.ts`, `src/screens/BaseCamp.vue` |
 | Side Quest tracker, Quest log, Pouch ledger | not started | — |
 
@@ -441,6 +441,49 @@ Armour moves between inventory and slot rather than being copied (p.30: armour i
 up into the inventory, then donned), and the slot count comes from the board — every
 transcribed board has 2.
 
+### Campaign Phase wizard (done) — the Play tab
+
+Escape → Advancement → Market → Rest (p.78–87), on the Play tab. Under the
+between-sessions framing this is the most valuable screen in the app: it's the five
+minutes after a session when what happened gets written down, before the boards are wiped.
+
+`rules/campaignPhase.ts` is pure orchestration and re-implements nothing — `escape.ts`,
+`advancement.ts`, `upkeep.ts` and `baseCamp.ts` already own the arithmetic. What it adds
+is the cross-phase part: who each phase applies to, what it needs from the player, and
+what it still owes.
+
+Two constraints it holds to:
+
+- **The app never rolls.** Escape needs a physical Magic Die; the player reports the
+  number and the app resolves the consequence (design principle #2).
+- **Nothing is applied silently.** Each phase shows what's owed and the player commits it.
+  A wizard that quietly mutated state would leave an event log nobody could audit, which
+  is the one thing the log exists to prevent.
+
+What each phase does: Escape resolves Left for Dead per Adventurer (death, missed quests,
+equipment lost, ransom) and skips itself entirely when everyone got out; Advancement says
+who earns Experience and *why not* when they don't; Market totals upkeep (1/rank +1 for
+playing) and flags a Stash shortfall; Rest prices the Inn and toggles Secure Storage.
+
+**Rank stands in for the Experience row**, since `xpRows` isn't transcribed. That's exact
+except when a row happens to be exactly full, and the screen says so rather than presenting
+it as certain — the same honest-gap handling as everywhere else. An unrecorded rank makes
+upkeep and Experience eligibility *unknown*, never free.
+
+New durable state: `PartyState.quests` (a `QuestRecord` per quest — this is the Log tab's
+raw material, already accumulating), and per-Adventurer `alive` / `questsMissed`.
+
+**Rest's Magic Die outcome tables are not transcribed**, so the wizard sets the lodging
+choice and its cost and tells the player to apply the roll's result themselves. Better than
+a half-remembered table.
+
+### A second instance of the level-3 bug
+
+`advancement.effectiveSkillLevel` had the same missing cap as the character sheet did —
+it summed character and Class marks with no ceiling. Fixed and tested there too. Worth
+noting the pattern: the rule lives on p.32 under "Duplicate Skills", nowhere near the
+skill rules on p.80, which is presumably why both call sites missed it.
+
 ### Known soft spots (be aware, not blocking)
 
 - **Unresolved `[icon: …]` markers** in spell/skill/ability text — a double-digit count,
@@ -579,21 +622,20 @@ Open implementation decisions (genuine calls, not oversights):
 
 ## Next actions
 
-Phase 1 continues (design.md §4), ordered by the between-sessions framing:
+Phase 1 is essentially complete. What's left, ordered by the between-sessions framing:
 
-1. **Campaign Phase wizard** (Escape → Advancement → Market → Rest) — the after-game loop
-   that mutates everything now recorded. The rules engine has every calculation, Advancement
-   is largely the character sheet plus a spend-XP flow, and Rest already has its Inn cost
-   and Secure Storage behaviour in `rules/baseCamp.ts`.
+1. **Quest log (Log tab)** — the last stubbed tab, and cheap now: `PartyState.quests` is
+   already being written by the wizard, so this is presentation over data that exists.
 2. **A readable/printable party sheet** — the restore path when the app is the only
-   surviving copy.
-3. **Quest log** (Log tab) — quest history, outcomes, Renown and Guilders gained. The
-   `QuestRecord` shape is already in design §3.
+   surviving copy. Promoted by the insurance framing.
+3. **Companions & Apprentices** (design §3) — modelled in the domain but with no screen or
+   content beyond names and costs.
+4. **Side Quest tracker and Pouch ledger** — the remaining Phase 1 items from design §4.
 
 Two smaller things left deliberately undone, so they don't get mistaken for oversights:
 
-- The Play and Log tabs render disabled in `CampaignShell.vue`. That's on purpose — the
-  finished shape is visible without pretending the screens exist.
+- The Log tab renders disabled in `CampaignShell.vue`. That's on purpose — the finished
+  shape is visible without pretending the screen exists.
 - `campaignService.commit()` re-reads the whole log to refresh the picker row. Correct and
   cheap at campaign scale; if it ever isn't, the snapshotting in `eventStore.ts` is the
   answer, not a hand-maintained cache.
