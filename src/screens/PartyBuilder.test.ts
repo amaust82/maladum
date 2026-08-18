@@ -8,10 +8,14 @@ import PartyBuilder from './PartyBuilder.vue'
 import { useContentStore } from '../stores/content'
 
 /**
- * The readiness model only earns its keep if it reaches the screen, so this
- * mounts the real builder against the real bundled seed content — 20 Adventurer
- * and 25 Class boards whose names and Guilder costs are transcribed but whose
- * stat blocks and skill wheels mostly aren't.
+ * The readiness model only earns its keep if it reaches the screen, so this mounts the
+ * real builder against the real bundled content — all 20 Adventurer and 25 Class boards,
+ * fully transcribed as of 2026-08-19.
+ *
+ * That means these tests can no longer prove the screen *reports* a gap, because there
+ * are none left in the seed data. That path is covered against synthetic boards in
+ * `content/readiness.test.ts`; what's asserted here is the other half — that with
+ * complete content the screen stops warning, rather than leaving stale hedging behind.
  */
 
 const router = createRouter({
@@ -40,37 +44,20 @@ describe('PartyBuilder against the seed content', () => {
     expect(wrapper.find('input[type="checkbox"]').exists()).toBe(false)
   })
 
-  it('badges a partially-transcribed board instead of presenting it as complete', async () => {
-    // Most Adventurer boards are transcribed now, so this picks one that isn't.
-    const wrapper = mountBuilder()
-    await wrapper.findAll('select')[0].setValue('moranna')
-    expect(wrapper.text()).toContain('Unverified')
-    expect(wrapper.text()).toContain('armourSlots')
-  })
-
-  it('does not badge a fully transcribed Adventurer board as unverified', async () => {
+  it('badges nothing as unverified now that every board is transcribed', async () => {
     const wrapper = mountBuilder()
     await wrapper.findAll('select')[0].setValue('ariah')
     await wrapper.findAll('select')[1].setValue('barbarian')
-    // Both boards are complete, so no gap list should reach the card at all.
     expect(wrapper.text()).not.toContain('Unverified')
+    expect(useContentStore().unverifiedCount).toBe(0)
   })
 
-  it('names the gap on the card for the one Class board still untranscribed', async () => {
-    // Most Class boards are transcribed now, so this picks the one that isn't —
-    // the badge has to keep telling the truth about Mentor while its neighbours
-    // are complete.
-    const wrapper = mountBuilder()
-    await wrapper.findAll('select')[1].setValue('mentor')
-    expect(wrapper.text()).toContain('skills')
-  })
-
-  it('does not badge a fully transcribed Class board as unverified', async () => {
-    const wrapper = mountBuilder()
-    await wrapper.findAll('select')[1].setValue('barbarian')
-    // Ariah (the default Adventurer) is still partial, so "Unverified" appears for
-    // her — what must not appear is a gap list naming the Class board's fields.
-    expect(wrapper.text()).not.toContain('spellSchools')
+  it('drops the incomplete-content notice when there is nothing to report', () => {
+    // The blurb counts boards with gaps. With none, it must not invent a reassurance
+    // or leave a dangling clause behind.
+    const text = mountBuilder().text()
+    expect(text).toContain('Adventurer and')
+    expect(text).not.toContain('not fully transcribed')
   })
 
   it('totals a real Guilder cost exactly once both boards are chosen', async () => {

@@ -81,56 +81,54 @@ describe('classReadiness', () => {
   })
 })
 
-describe('the bundled core pack', () => {
+describe('the bundled packs', () => {
   const { library } = loadBundledPacks()
 
-  it("classifies Syrio as partial — his stat block and cost are real, his species isn't", () => {
-    const syrio = library.adventurers.get('syrio')
-    expect(syrio).toBeDefined()
-    const r = adventurerReadiness(syrio!)
+  /**
+   * Every board — 20 Adventurers and 25 Classes — was transcribed from the physical
+   * components by 2026-08-19, so the real content now grades `ready` across the board.
+   *
+   * The grading *logic* for partial and placeholder entities is exercised against
+   * synthetic fixtures above, deliberately: it must keep working for future packs and
+   * for boards whose transcription is corrected, and it would be untested if it relied
+   * on the seed content still having gaps.
+   */
+
+  it('grades every Adventurer board ready', () => {
+    const notReady = [...library.adventurers.values()]
+      .map((a) => [a.id, adventurerReadiness(a)] as const)
+      .filter(([, r]) => r.grade !== 'ready')
+      .map(([id, r]) => `${id}: ${describeReadiness(r)}`)
+    expect(notReady).toEqual([])
+    expect(library.adventurers.size).toBe(20)
+  })
+
+  it('grades every Class board ready', () => {
+    const notReady = [...library.classes.values()]
+      .map((k) => [k.id, classReadiness(k)] as const)
+      .filter(([, r]) => r.grade !== 'ready')
+      .map(([id, r]) => `${id}: ${describeReadiness(r)}`)
+    expect(notReady).toEqual([])
+    expect(library.classes.size).toBe(25)
+  })
+
+  it('carries provenance on the one board with two independent sources', () => {
+    // Syrio's stat block was read from the rulebook's p.6 worked example AND off the
+    // physical component, and the two agreed on all five stats. That's the only board
+    // with a second source, so it's the only evidence available that the transcription
+    // method itself is accurate — worth keeping the note attached to it.
+    expect(library.adventurers.get('syrio')?._verified).toMatch(/cross-validated twice/)
+  })
+
+  it('would report a gap if one reappeared, rather than rounding it up', () => {
+    // The seed content has no gaps left to observe, so this proves the path still works
+    // by grading a copy of a real board with one field knocked out. If a future
+    // transcription correction blanks a field, the badge has to notice.
+    const real = library.adventurers.get('syrio')!
+    const withGap = { ...real, species: null, _placeholder: ['species'] } as typeof real
+    const r = adventurerReadiness(withGap)
     expect(r.grade).toBe('partial')
-    expect(r.missing).toContain('species')
-    expect(r.missing).not.toContain('cost')
-    expect(r.verified).toMatch(/Deluxe rulebook/)
-  })
-
-  it('grades the transcribed Adventurer boards ready and the stragglers partial', () => {
-    const graded = [...library.adventurers.values()].map(
-      (a) => [a.id, adventurerReadiness(a).grade] as const,
-    )
-    const partial = graded.filter(([, g]) => g === 'partial').map(([id]) => id)
-    // Four boards were still outstanding when this was written. If a transcription
-    // lands, this list shrinks — update it rather than loosening the assertion, so
-    // the suite keeps naming exactly what's missing.
-    expect(partial.sort()).toEqual(['callan', 'moranna', 'nerinda', 'syrio'])
-    expect(graded.filter(([, g]) => g === 'ready').length).toBe(graded.length - 4)
-  })
-
-  it('grades the transcribed Class boards ready — the first content in the pack to get there', () => {
-    // The skill wheels were transcribed from the physical boards, so these boards
-    // are complete: nothing required is missing and the pack flags nothing unverified.
-    const graded = [...library.classes.values()].map((k) => [k.id, classReadiness(k)] as const)
-    const ready = graded.filter(([, r]) => r.grade === 'ready').map(([id]) => id)
-    expect(ready.length).toBe(library.classes.size - 1)
-    expect(ready).toContain('assassin')
-  })
-
-  it('still grades the one untranscribed Class board partial, naming its gaps', () => {
-    // Mentor is the only board not yet transcribed. It must not be quietly rounded
-    // up to "ready" just because every board around it is.
-    const r = classReadiness(library.classes.get('mentor')!)
-    expect(r.grade).toBe('partial')
-    expect(r.unverified).toContain('skills')
-  })
-
-  it('keeps naming the gaps on the boards that still have them', () => {
-    // The inverse of the old assertion that nothing could be ready. Now that most
-    // boards are transcribed, the thing worth protecting is that the remaining gaps
-    // are still spelled out rather than rounded away.
-    const syrio = adventurerReadiness(library.adventurers.get('syrio')!)
-    expect(syrio.grade).toBe('partial')
-    expect(syrio.missing).toContain('species')
-    expect(syrio.unverified).toContain('armourSlots')
+    expect(describeReadiness(r)).toContain('species')
   })
 })
 

@@ -117,6 +117,99 @@
   ],
   "adventurers": [
     {
+      "id": "ariah",
+      "name": "Ariah",
+      "cost": 73,
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "species": "Human",
+      "stats": {
+        "health": {
+          "default": 3,
+          "max": 6
+        },
+        "skill": {
+          "default": 1,
+          "max": 5
+        },
+        "magic": {
+          "default": 2,
+          "max": 4
+        },
+        "actions": {
+          "default": 2,
+          "max": 2
+        },
+        "xp": {
+          "default": 2,
+          "max": 21
+        }
+      },
+      "armourSlots": 2,
+      "hasDenizenSide": true,
+      "_placeholder": [],
+      "boardGrants": [
+        {
+          "type": "skill",
+          "name": "Tactical Gift",
+          "default": 1,
+          "max": 2,
+          "armorSlot": false
+        },
+        {
+          "type": "skill",
+          "name": "Ranged Expert",
+          "default": 1,
+          "max": 1,
+          "armorSlot": true
+        }
+      ],
+      "_source": "Transcribed by Adam directly from the physical Adventurer board components, 2026-08-19.",
+      "expansion": "of-ale-and-adventure"
+    },
+    {
+      "id": "artain",
+      "name": "Artain",
+      "cost": 61,
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "species": "Human",
+      "stats": {
+        "health": {
+          "default": 3,
+          "max": 5
+        },
+        "skill": {
+          "default": 2,
+          "max": 4
+        },
+        "magic": {
+          "default": 2,
+          "max": 5
+        },
+        "actions": {
+          "default": 2,
+          "max": 2
+        },
+        "xp": {
+          "default": 1,
+          "max": 14
+        }
+      },
+      "armourSlots": 2,
+      "hasDenizenSide": true,
+      "_placeholder": [],
+      "boardGrants": [
+        {
+          "type": "skill",
+          "name": "Entertainer",
+          "default": 2,
+          "max": 2,
+          "armorSlot": false
+        }
+      ],
+      "_source": "Transcribed by Adam directly from the physical Adventurer board components, 2026-08-19.",
+      "expansion": "of-ale-and-adventure"
+    },
+    {
       "id": "beren",
       "name": "Beren",
       "cost": 71,
@@ -167,23 +260,299 @@
       "expansion": "core"
     },
     {
+      "id": "brahm",
+      "name": "Brahm",
+      "cost": 90,
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "species": "Human",
+      "stats": {
+        "health": {
+          "default": 4,
+          "max": 6
+        },
+        "skill": {
+          "default": 2,
+          "max": 5
+        },
+        "magic": {
+          "default": 2,
+          "max": 4
+        },
+        "actions": {
+          "default": 2,
+          "max": 3
+        },
+        "xp": {
+          "default": 4,
+          "max": 23
+        }
+      },
+      "armourSlots": 2,
+      "hasDenizenSide": true,
+      "_placeholder": [],
+      "boardGrants": [
+        {
+          "type": "ability",
+          "name": "Terrifying",
+          "armorSlot": false,
+          "detail": null
+        },
+        {
+          "type": "ability",
+          "name": "Immunity",
+          "armorSlot": false,
+          "detail": "Terrified",
+          "_confirmed": "Confirmed by Adam 2026-08-19: immune to the Terrified status (paired with his own Terrifying ability)."
+        },
+        {
+          "type": "skill",
+          "name": "Weapons Master",
+          "default": 1,
+          "max": 2,
+          "armorSlot": false
+        },
+        {
+          "type": "skill",
+          "name": "Ranged Expert",
+          "default": 1,
+          "max": 1,
+          "armorSlot": true
+        }
+      ],
+      "_source": "Transcribed by Adam directly from the physical Adventurer board components, 2026-08-19.",
+      "expansion": "of-ale-and-adventure"
+    },
+    {
       "id": "callan",
       "name": "Callan",
       "cost": 54,
       "_costSource": "Maladum_calculator_v0.4.4.xlsx",
-      "species": null,
-      "stats": null,
-      "innateAbilities": [],
+      "species": "Human",
+      "stats": {
+        "health": {
+          "default": 4,
+          "max": 5
+        },
+        "skill": {
+          "default": 1,
+          "max": 4
+        },
+        "magic": {
+          "default": 1,
+          "max": 3
+        },
+        "actions": {
+          "default": 2,
+          "max": 2
+        },
+        "xp": {
+          "default": 1,
+          "max": 13
+        }
+      },
       "armourSlots": 2,
       "hasDenizenSide": true,
-      "_placeholder": [
-        "species",
-        "stats",
-        "innateAbilities",
-        "armourSlots",
-        "hasDenizenSide"
+      "_placeholder": [],
+      "expansion": "core",
+      "boardGrants": [
+        {
+          "type": "skill",
+          "name": "Frenzy",
+          "default": 1,
+          "max": 1,
+          "armorSlot": false
+        }
       ],
-      "expansion": "core"
+      "_source": "Transcribed by Adam directly from the physical Adventurer board components, 2026-08-19 (boards recovered from an in-progress campaign he's restarting)."
+    },
+    {
+      "id": "chiau",
+      "name": "Chiau",
+      "cost": 71,
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "species": "Ees",
+      "stats": {
+        "health": {
+          "default": 3,
+          "max": 4
+        },
+        "skill": {
+          "default": 2,
+          "max": 5
+        },
+        "magic": {
+          "default": 3,
+          "max": 7
+        },
+        "actions": {
+          "default": 2,
+          "max": 2
+        },
+        "xp": {
+          "default": 4,
+          "max": 18
+        }
+      },
+      "armourSlots": 2,
+      "hasDenizenSide": true,
+      "_placeholder": [],
+      "boardGrants": [
+        {
+          "type": "ability",
+          "name": "Malacyte Enhancement",
+          "armorSlot": false,
+          "detail": null
+        }
+      ],
+      "_source": "Transcribed by Adam directly from the physical Adventurer board components, 2026-08-19.",
+      "expansion": "the-forbidden-creed"
+    },
+    {
+      "id": "corazon",
+      "name": "Corazon",
+      "cost": 83,
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "species": "Grobbler",
+      "stats": {
+        "health": {
+          "default": 3,
+          "max": 3
+        },
+        "skill": {
+          "default": 2,
+          "max": 6
+        },
+        "magic": {
+          "default": 3,
+          "max": 7
+        },
+        "actions": {
+          "default": 2,
+          "max": 2
+        },
+        "xp": {
+          "default": 4,
+          "max": 23
+        }
+      },
+      "armourSlots": 2,
+      "hasDenizenSide": true,
+      "_placeholder": [],
+      "boardGrants": [
+        {
+          "type": "skill",
+          "name": "Persuasion",
+          "default": 2,
+          "max": 2,
+          "armorSlot": false
+        },
+        {
+          "type": "spell",
+          "name": "Curse",
+          "armorSlot": false
+        },
+        {
+          "type": "skill",
+          "name": "Camouflage",
+          "default": 0,
+          "max": 1,
+          "armorSlot": true
+        }
+      ],
+      "_source": "Transcribed by Adam directly from the physical Adventurer board components, 2026-08-19.",
+      "expansion": "the-forbidden-creed"
+    },
+    {
+      "id": "emmerik",
+      "name": "Emmerik",
+      "cost": 60,
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "species": "Human",
+      "stats": {
+        "health": {
+          "default": 3,
+          "max": 5
+        },
+        "skill": {
+          "default": 1,
+          "max": 3
+        },
+        "magic": {
+          "default": 3,
+          "max": 6
+        },
+        "actions": {
+          "default": 2,
+          "max": 2
+        },
+        "xp": {
+          "default": 1,
+          "max": 17
+        }
+      },
+      "armourSlots": 2,
+      "hasDenizenSide": true,
+      "_placeholder": [],
+      "boardGrants": [
+        {
+          "type": "skill",
+          "name": "Loremaster",
+          "default": 1,
+          "max": 1,
+          "armorSlot": false
+        }
+      ],
+      "_source": "Transcribed by Adam directly from the physical Adventurer board components, 2026-08-19.",
+      "expansion": "of-ale-and-adventure"
+    },
+    {
+      "id": "galen",
+      "name": "Galen",
+      "cost": 75,
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "species": "Eld",
+      "stats": {
+        "health": {
+          "default": 3,
+          "max": 5
+        },
+        "skill": {
+          "default": 2,
+          "max": 5
+        },
+        "magic": {
+          "default": 2,
+          "max": 4
+        },
+        "actions": {
+          "default": 2,
+          "max": 3
+        },
+        "xp": {
+          "default": 2,
+          "max": 16
+        }
+      },
+      "armourSlots": 2,
+      "hasDenizenSide": true,
+      "_placeholder": [],
+      "boardGrants": [
+        {
+          "type": "skill",
+          "name": "Ambush",
+          "default": 1,
+          "max": 2,
+          "armorSlot": false
+        },
+        {
+          "type": "ability",
+          "name": "First Strike",
+          "armorSlot": true,
+          "detail": null
+        }
+      ],
+      "_source": "Transcribed by Adam directly from the physical Adventurer board components, 2026-08-19.",
+      "expansion": "of-ale-and-adventure"
     },
     {
       "id": "greet",
@@ -268,9 +637,11 @@
       "_placeholder": [],
       "boardGrants": [
         {
-          "type": "statBonus",
-          "text": "+2 Melee",
-          "armorSlot": false
+          "type": "ability",
+          "armorSlot": false,
+          "name": "Unarmed Combat",
+          "detail": "2",
+          "_note": "The 'Melee' icon on a character board is the Unarmed Combat value (rulebook p.155 glossary; the same icon also appears on weapons as their combat-die count, and on some armour with integrated weaponry). Confirmed 2026-08-19: these are raw/absolute printed values, not bonuses -- the '+' on Grogmar's and Nerinda's was a transcription slip on Adam's part, corrected."
         },
         {
           "type": "ability",
@@ -290,49 +661,388 @@
       "expansion": "core"
     },
     {
+      "id": "hendley",
+      "name": "Hendley",
+      "cost": 73,
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "species": "Dwella",
+      "stats": {
+        "health": {
+          "default": 4,
+          "max": 7
+        },
+        "skill": {
+          "default": 3,
+          "max": 6
+        },
+        "magic": {
+          "default": 1,
+          "max": 3
+        },
+        "actions": {
+          "default": 2,
+          "max": 2
+        },
+        "xp": {
+          "default": 2,
+          "max": 18
+        }
+      },
+      "armourSlots": 2,
+      "hasDenizenSide": true,
+      "_placeholder": [],
+      "boardGrants": [
+        {
+          "type": "skill",
+          "name": "Smithing",
+          "default": 1,
+          "max": 1,
+          "armorSlot": false
+        },
+        {
+          "type": "ability",
+          "name": "Night Sight",
+          "armorSlot": false,
+          "detail": null
+        },
+        {
+          "type": "skill",
+          "name": "Onslaught",
+          "default": 1,
+          "max": 1,
+          "armorSlot": true
+        }
+      ],
+      "_source": "Transcribed by Adam directly from the physical Adventurer board components, 2026-08-19.",
+      "expansion": "of-ale-and-adventure"
+    },
+    {
+      "id": "kaan",
+      "name": "Kaan",
+      "cost": 79,
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "species": "Therecian",
+      "stats": {
+        "health": {
+          "default": 5,
+          "max": 6
+        },
+        "skill": {
+          "default": 1,
+          "max": 3
+        },
+        "magic": {
+          "default": 2,
+          "max": 6
+        },
+        "actions": {
+          "default": 2,
+          "max": 2
+        },
+        "xp": {
+          "default": 1,
+          "max": 18
+        }
+      },
+      "armourSlots": 2,
+      "hasDenizenSide": true,
+      "_placeholder": [],
+      "boardGrants": [
+        {
+          "type": "ability",
+          "armorSlot": false,
+          "name": "Unarmed Combat",
+          "detail": "3",
+          "_note": "The 'Melee' icon on a character board is the Unarmed Combat value (rulebook p.155 glossary; the same icon also appears on weapons as their combat-die count, and on some armour with integrated weaponry). Confirmed 2026-08-19: these are raw/absolute printed values, not bonuses -- the '+' on Grogmar's and Nerinda's was a transcription slip on Adam's part, corrected."
+        },
+        {
+          "type": "ability",
+          "name": "Size",
+          "armorSlot": false,
+          "detail": "2"
+        },
+        {
+          "type": "skill",
+          "name": "Brutal Assault",
+          "default": 1,
+          "max": 2,
+          "armorSlot": true
+        }
+      ],
+      "_source": "Transcribed by Adam directly from the physical Adventurer board components, 2026-08-19.",
+      "expansion": "the-forbidden-creed"
+    },
+    {
+      "id": "kriga",
+      "name": "Kriga",
+      "cost": 73,
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "species": "Human",
+      "stats": {
+        "health": {
+          "default": 4,
+          "max": 6
+        },
+        "skill": {
+          "default": 2,
+          "max": 6
+        },
+        "magic": {
+          "default": 1,
+          "max": 3
+        },
+        "actions": {
+          "default": 2,
+          "max": 2
+        },
+        "xp": {
+          "default": 3,
+          "max": 18
+        }
+      },
+      "armourSlots": 2,
+      "hasDenizenSide": true,
+      "_placeholder": [],
+      "boardGrants": [
+        {
+          "type": "ability",
+          "name": "Relentless",
+          "armorSlot": false,
+          "detail": null
+        }
+      ],
+      "_source": "Transcribed by Adam directly from the physical Adventurer board components, 2026-08-19.",
+      "expansion": "of-ale-and-adventure"
+    },
+    {
       "id": "moranna",
       "name": "Moranna",
       "cost": 80,
       "_costSource": "Maladum_calculator_v0.4.4.xlsx",
-      "species": null,
-      "stats": null,
-      "innateAbilities": [],
+      "species": "Human",
+      "stats": {
+        "health": {
+          "default": 3,
+          "max": 4
+        },
+        "skill": {
+          "default": 2,
+          "max": 4
+        },
+        "magic": {
+          "default": 2,
+          "max": 7
+        },
+        "actions": {
+          "default": 2,
+          "max": 3
+        },
+        "xp": {
+          "default": 2,
+          "max": 21
+        }
+      },
       "armourSlots": 2,
       "hasDenizenSide": true,
-      "_placeholder": [
-        "species",
-        "stats",
-        "innateAbilities",
-        "armourSlots",
-        "hasDenizenSide"
+      "_placeholder": [],
+      "expansion": "core",
+      "boardGrants": [
+        {
+          "type": "skill",
+          "name": "Impervious",
+          "default": 1,
+          "max": 1,
+          "armorSlot": false
+        },
+        {
+          "type": "skill",
+          "name": "Malacyte Mastery",
+          "default": 1,
+          "max": 2,
+          "armorSlot": false
+        },
+        {
+          "type": "skill",
+          "name": "Acrobatics",
+          "default": 1,
+          "max": 1,
+          "armorSlot": true
+        }
       ],
-      "expansion": "core"
+      "_source": "Transcribed by Adam directly from the physical Adventurer board components, 2026-08-19 (boards recovered from an in-progress campaign he's restarting)."
     },
     {
       "id": "nerinda",
       "name": "Nerinda",
       "cost": 80,
       "_costSource": "Maladum_calculator_v0.4.4.xlsx",
-      "species": null,
-      "stats": null,
-      "innateAbilities": [],
+      "species": "Human",
+      "stats": {
+        "health": {
+          "default": 4,
+          "max": 6
+        },
+        "skill": {
+          "default": 2,
+          "max": 6
+        },
+        "magic": {
+          "default": 1,
+          "max": 3
+        },
+        "actions": {
+          "default": 2,
+          "max": 3
+        },
+        "xp": {
+          "default": 3,
+          "max": 17
+        }
+      },
       "armourSlots": 2,
       "hasDenizenSide": true,
-      "_placeholder": [
-        "species",
-        "stats",
-        "innateAbilities",
-        "armourSlots",
-        "hasDenizenSide"
+      "_placeholder": [],
+      "expansion": "core",
+      "boardGrants": [
+        {
+          "type": "skill",
+          "name": "Weapons Master",
+          "default": 1,
+          "max": 1,
+          "armorSlot": false
+        },
+        {
+          "type": "ability",
+          "armorSlot": false,
+          "name": "Unarmed Combat",
+          "detail": "1",
+          "_note": "The 'Melee' icon on a character board is the Unarmed Combat value (rulebook p.155 glossary; the same icon also appears on weapons as their combat-die count, and on some armour with integrated weaponry). Confirmed 2026-08-19: these are raw/absolute printed values, not bonuses -- the '+' on Grogmar's and Nerinda's was a transcription slip on Adam's part, corrected."
+        },
+        {
+          "type": "skill",
+          "name": "Fleet of Foot",
+          "default": 1,
+          "max": 1,
+          "armorSlot": true
+        }
       ],
-      "expansion": "core"
+      "_source": "Transcribed by Adam directly from the physical Adventurer board components, 2026-08-19 (boards recovered from an in-progress campaign he's restarting)."
+    },
+    {
+      "id": "numinor",
+      "name": "Numinor",
+      "cost": 79,
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "species": "Human",
+      "stats": {
+        "health": {
+          "default": 4,
+          "max": 7
+        },
+        "skill": {
+          "default": 2,
+          "max": 4
+        },
+        "magic": {
+          "default": 2,
+          "max": 5
+        },
+        "actions": {
+          "default": 2,
+          "max": 2
+        },
+        "xp": {
+          "default": 3,
+          "max": 21
+        }
+      },
+      "armourSlots": 2,
+      "hasDenizenSide": true,
+      "_placeholder": [],
+      "boardGrants": [
+        {
+          "type": "skill",
+          "name": "Bombast",
+          "default": 1,
+          "max": 2,
+          "armorSlot": false
+        },
+        {
+          "type": "spell",
+          "name": "Malacyte Shield",
+          "armorSlot": false
+        },
+        {
+          "type": "skill",
+          "name": "Ready for Anything",
+          "default": 1,
+          "max": 1,
+          "armorSlot": true
+        }
+      ],
+      "_source": "Transcribed by Adam directly from the physical Adventurer board components, 2026-08-19.",
+      "expansion": "the-forbidden-creed"
+    },
+    {
+      "id": "phedra",
+      "name": "Phedra",
+      "cost": 93,
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "species": "Human",
+      "stats": {
+        "health": {
+          "default": 4,
+          "max": 5
+        },
+        "skill": {
+          "default": 1,
+          "max": 4
+        },
+        "magic": {
+          "default": 3,
+          "max": 7
+        },
+        "actions": {
+          "default": 2,
+          "max": 3
+        },
+        "xp": {
+          "default": 4,
+          "max": 24
+        }
+      },
+      "armourSlots": 2,
+      "hasDenizenSide": true,
+      "_placeholder": [],
+      "boardGrants": [
+        {
+          "type": "spell",
+          "name": "Advanced Enchantment",
+          "armorSlot": false
+        },
+        {
+          "type": "ability",
+          "name": "Malacyte Stability",
+          "armorSlot": false,
+          "detail": null
+        },
+        {
+          "type": "skill",
+          "name": "Forbidden Arts",
+          "default": 1,
+          "max": 1,
+          "armorSlot": true
+        }
+      ],
+      "_source": "Transcribed by Adam directly from the physical Adventurer board components, 2026-08-19.",
+      "expansion": "the-forbidden-creed"
     },
     {
       "id": "syrio",
       "name": "Syrio",
       "cost": 64,
       "_costSource": "Maladum_calculator_v0.4.4.xlsx",
-      "species": null,
+      "species": "Eld",
       "stats": {
         "health": {
           "default": 4,
@@ -355,17 +1065,74 @@
           "max": 16
         }
       },
-      "innateAbilities": [],
       "armourSlots": 2,
       "hasDenizenSide": true,
-      "_placeholder": [
-        "species",
-        "innateAbilities",
-        "armourSlots",
-        "hasDenizenSide"
+      "_placeholder": [],
+      "_verified": "stats cross-validated twice: rulebook p.6 worked example AND Adam's own board reading, 2026-08-19 -- exact match on all five stats.",
+      "expansion": "core",
+      "boardGrants": [
+        {
+          "type": "skill",
+          "name": "Reflexes",
+          "default": 1,
+          "max": 1,
+          "armorSlot": false
+        },
+        {
+          "type": "statBonus",
+          "text": "+1 Movement",
+          "armorSlot": true
+        }
       ],
-      "_verified": "stats: Deluxe rulebook Adventurer Dashboards worked example; cost: calculator spreadsheet",
-      "expansion": "core"
+      "_source": "Transcribed by Adam directly from the physical Adventurer board components, 2026-08-19 (boards recovered from an in-progress campaign he's restarting)."
+    },
+    {
+      "id": "unger",
+      "name": "Unger",
+      "cost": 73,
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "species": "Tregar",
+      "stats": {
+        "health": {
+          "default": 3,
+          "max": 5
+        },
+        "skill": {
+          "default": 2,
+          "max": 5
+        },
+        "magic": {
+          "default": 2,
+          "max": 4
+        },
+        "actions": {
+          "default": 2,
+          "max": 3
+        },
+        "xp": {
+          "default": 2,
+          "max": 19
+        }
+      },
+      "armourSlots": 2,
+      "hasDenizenSide": true,
+      "_placeholder": [],
+      "boardGrants": [
+        {
+          "type": "skill",
+          "name": "Persuasion",
+          "default": 1,
+          "max": 2,
+          "armorSlot": false
+        },
+        {
+          "type": "spell",
+          "name": "Detect",
+          "armorSlot": true
+        }
+      ],
+      "_source": "Transcribed by Adam directly from the physical Adventurer board components, 2026-08-19.",
+      "expansion": "of-ale-and-adventure"
     }
   ],
   "classes": [
@@ -476,16 +1243,19 @@
         "boardCopies read from a '(xN)' marker after the class name on Adam's notes; unmarked classes assumed 1. Confirmed correct 2026-08-19 by cross-checking against the full class-pairing list (each class's boardCopies must equal how many times it appears across all pairings, since physical boards are double-sided) -- 23/24 matched on the first pass, and the one mismatch (Strategist) was resolved as a marker typo, not a missing pairing."
       ],
       "statBonuses": [
-        "+1 Melee Die"
+        "+1 Unarmed Combat"
       ],
       "grantedSpells": [
         "Strength"
       ],
-      "boardCopies": 1,
+      "boardCopies": 3,
       "pairedWith": [
-        "Rogue"
+        "Rogue",
+        "Maestro",
+        "Marksman"
       ],
-      "expansion": "core"
+      "expansion": "core",
+      "_note": "Confirmed by Adam 2026-08-19: the Barbarian Class board genuinely prints a '+1' (unlike the Adventurer boards, which print raw/absolute Unarmed Combat values with no '+' -- Kaan/Grogmar/Nerinda's earlier '+' was a transcription slip, not a board difference). This one really is a bonus, and it's cumulative: add it to the Adventurer's own Unarmed Combat value rather than replacing or capping it."
     },
     {
       "id": "blacksmith",
@@ -1013,14 +1783,15 @@
           "detail": "Adam's read: grants a single re-roll of one die (basic Re-roll ability). Exact trigger/frequency not pinned down further -- Adam noted it may not matter much."
         }
       ],
-      "boardCopies": 1,
+      "boardCopies": 2,
       "_source": "Transcribed by Adam directly from the physical Class board components, 2026-08-18/19.",
       "_assumptions": [
         "levelCap defaults to 3 unless Adam's board notes marked an override via asterisks (* = 1, ** = 2, *** = 3); confirmed by Adam.",
         "boardCopies read from a '(xN)' marker after the class name on Adam's notes; unmarked classes assumed 1. Confirmed correct 2026-08-19 by cross-checking against the full class-pairing list (each class's boardCopies must equal how many times it appears across all pairings, since physical boards are double-sided) -- 23/24 matched on the first pass, and the one mismatch (Strategist) was resolved as a marker typo, not a missing pairing."
       ],
       "pairedWith": [
-        "Guardian"
+        "Guardian",
+        "Barbarian"
       ],
       "expansion": "of-ale-and-adventure"
     },
@@ -1128,14 +1899,15 @@
           "detail": null
         }
       ],
-      "boardCopies": 1,
+      "boardCopies": 2,
       "_source": "Transcribed by Adam directly from the physical Class board components, 2026-08-18/19.",
       "_assumptions": [
         "levelCap defaults to 3 unless Adam's board notes marked an override via asterisks (* = 1, ** = 2, *** = 3); confirmed by Adam.",
         "boardCopies read from a '(xN)' marker after the class name on Adam's notes; unmarked classes assumed 1. Confirmed correct 2026-08-19 by cross-checking against the full class-pairing list (each class's boardCopies must equal how many times it appears across all pairings, since physical boards are double-sided) -- 23/24 matched on the first pass, and the one mismatch (Strategist) was resolved as a marker typo, not a missing pairing."
       ],
       "pairedWith": [
-        "Swindler"
+        "Swindler",
+        "Barbarian"
       ],
       "expansion": "core"
     },
@@ -1143,17 +1915,43 @@
       "id": "mentor",
       "name": "Mentor",
       "cost": 21,
-      "skills": [],
-      "innateAbility": null,
-      "spellSchools": [],
-      "_placeholder": [
-        "skills",
-        "innateAbility",
-        "spellSchools"
+      "skills": [
+        {
+          "name": "Power Manipulation",
+          "levelCap": 3
+        },
+        {
+          "name": "Malacyte Mastery",
+          "levelCap": 3
+        },
+        {
+          "name": "Inspiring",
+          "levelCap": 3
+        },
+        {
+          "name": "Fortified Mind",
+          "levelCap": 3
+        },
+        {
+          "name": "Loremaster",
+          "levelCap": 3
+        }
       ],
+      "_placeholder": [],
       "_costSource": "Maladum_calculator_v0.4.4.xlsx",
       "expansion": "the-forbidden-creed",
-      "_expansionNote": "Confirmed by Adam 2026-08-19 (verbally, not from the blog source -- the blog didn't name it). Physical board may be misplaced inside the Forbidden Creed box; Adam is checking. Data (skills/spells/abilities/costs/pairing) still not transcribed -- this only resolves which expansion it belongs to."
+      "_expansionNote": "Confirmed by Adam 2026-08-19 (verbally, not from the blog source -- the blog didn't name it). Physical board may be misplaced inside the Forbidden Creed box; Adam is checking. Data (skills/spells/abilities/costs/pairing) still not transcribed -- this only resolves which expansion it belongs to.",
+      "statBonuses": [
+        "+2 Magic Pegs"
+      ],
+      "grantedSpells": [],
+      "spellSlots": 12,
+      "grantedAbilities": [],
+      "_source": "Transcribed by Adam directly from the physical Class board, 2026-08-19 (recovered from an in-progress campaign).",
+      "pairedWith": [
+        "Rambler"
+      ],
+      "boardCopies": 1
     },
     {
       "id": "paladin",
@@ -1246,14 +2044,15 @@
       "grantedSpells": [],
       "spellSlots": 12,
       "grantedAbilities": [],
-      "boardCopies": 1,
+      "boardCopies": 2,
       "_source": "Transcribed by Adam directly from the physical Class board components, 2026-08-18/19.",
       "_assumptions": [
         "levelCap defaults to 3 unless Adam's board notes marked an override via asterisks (* = 1, ** = 2, *** = 3); confirmed by Adam.",
         "boardCopies read from a '(xN)' marker after the class name on Adam's notes; unmarked classes assumed 1. Confirmed correct 2026-08-19 by cross-checking against the full class-pairing list (each class's boardCopies must equal how many times it appears across all pairings, since physical boards are double-sided) -- 23/24 matched on the first pass, and the one mismatch (Strategist) was resolved as a marker typo, not a missing pairing."
       ],
       "pairedWith": [
-        "Sellsword"
+        "Sellsword",
+        "Rogue"
       ],
       "expansion": "core"
     },
@@ -1307,14 +2106,15 @@
           "detail": "Entangling"
         }
       ],
-      "boardCopies": 1,
+      "boardCopies": 2,
       "_source": "Transcribed by Adam directly from the physical Class board components, 2026-08-18/19.",
       "_assumptions": [
         "levelCap defaults to 3 unless Adam's board notes marked an override via asterisks (* = 1, ** = 2, *** = 3); confirmed by Adam.",
         "boardCopies read from a '(xN)' marker after the class name on Adam's notes; unmarked classes assumed 1. Confirmed correct 2026-08-19 by cross-checking against the full class-pairing list (each class's boardCopies must equal how many times it appears across all pairings, since physical boards are double-sided) -- 23/24 matched on the first pass, and the one mismatch (Strategist) was resolved as a marker typo, not a missing pairing."
       ],
       "pairedWith": [
-        "Rogue"
+        "Rogue",
+        "Mentor"
       ],
       "expansion": "of-ale-and-adventure"
     },
@@ -1431,10 +2231,11 @@
       "grantedSpells": [
         "Open Door"
       ],
-      "boardCopies": 2,
+      "boardCopies": 3,
       "pairedWith": [
         "Rambler",
-        "Barbarian"
+        "Barbarian",
+        "Prymorist"
       ],
       "expansion": "core"
     },

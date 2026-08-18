@@ -27,12 +27,17 @@ import { parsePack, type ContentPack } from './schema'
  * nobody reads a green suite as proof the wheels are complete.
  */
 
-function loadCore(): ContentPack {
-  const url = new URL('../../content/core.json', import.meta.url)
+const PACK_IDS = ['core', 'of-ale-and-adventure', 'the-forbidden-creed', 'oblivions-maw']
+
+function loadPack(name: string): ContentPack {
+  const url = new URL(`../../content/${name}.json`, import.meta.url)
   return parsePack(JSON.parse(readFileSync(fileURLToPath(url), 'utf-8')))
 }
 
-const core = loadCore()
+const packs = PACK_IDS.map((id) => ({ id, pack: loadPack(id) }))
+const core = packs.find((p) => p.id === 'core')!.pack
+/** Every Adventurer board across every pack — boards live in core, but assert that. */
+const allAdventurers = packs.flatMap(({ pack }) => pack.adventurers)
 
 /** Every skill defined in the rulebook Reference section, by name. */
 const referenceSkills = new Set(core.skills.flatMap((c) => c.skills.map((s) => s.name)))
@@ -114,9 +119,9 @@ describe('physical board inventory', () => {
    */
   const withBoards = core.classes.filter((c) => c.boardCopies != null)
 
-  it('covers every class except the untranscribed one', () => {
+  it('covers every class — all 25 boards are transcribed', () => {
     const missing = core.classes.filter((c) => c.boardCopies == null).map((c) => c.id)
-    expect(missing).toEqual(['mentor'])
+    expect(missing).toEqual([])
   })
 
   it('pairs classes symmetrically — a board has the same two sides read either way', () => {
@@ -172,12 +177,6 @@ describe('character board grants vs. the rulebook references', () => {
    * no machine-readable source, so a misspelling can only be caught by the grant
    * failing to resolve against the section it claims to come from.
    */
-  const allPacks = ['core', 'of-ale-and-adventure', 'the-forbidden-creed', 'oblivions-maw']
-    .map((n) => {
-      const url = new URL(`../../content/${n}.json`, import.meta.url)
-      return { name: n, pack: parsePack(JSON.parse(readFileSync(fileURLToPath(url), 'utf-8'))) }
-    })
-  const allAdventurers = allPacks.flatMap(({ pack }) => pack.adventurers)
   const grants = allAdventurers.flatMap((a) => a.boardGrants)
 
   const targets: Record<string, Set<string>> = {
@@ -227,51 +226,71 @@ describe('character board grants vs. the rulebook references', () => {
   })
 })
 
-describe('pack placement', () => {
+describe('product tagging', () => {
   /**
-   * Each Adventurer board records the product it ships in. It also lives in that
-   * product's pack file. Those two facts are maintained separately, so asserting they
-   * agree is what stops a board being filed in the wrong pack — which would show a
-   * player content they don't own, the exact thing the pack split exists to prevent.
+   * Every Adventurer board records the product it ships in via `expansion`. That tag —
+   * not which file the board sits in — is what an expansion-ownership filter will read.
+   *
+   * These boards were briefly split into per-product pack files. That fought the
+   * transcription pipeline, which regenerates core.json with all 20 boards, so the split
+   * silently reappeared as duplicates — and because expansion packs merge last, their
+   * stale copies won and reverted corrections already made in core.json. The tag lives
+   * in the data because that's the part the pipeline maintains.
    */
-  const packs = ['core', 'of-ale-and-adventure', 'the-forbidden-creed', 'oblivions-maw'].map(
-    (n) => {
-      const url = new URL(`../../content/${n}.json`, import.meta.url)
-      return { id: n, pack: parsePack(JSON.parse(readFileSync(fileURLToPath(url), 'utf-8'))) }
-    },
-  )
-
-  it('files every Adventurer board in the pack its `expansion` field names', () => {
-    const misfiled = packs.flatMap(({ id, pack }) =>
-      pack.adventurers
-        .filter((a) => (a.expansion ?? 'core') !== id)
-        .map((a) => `${a.name} says "${a.expansion}" but sits in ${id}.json`),
-    )
-    expect(misfiled).toEqual([])
+  it('tags every board with a product that has a pack of its own', () => {
+    const packIds = new Set(packs.map((p) => p.id))
+    const untagged = allAdventurers
+      .filter((a) => !a.expansion || !packIds.has(a.expansion))
+      .map((a) => `${a.name}: "${a.expansion}"`)
+    expect(untagged).toEqual([])
   })
 
-  it('spreads the boards across core and both owned expansions', () => {
-    const counts = Object.fromEntries(packs.map(({ id, pack }) => [id, pack.adventurers.length]))
-    expect(counts).toMatchObject({
+  it('covers core and both owned expansions', () => {
+    const counts = new Map<string, number>()
+    for (const a of allAdventurers) {
+      counts.set(a.expansion!, (counts.get(a.expansion!) ?? 0) + 1)
+    }
+    expect(Object.fromEntries(counts)).toEqual({
       core: 7,
       'of-ale-and-adventure': 8,
       'the-forbidden-creed': 5,
     })
   })
 
-  it('keeps ids unique across packs, so a merge cannot silently drop a board', () => {
+  it('defines each board exactly once across all packs', () => {
+    // The regression guard. If a board is ever duplicated into an expansion pack again,
+    // the merge picks a winner by load order and a correction can be lost in silence.
     const ids = packs.flatMap(({ pack }) => pack.adventurers.map((a) => a.id))
-    expect(new Set(ids).size).toBe(ids.length)
+    const dupes = ids.filter((id, i) => ids.indexOf(id) !== i)
+    expect(dupes).toEqual([])
+    expect(ids).toHaveLength(20)
+  })
+
+  it('keeps the expansion packs to the content they actually add', () => {
+    // They carry crafting recipes and crafted-item stubs; boards live with the pipeline
+    // output in core.json.
+    for (const { id, pack } of packs) {
+      if (id === 'core') continue
+      expect(pack.adventurers, `${id} should not carry boards`).toEqual([])
+    }
   })
 })
 
 describe('class transcription provenance', () => {
   it('records where the board data came from, and what was assumed', () => {
     const transcribed = core.classes.filter((c) => (c._placeholder as string[]).length === 0)
-    expect(transcribed.length).toBe(core.classes.length - 1)
+    // All 25 boards are transcribed now, so provenance is required on every one.
+    expect(transcribed.length).toBe(core.classes.length)
     for (const klass of transcribed) {
       expect(klass._source, `${klass.name} has no _source`).toMatch(/physical Class board/)
-      expect((klass._assumptions as string[]).length, `${klass.name}`).toBeGreaterThan(0)
+      // `_assumptions` is optional — its absence means nothing was assumed, which is a
+      // stronger claim than a list, not a weaker one. Mentor came from a separate pass
+      // (recovered from an in-progress campaign) and carries none. But where a list
+      // exists it must say something.
+      const assumptions = klass._assumptions as string[] | undefined
+      if (assumptions !== undefined) {
+        expect(assumptions.length, `${klass.name} has an empty _assumptions`).toBeGreaterThan(0)
+      }
     }
   })
 })

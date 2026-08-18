@@ -472,13 +472,17 @@ anywhere in the rulebook PDF — its Adventurers and Classes sections are lore a
 art, and only one example board is shown, to label the layout. So this data can only ever
 arrive by transcription from the cardboard, board by board.
 
-**Class boards: done** (24 of 25, Mentor outstanding) — transcribed directly from the
-components, 2026-08-18/19. **Adventurer boards: outstanding** (1 of 20 — only Syrio's stat
-block, from the rulebook's worked example). That asymmetry is the current state of the
-project's content, and `_placeholder` on each entity is the authoritative record of it,
-not this paragraph.
+**All 45 boards are transcribed** as of 2026-08-19 — 25 Class, 20 Adventurer. Syrio is the
+one board with two independent sources (the rulebook's p.6 worked example and a reading of
+the component); they agreed on all five stats, which is the only direct evidence available
+that the transcription method itself is accurate.
 
-Two design consequences, both of which outlive the gap:
+`_placeholder` on each entity remains the authoritative record of what's known, not this
+paragraph — it's empty everywhere today, and a correction that blanks a field must set it
+again rather than leaving a stale value in place.
+
+Two design consequences, and they outlive the gap that prompted them — which is the point
+of writing them down here rather than in STATUS.md:
 
 1. **No feature may assume board data is populated.** A screen reads `_placeholder` (via
    `readiness.ts`) and degrades, rather than branching on which specific boards happen to
@@ -489,11 +493,33 @@ Two design consequences, both of which outlive the gap:
    is. Transcribed data drives *display and convenience*, never *permission*.
 
 Transcription proceeds a board at a time: clearing a field name out of `_placeholder` is
-the whole migration.
+the whole migration, and the reverse is just as cheap when a reading turns out to be wrong.
+
+#### Which product a board comes from is a field, not a file
+
+An Adventurer board records its product in `expansion` (`core` or an expansion pack id).
+13 of the 20 boards ship in expansions, and that tag — not which pack file the board sits
+in — is what an ownership filter should read.
+
+This was tried the other way first: the expansion boards were moved into their own pack
+files, which is the obvious reading of §0.2. It was wrong, for a workflow reason worth
+recording so it isn't retried. `core.json` is **regenerated wholesale** from the
+transcription pipeline and always contains every board, so a file-based split is undone on
+the next regeneration — and because expansion packs merge *last*, their now-stale copies
+won the merge and silently reverted corrections already made in core. That was observed
+for real: a board whose ability grant had been confirmed reverted to the earlier
+`UNCONFIRMED` guess.
+
+The general rule this is an instance of: **derived organization must not live somewhere
+the generator will overwrite.** Where a fact is maintained by a pipeline, the app reads it
+from where the pipeline puts it.
+
+Ownership filtering itself is not built yet — every bundled pack still loads for everyone.
+The tag is what makes it a small change when it is.
 
 #### Physical board inventory — a real constraint, deliberately not yet modelled
 
-Class boards are **double-sided**: 25 classes live on 20 physical boards. `boardCopies`
+Class boards are **double-sided**: 25 classes live on 24 physical boards. `boardCopies`
 records how many boards a class appears on and `pairedWith` names the class on the reverse
 of each, one entry per copy. Sellsword is on 5 boards, Ranger on 3, most on 1–2.
 
@@ -504,7 +530,7 @@ problem, not a filter — which is exactly why it isn't bolted onto the party bu
 naive per-class count.
 
 Status: **recorded and integrity-checked, not enforced** (`src/content/integrity.test.ts`
-asserts the inventory closes — 40 sides, 20 distinct pairings). Noted here so the
+asserts the inventory closes — 48 sides, 24 distinct pairings). Noted here so the
 constraint isn't rediscovered from scratch when someone wonders what `pairedWith` is for.
 
 ---
