@@ -1,0 +1,57 @@
+{
+  "id": "the-forbidden-creed",
+  "name": "The Forbidden Creed",
+  "schemaVersion": 1,
+  "_note": "Recipes and crafted-item stubs only, mechanically converted from Maladum Crafting Sheet Template V4.xlsx (a fan-transcribed spreadsheet, not official Battle Systems data \u2014 verify against your physical tokens before treating as authoritative). No Adventurer/Class/quest content transcribed for this expansion yet.",
+  "adventurers": [],
+  "classes": [],
+  "items": [
+    {
+      "id": "acendant-blades",
+      "name": "Acendant Blades",
+      "type": "Weapon",
+      "size": "XL",
+      "rarity": "exclusive",
+      "sellPrice": 28.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "light-in-the-darkness",
+      "name": "Light In The Darkness",
+      "type": "Maladar/Misc",
+      "size": "L",
+      "rarity": "exclusive",
+      "sellPrice": 28.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    }
+  ],
+  "spells": [],
+  "adversaries": [],
+  "quests": [],
+  "recipes": [
+    {
+      "itemId": "acendant-blades",
+      "resources": {
+        "steel": 1,
+        "minerals": 1,
+        "keltic-steel": 1,
+        "issen-oil": 1,
+        "extract-of-maladite": 1
+      },
+      "isRelic": true
+    },
+    {
+      "itemId": "light-in-the-darkness",
+      "resources": {
+        "riches": 1,
+        "graam-ore": 1,
+        "alary-carapace": 1,
+        "extract-of-maladite": 1,
+        "necrotic-fluids": 1
+      },
+      "isRelic": true
+    }
+  ]
+}

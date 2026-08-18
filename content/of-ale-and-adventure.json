@@ -1,0 +1,1085 @@
+{
+  "id": "of-ale-and-adventure",
+  "name": "Of Ale and Adventure",
+  "schemaVersion": 1,
+  "_note": "Recipes and crafted-item stubs only, mechanically converted from Maladum Crafting Sheet Template V4.xlsx (a fan-transcribed spreadsheet, not official Battle Systems data \u2014 verify against your physical tokens before treating as authoritative). No Adventurer/Class/quest content transcribed for this expansion yet.",
+  "adventurers": [],
+  "classes": [],
+  "items": [
+    {
+      "id": "arrow-entangle-x2",
+      "name": "Arrow - Entangle x2",
+      "type": "Ammunition",
+      "size": "XS",
+      "rarity": "exclusive",
+      "sellPrice": 2.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "arrow-viscous-sharp-x2",
+      "name": "Arrow - Viscous/Sharp x2",
+      "type": "Ammunition",
+      "size": "XS",
+      "rarity": "exclusive",
+      "sellPrice": 3.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "arrow-poison-sharp-x2",
+      "name": "Arrow - Poison/Sharp x2",
+      "type": "Ammunition",
+      "size": "XS",
+      "rarity": "exclusive",
+      "sellPrice": 2.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "magic-potion-x3",
+      "name": "Magic Potion x3",
+      "type": "Potion",
+      "size": "XS",
+      "rarity": "exclusive",
+      "sellPrice": 4.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "health-potion-x3",
+      "name": "Health Potion x3",
+      "type": "Potion",
+      "size": "XS",
+      "rarity": "exclusive",
+      "sellPrice": 5.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "arrow-hawkeye-sharp-x2",
+      "name": "Arrow - Hawkeye/Sharp x2",
+      "type": "Ammunition",
+      "size": "XS",
+      "rarity": "exclusive",
+      "sellPrice": 2.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "skill-potion-x2",
+      "name": "Skill Potion x2",
+      "type": "Potion",
+      "size": "XS",
+      "rarity": "exclusive",
+      "sellPrice": 6.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "shilielagh",
+      "name": "Shilielagh",
+      "type": "Weapon",
+      "size": "M",
+      "rarity": "exclusive",
+      "sellPrice": 11.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "mighty-brew-x2",
+      "name": "Mighty Brew x2",
+      "type": "Potion",
+      "size": "S",
+      "rarity": "exclusive",
+      "sellPrice": 5.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "cordial-of-cognisance",
+      "name": "Cordial of Cognisance",
+      "type": "Potion",
+      "size": "S",
+      "rarity": "exclusive",
+      "sellPrice": 7.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "bullet-burning-x2",
+      "name": "Bullet - Burning x2",
+      "type": "Ammunition",
+      "size": "XS",
+      "rarity": "exclusive",
+      "sellPrice": 3.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "honed-leather-armour",
+      "name": "Honed Leather Armour",
+      "type": "Armour",
+      "size": "S",
+      "rarity": "exclusive",
+      "sellPrice": 12.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "hat",
+      "name": "Hat*",
+      "type": "Armour",
+      "size": "XS",
+      "rarity": "exclusive",
+      "sellPrice": 2.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "action-poition-x3",
+      "name": "Action Poition x3",
+      "type": "Potion",
+      "size": "XS",
+      "rarity": "exclusive",
+      "sellPrice": 4.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "horned-war-axe-x2",
+      "name": "Horned War Axe x2",
+      "type": "Weapon",
+      "size": "M",
+      "rarity": "exclusive",
+      "sellPrice": 11.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "spiked-armour",
+      "name": "Spiked Armour",
+      "type": "Armour",
+      "size": "M",
+      "rarity": "exclusive",
+      "sellPrice": 14.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "honed-long-sword-x2",
+      "name": "Honed Long Sword x2",
+      "type": "Weapon",
+      "size": "L",
+      "rarity": "exclusive",
+      "sellPrice": 8.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "eld-short-bow",
+      "name": "Eld Short Bow",
+      "type": "Weapon",
+      "size": "S",
+      "rarity": "exclusive",
+      "sellPrice": 9.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "potion-of-finesse-x2",
+      "name": "Potion of Finesse x2",
+      "type": "Potion",
+      "size": "S",
+      "rarity": "exclusive",
+      "sellPrice": 6.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "starstrike-flail",
+      "name": "Starstrike Flail",
+      "type": "Weapon",
+      "size": "L",
+      "rarity": "exclusive",
+      "sellPrice": 14.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "herbalist-s-cloak",
+      "name": "Herbalist's Cloak",
+      "type": "Armour",
+      "size": "M",
+      "rarity": "exclusive",
+      "sellPrice": 7.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "mastercrafted-box",
+      "name": "Mastercrafted Box",
+      "type": "Weapon",
+      "size": "L",
+      "rarity": "exclusive",
+      "sellPrice": 17.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "mastercrafted-bow",
+      "name": "Mastercrafted Bow",
+      "type": "Weapon",
+      "size": "L",
+      "rarity": "exclusive",
+      "sellPrice": 17.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "curative-cuirass",
+      "name": "Curative Cuirass",
+      "type": "Armour",
+      "size": "M",
+      "rarity": "exclusive",
+      "sellPrice": 18.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "wardweaver-s-nip",
+      "name": "Wardweaver's Nip",
+      "type": "Potion",
+      "size": "S",
+      "rarity": "exclusive",
+      "sellPrice": 5.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "crafted-great-axe",
+      "name": "Crafted Great Axe",
+      "type": "Weapon",
+      "size": "XL",
+      "rarity": "exclusive",
+      "sellPrice": 14.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "crafted-great-sword",
+      "name": "Crafted Great Sword",
+      "type": "Weapon",
+      "size": "XL",
+      "rarity": "exclusive",
+      "sellPrice": 13.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "viperfang",
+      "name": "Viperfang",
+      "type": "Weapon",
+      "size": "L",
+      "rarity": "exclusive",
+      "sellPrice": 11.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "disarming-staff",
+      "name": "Disarming Staff",
+      "type": "Weapon",
+      "size": "L",
+      "rarity": "exclusive",
+      "sellPrice": 6.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "destiny-s-tincture",
+      "name": "Destiny's Tincture",
+      "type": "Potion",
+      "size": "S",
+      "rarity": "exclusive",
+      "sellPrice": 8.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "keltic-falchion",
+      "name": "Keltic Falchion",
+      "type": "Weapon",
+      "size": "M",
+      "rarity": "exclusive",
+      "sellPrice": 13.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "blitz-hammer",
+      "name": "Blitz-Hammer",
+      "type": "Weapon",
+      "size": "M",
+      "rarity": "exclusive",
+      "sellPrice": 8.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "makeshift-wings",
+      "name": "Makeshift Wings",
+      "type": "Armour",
+      "size": "M",
+      "rarity": "exclusive",
+      "sellPrice": 8.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "sentient-scimitar",
+      "name": "Sentient Scimitar",
+      "type": "Weapon",
+      "size": "M",
+      "rarity": "exclusive",
+      "sellPrice": 14.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "warrior-totem",
+      "name": "Warrior Totem",
+      "type": "Maladar/Misc",
+      "size": "S",
+      "rarity": "exclusive",
+      "sellPrice": 8.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "keltmail-armour",
+      "name": "Keltmail Armour",
+      "type": "Armour",
+      "size": "M",
+      "rarity": "exclusive",
+      "sellPrice": 10.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "arcane-steel",
+      "name": "Arcane Steel",
+      "type": "Weapon",
+      "size": "L",
+      "rarity": "exclusive",
+      "sellPrice": 10.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "crafted-breastplate-amour",
+      "name": "Crafted Breastplate Amour",
+      "type": "Armour",
+      "size": "M",
+      "rarity": "exclusive",
+      "sellPrice": 17.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "bewitched-blade",
+      "name": "Bewitched Blade",
+      "type": "Weapon",
+      "size": "L",
+      "rarity": "exclusive",
+      "sellPrice": 16.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "calamitous-caber",
+      "name": "Calamitous Caber",
+      "type": "Weapon",
+      "size": "XL",
+      "rarity": "exclusive",
+      "sellPrice": 10.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "reaper-s-riposte",
+      "name": "Reaper's Riposte",
+      "type": "Weapon",
+      "size": "M",
+      "rarity": "exclusive",
+      "sellPrice": 12.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "bladed-shield",
+      "name": "Bladed Shield",
+      "type": "Weapon",
+      "size": "M",
+      "rarity": "exclusive",
+      "sellPrice": 13.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "spelleater",
+      "name": "Spelleater",
+      "type": "Weapon",
+      "size": "L",
+      "rarity": "exclusive",
+      "sellPrice": 10.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "mechanical-musket",
+      "name": "Mechanical Musket",
+      "type": "Weapon",
+      "size": "L",
+      "rarity": "exclusive",
+      "sellPrice": 18.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "blade-of-momentum",
+      "name": "Blade of Momentum",
+      "type": "Weapon",
+      "size": "L",
+      "rarity": "exclusive",
+      "sellPrice": 15.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "adamantine-elixir",
+      "name": "Adamantine Elixir",
+      "type": "Potion",
+      "size": "S",
+      "rarity": "exclusive",
+      "sellPrice": 9.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "robes-of-invulnerability",
+      "name": "Robes Of Invulnerability",
+      "type": "Armour",
+      "size": "M",
+      "rarity": "exclusive",
+      "sellPrice": 15.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "protection-orb",
+      "name": "Protection Orb",
+      "type": "Maladar/Misc",
+      "size": "S",
+      "rarity": "exclusive",
+      "sellPrice": 12.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "daemon-mantle",
+      "name": "Daemon Mantle",
+      "type": "Armour",
+      "size": "L",
+      "rarity": "exclusive",
+      "sellPrice": 28.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "hellfire-blade",
+      "name": "Hellfire Blade",
+      "type": "Weapon",
+      "size": "L",
+      "rarity": "exclusive",
+      "sellPrice": 12.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "sword-of-tephysus",
+      "name": "Sword Of Tephysus",
+      "type": "Weapon",
+      "size": "XL",
+      "rarity": "exclusive",
+      "sellPrice": 28.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "soul-siphon",
+      "name": "Soul Siphon",
+      "type": "Weapon",
+      "size": "L",
+      "rarity": "exclusive",
+      "sellPrice": 28.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "natures-fury",
+      "name": "Natures Fury",
+      "type": "Weapon",
+      "size": "XL",
+      "rarity": "exclusive",
+      "sellPrice": 28.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "sceptre-of-domion",
+      "name": "Sceptre of Domion",
+      "type": "Maladar/Misc",
+      "size": "L",
+      "rarity": "exclusive",
+      "sellPrice": 28.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "refined-robes",
+      "name": "Refined Robes",
+      "type": "Armour",
+      "size": "M",
+      "rarity": "exclusive",
+      "sellPrice": 24.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "grail-of-the-gods",
+      "name": "Grail of the Gods",
+      "type": "Maladar/Misc",
+      "size": "M",
+      "rarity": "exclusive",
+      "sellPrice": 28.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    }
+  ],
+  "spells": [],
+  "adversaries": [],
+  "quests": [],
+  "recipes": [
+    {
+      "itemId": "arrow-entangle-x2",
+      "resources": {
+        "wood": 1,
+        "textiles": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "arrow-viscous-sharp-x2",
+      "resources": {
+        "wood": 1,
+        "steel": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "arrow-poison-sharp-x2",
+      "resources": {
+        "wood": 1,
+        "serpent-venom": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "magic-potion-x3",
+      "resources": {
+        "herbs": 1,
+        "fungus": 2
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "health-potion-x3",
+      "resources": {
+        "herbs": 2,
+        "fungus": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "arrow-hawkeye-sharp-x2",
+      "resources": {
+        "wood": 1,
+        "graam-ore": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "skill-potion-x2",
+      "resources": {
+        "herbs": 1,
+        "fungus": 1,
+        "minerals": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "shilielagh",
+      "resources": {
+        "wood": 2,
+        "minerals": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "mighty-brew-x2",
+      "resources": {
+        "herbs": 1,
+        "minerals": 1,
+        "serpent-venom": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "cordial-of-cognisance",
+      "resources": {
+        "minerals": 2,
+        "riches": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "bullet-burning-x2",
+      "resources": {
+        "steel": 1,
+        "issen-oil": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "honed-leather-armour",
+      "resources": {
+        "textiles": 2,
+        "riches": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "hat",
+      "resources": {
+        "textiles": 1,
+        "alary-carapace": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "action-poition-x3",
+      "resources": {
+        "herbs": 1,
+        "minerals": 1,
+        "powdered-drakon-bone": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "horned-war-axe-x2",
+      "resources": {
+        "wood": 1,
+        "steel": 1,
+        "keltic-steel": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "spiked-armour",
+      "resources": {
+        "steel": 3,
+        "textiles": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "honed-long-sword-x2",
+      "resources": {
+        "steel": 1,
+        "riches": 1,
+        "keltic-steel": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "eld-short-bow",
+      "resources": {
+        "wood": 1,
+        "steel": 1,
+        "graam-ore": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "potion-of-finesse-x2",
+      "resources": {
+        "herbs": 1,
+        "riches": 1,
+        "graam-ore": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "starstrike-flail",
+      "resources": {
+        "wood": 1,
+        "steel": 2,
+        "riches": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "herbalist-s-cloak",
+      "resources": {
+        "textiles": 2,
+        "herbs": 1,
+        "fungus": 1,
+        "serpent-venom": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "mastercrafted-box",
+      "resources": {
+        "wood": 2,
+        "textiles": 1,
+        "riches": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "mastercrafted-bow",
+      "resources": {
+        "wood": 2,
+        "textiles": 1,
+        "riches": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "curative-cuirass",
+      "resources": {
+        "steel": 1,
+        "textiles": 1,
+        "herbs": 2
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "wardweaver-s-nip",
+      "resources": {
+        "fungus": 2,
+        "extract-of-maladite": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "crafted-great-axe",
+      "resources": {
+        "wood": 1,
+        "steel": 2,
+        "textiles": 1,
+        "riches": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "crafted-great-sword",
+      "resources": {
+        "steel": 4,
+        "riches": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "viperfang",
+      "resources": {
+        "steel": 1,
+        "riches": 1,
+        "serpent-venom": 2
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "disarming-staff",
+      "resources": {
+        "wood": 2,
+        "keltic-steel": 1,
+        "powdered-drakon-bone": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "destiny-s-tincture",
+      "resources": {
+        "fungus": 1,
+        "minerals": 1,
+        "alary-carapace": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "keltic-falchion",
+      "resources": {
+        "steel": 2,
+        "riches": 1,
+        "keltic-steel": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "blitz-hammer",
+      "resources": {
+        "wood": 1,
+        "steel": 2,
+        "riches": 1,
+        "powdered-drakon-bone": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "makeshift-wings",
+      "resources": {
+        "wood": 1,
+        "textiles": 2,
+        "alary-carapace": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "sentient-scimitar",
+      "resources": {
+        "steel": 2,
+        "riches": 1,
+        "graam-ore": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "warrior-totem",
+      "resources": {
+        "wood": 1,
+        "minerals": 1,
+        "riches": 1,
+        "issen-oil": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "keltmail-armour",
+      "resources": {
+        "textiles": 1,
+        "riches": 1,
+        "keltic-steel": 2
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "arcane-steel",
+      "resources": {
+        "steel": 2,
+        "keltic-steel": 1,
+        "graam-ore": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "crafted-breastplate-amour",
+      "resources": {
+        "steel": 4,
+        "textiles": 1,
+        "riches": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "bewitched-blade",
+      "resources": {
+        "steel": 2,
+        "riches": 1,
+        "graam-ore": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "calamitous-caber",
+      "resources": {
+        "wood": 3,
+        "minerals": 1,
+        "alary-carapace": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "reaper-s-riposte",
+      "resources": {
+        "steel": 2,
+        "riches": 1,
+        "alary-carapace": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "bladed-shield",
+      "resources": {
+        "wood": 1,
+        "steel": 2,
+        "keltic-steel": 1,
+        "powdered-drakon-bone": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "spelleater",
+      "resources": {
+        "riches": 2,
+        "keltic-steel": 1,
+        "graam-ore": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "mechanical-musket",
+      "resources": {
+        "wood": 1,
+        "steel": 1,
+        "minerals": 1,
+        "riches": 1,
+        "graam-ore": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "blade-of-momentum",
+      "resources": {
+        "steel": 1,
+        "riches": 1,
+        "powdered-drakon-bone": 1,
+        "graam-ore": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "adamantine-elixir",
+      "resources": {
+        "minerals": 1,
+        "serpent-venom": 1,
+        "powdered-drakon-bone": 1,
+        "issen-oil": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "robes-of-invulnerability",
+      "resources": {
+        "textiles": 2,
+        "minerals": 1,
+        "powdered-drakon-bone": 1,
+        "alary-carapace": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "protection-orb",
+      "resources": {
+        "riches": 1,
+        "powdered-drakon-bone": 1,
+        "graam-ore": 1,
+        "extract-of-maladite": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "daemon-mantle",
+      "resources": {
+        "textiles": 1,
+        "fungus": 1,
+        "serpent-venom": 1,
+        "powdered-drakon-bone": 2
+      },
+      "isRelic": true
+    },
+    {
+      "itemId": "hellfire-blade",
+      "resources": {
+        "steel": 1,
+        "riches": 1,
+        "keltic-steel": 1,
+        "issen-oil": 2
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "sword-of-tephysus",
+      "resources": {
+        "steel": 1,
+        "riches": 1,
+        "keltic-steel": 2,
+        "powdered-drakon-bone": 1
+      },
+      "isRelic": true
+    },
+    {
+      "itemId": "soul-siphon",
+      "resources": {
+        "wood": 1,
+        "riches": 1,
+        "serpent-venom": 1,
+        "graam-ore": 1,
+        "issen-oil": 1
+      },
+      "isRelic": true
+    },
+    {
+      "itemId": "natures-fury",
+      "resources": {
+        "minerals": 2,
+        "serpent-venom": 1,
+        "powdered-drakon-bone": 1,
+        "alary-carapace": 1
+      },
+      "isRelic": true
+    },
+    {
+      "itemId": "sceptre-of-domion",
+      "resources": {
+        "riches": 3,
+        "graam-ore": 1,
+        "alary-carapace": 1
+      },
+      "isRelic": true
+    },
+    {
+      "itemId": "refined-robes",
+      "resources": {
+        "textiles": 1,
+        "fungus": 1,
+        "riches": 1,
+        "extract-of-maladite": 2
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "grail-of-the-gods",
+      "resources": {
+        "minerals": 1,
+        "riches": 1,
+        "graam-ore": 1,
+        "issen-oil": 1,
+        "extract-of-maladite": 1
+      },
+      "isRelic": true
+    }
+  ]
+}

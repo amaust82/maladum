@@ -1,0 +1,218 @@
+{
+  "id": "oblivions-maw",
+  "name": "Oblivion's Maw",
+  "schemaVersion": 1,
+  "_note": "Recipes and crafted-item stubs only, mechanically converted from Maladum Crafting Sheet Template V4.xlsx (a fan-transcribed spreadsheet, not official Battle Systems data \u2014 verify against your physical tokens before treating as authoritative). No Adventurer/Class/quest content transcribed for this expansion yet.",
+  "adventurers": [],
+  "classes": [],
+  "items": [
+    {
+      "id": "ethereal-edge",
+      "name": "Ethereal Edge",
+      "type": "Weapon",
+      "size": "L",
+      "rarity": "exclusive",
+      "sellPrice": 10.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "dreamers-draught",
+      "name": "Dreamers Draught",
+      "type": "Potion",
+      "size": "M",
+      "rarity": "exclusive",
+      "sellPrice": 8.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "sacrificium",
+      "name": "Sacrificium",
+      "type": "Maladar/Misc",
+      "size": "M",
+      "rarity": "exclusive",
+      "sellPrice": 5.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "necrotic-censor",
+      "name": "Necrotic Censor",
+      "type": "Weapon",
+      "size": "L",
+      "rarity": "exclusive",
+      "sellPrice": 11.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "liberator-of-souls",
+      "name": "Liberator Of Souls",
+      "type": "Weapon",
+      "size": "L",
+      "rarity": "exclusive",
+      "sellPrice": 13.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "vampiric-blade",
+      "name": "Vampiric Blade",
+      "type": "Weapon",
+      "size": "XL",
+      "rarity": "exclusive",
+      "sellPrice": 15.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "cloak-of-cloning",
+      "name": "Cloak Of Cloning",
+      "type": "Armour",
+      "size": "M",
+      "rarity": "exclusive",
+      "sellPrice": 9.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "anyssal-trophy",
+      "name": "Anyssal Trophy",
+      "type": "Maladar/Misc",
+      "size": "M",
+      "rarity": "exclusive",
+      "sellPrice": 28.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "astral-arbiter",
+      "name": "Astral Arbiter",
+      "type": "Weapon",
+      "size": "XL",
+      "rarity": "exclusive",
+      "sellPrice": 19.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    },
+    {
+      "id": "uncanny-oculus",
+      "name": "Uncanny Oculus",
+      "type": "Weapon",
+      "size": "XL",
+      "rarity": "exclusive",
+      "sellPrice": 28.0,
+      "craftedOnly": true,
+      "source": "Maladum Crafting Sheet Template V4.xlsx (fan-transcribed, verify against your physical tokens)"
+    }
+  ],
+  "spells": [],
+  "adversaries": [],
+  "quests": [],
+  "recipes": [
+    {
+      "itemId": "ethereal-edge",
+      "resources": {
+        "steel": 1,
+        "riches": 1,
+        "necrotic-fluids": 2
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "dreamers-draught",
+      "resources": {
+        "herbs": 1,
+        "fungus": 2,
+        "serpent-venom": 1,
+        "necrotic-fluids": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "sacrificium",
+      "resources": {
+        "herbs": 2,
+        "riches": 1,
+        "extract-of-maladite": 1,
+        "necrotic-fluids": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "necrotic-censor",
+      "resources": {
+        "wood": 1,
+        "minerals": 1,
+        "riches": 1,
+        "serpent-venom": 1,
+        "graam-ore": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "liberator-of-souls",
+      "resources": {
+        "wood": 1,
+        "graam-ore": 1,
+        "alary-carapace": 1,
+        "necrotic-fluids": 2
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "vampiric-blade",
+      "resources": {
+        "steel": 2,
+        "serpent-venom": 1,
+        "powdered-drakon-bone": 1,
+        "graam-ore": 1,
+        "necrotic-fluids": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "cloak-of-cloning",
+      "resources": {
+        "textiles": 2,
+        "fungus": 1,
+        "issen-oil": 1,
+        "extract-of-maladite": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "anyssal-trophy",
+      "resources": {
+        "fungus": 1,
+        "powdered-drakon-bone": 1,
+        "alary-carapace": 1,
+        "necrotic-fluids": 1
+      },
+      "isRelic": true
+    },
+    {
+      "itemId": "astral-arbiter",
+      "resources": {
+        "wood": 2,
+        "minerals": 1,
+        "keltic-steel": 1,
+        "graam-ore": 1,
+        "extract-of-maladite": 1
+      },
+      "isRelic": false
+    },
+    {
+      "itemId": "uncanny-oculus",
+      "resources": {
+        "serpent-venom": 1,
+        "graam-ore": 1,
+        "issen-oil": 1,
+        "extract-of-maladite": 1,
+        "necrotic-fluids": 1
+      },
+      "isRelic": true
+    }
+  ]
+}
