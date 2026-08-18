@@ -165,6 +165,106 @@ describe('physical board inventory', () => {
   })
 })
 
+describe('character board grants vs. the rulebook references', () => {
+  /**
+   * `boardGrants` is a discriminated union on `type`, and each arm points at a
+   * different reference section. Same reasoning as the class checks: the boards have
+   * no machine-readable source, so a misspelling can only be caught by the grant
+   * failing to resolve against the section it claims to come from.
+   */
+  const allPacks = ['core', 'of-ale-and-adventure', 'the-forbidden-creed', 'oblivions-maw']
+    .map((n) => {
+      const url = new URL(`../../content/${n}.json`, import.meta.url)
+      return { name: n, pack: parsePack(JSON.parse(readFileSync(fileURLToPath(url), 'utf-8'))) }
+    })
+  const allAdventurers = allPacks.flatMap(({ pack }) => pack.adventurers)
+  const grants = allAdventurers.flatMap((a) => a.boardGrants)
+
+  const targets: Record<string, Set<string>> = {
+    skill: referenceSkills,
+    ability: abilityNames,
+    spell: spellNames,
+  }
+
+  it('has grants to check, so the assertions below can actually fail', () => {
+    // Guards against the whole suite passing vacuously if `boardGrants` ever stops
+    // being parsed (it reaches the schema through a discriminated union, not a
+    // looseObject passthrough, so a rename would silently empty this).
+    expect(grants.length).toBeGreaterThan(30)
+    for (const type of Object.keys(targets)) {
+      expect(grants.some((g) => g.type === type), `no ${type} grants found`).toBe(true)
+    }
+  })
+
+  it('resolves every named grant against the section its type claims', () => {
+    const unresolved = allAdventurers.flatMap((a) =>
+      a.boardGrants
+        .filter((g) => g.type !== 'statBonus')
+        .filter((g) => !g.name || !targets[g.type].has(g.name))
+        .map((g) => `${a.name}: ${g.type} "${g.name}"`),
+    )
+    expect(unresolved).toEqual([])
+  })
+
+  it('gives each grant the fields its type needs and no contradictory ones', () => {
+    for (const adv of allAdventurers) {
+      for (const g of adv.boardGrants) {
+        const where = `${adv.name}: ${g.type}`
+        if (g.type === 'statBonus') {
+          // Free board text, so it carries `text` and has nothing to resolve.
+          expect(g.text, where).toBeTruthy()
+          expect(g.name, where).toBeUndefined()
+        } else {
+          expect(g.name, where).toBeTruthy()
+        }
+        if (g.type === 'skill') {
+          // A skill grant is marks on a track, so it needs both bounds to render.
+          expect(g.default, where).toBeGreaterThanOrEqual(0)
+          expect(g.max, where).toBeGreaterThanOrEqual(g.default ?? 0)
+        }
+      }
+    }
+  })
+})
+
+describe('pack placement', () => {
+  /**
+   * Each Adventurer board records the product it ships in. It also lives in that
+   * product's pack file. Those two facts are maintained separately, so asserting they
+   * agree is what stops a board being filed in the wrong pack — which would show a
+   * player content they don't own, the exact thing the pack split exists to prevent.
+   */
+  const packs = ['core', 'of-ale-and-adventure', 'the-forbidden-creed', 'oblivions-maw'].map(
+    (n) => {
+      const url = new URL(`../../content/${n}.json`, import.meta.url)
+      return { id: n, pack: parsePack(JSON.parse(readFileSync(fileURLToPath(url), 'utf-8'))) }
+    },
+  )
+
+  it('files every Adventurer board in the pack its `expansion` field names', () => {
+    const misfiled = packs.flatMap(({ id, pack }) =>
+      pack.adventurers
+        .filter((a) => (a.expansion ?? 'core') !== id)
+        .map((a) => `${a.name} says "${a.expansion}" but sits in ${id}.json`),
+    )
+    expect(misfiled).toEqual([])
+  })
+
+  it('spreads the boards across core and both owned expansions', () => {
+    const counts = Object.fromEntries(packs.map(({ id, pack }) => [id, pack.adventurers.length]))
+    expect(counts).toMatchObject({
+      core: 7,
+      'of-ale-and-adventure': 8,
+      'the-forbidden-creed': 5,
+    })
+  })
+
+  it('keeps ids unique across packs, so a merge cannot silently drop a board', () => {
+    const ids = packs.flatMap(({ pack }) => pack.adventurers.map((a) => a.id))
+    expect(new Set(ids).size).toBe(ids.length)
+  })
+})
+
 describe('class transcription provenance', () => {
   it('records where the board data came from, and what was assumed', () => {
     const transcribed = core.classes.filter((c) => (c._placeholder as string[]).length === 0)

@@ -104,9 +104,11 @@ export function describeReadiness(readiness: Readiness): string {
     case 'ready':
       return 'Complete'
     case 'partial': {
-      // Prefer the fields the app actually needs; fall back to the pack's own
-      // untranscribed list so a board that's merely incomplete still says why.
-      const fields = readiness.missing.length ? readiness.missing : readiness.unverified
+      // Both lists, not one or the other. A field can carry a stand-in *value* while
+      // being flagged untranscribed (Moranna's `armourSlots: 2`) — it isn't `missing`,
+      // so showing only `missing` would present that 2 as if it were verified. The
+      // player needs to see every field they can't trust, whether it's blank or a guess.
+      const fields = [...new Set([...readiness.missing, ...readiness.unverified])]
       return `Unverified: ${fields.join(', ')}`
     }
     case 'placeholder':

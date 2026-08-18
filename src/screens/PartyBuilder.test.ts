@@ -40,11 +40,20 @@ describe('PartyBuilder against the seed content', () => {
     expect(wrapper.find('input[type="checkbox"]').exists()).toBe(false)
   })
 
-  it('badges a partially-transcribed board instead of presenting it as complete', () => {
+  it('badges a partially-transcribed board instead of presenting it as complete', async () => {
+    // Most Adventurer boards are transcribed now, so this picks one that isn't.
     const wrapper = mountBuilder()
-    // Ariah's name and cost are real; her stat block and armour slots are not.
+    await wrapper.findAll('select')[0].setValue('moranna')
     expect(wrapper.text()).toContain('Unverified')
     expect(wrapper.text()).toContain('armourSlots')
+  })
+
+  it('does not badge a fully transcribed Adventurer board as unverified', async () => {
+    const wrapper = mountBuilder()
+    await wrapper.findAll('select')[0].setValue('ariah')
+    await wrapper.findAll('select')[1].setValue('barbarian')
+    // Both boards are complete, so no gap list should reach the card at all.
+    expect(wrapper.text()).not.toContain('Unverified')
   })
 
   it('names the gap on the card for the one Class board still untranscribed', async () => {

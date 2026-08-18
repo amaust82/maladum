@@ -117,76 +117,54 @@
   ],
   "adventurers": [
     {
-      "id": "ariah",
-      "name": "Ariah",
-      "cost": 73,
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
-      "species": null,
-      "stats": null,
-      "innateAbilities": [],
-      "armourSlots": null,
-      "hasDenizenSide": null,
-      "_placeholder": [
-        "species",
-        "stats",
-        "innateAbilities",
-        "armourSlots",
-        "hasDenizenSide"
-      ]
-    },
-    {
-      "id": "artain",
-      "name": "Artain",
-      "cost": 61,
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
-      "species": null,
-      "stats": null,
-      "innateAbilities": [],
-      "armourSlots": null,
-      "hasDenizenSide": null,
-      "_placeholder": [
-        "species",
-        "stats",
-        "innateAbilities",
-        "armourSlots",
-        "hasDenizenSide"
-      ]
-    },
-    {
       "id": "beren",
       "name": "Beren",
       "cost": 71,
       "_costSource": "Maladum_calculator_v0.4.4.xlsx",
-      "species": null,
-      "stats": null,
-      "innateAbilities": [],
-      "armourSlots": null,
-      "hasDenizenSide": null,
-      "_placeholder": [
-        "species",
-        "stats",
-        "innateAbilities",
-        "armourSlots",
-        "hasDenizenSide"
-      ]
-    },
-    {
-      "id": "brahm",
-      "name": "Brahm",
-      "cost": 90,
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
-      "species": null,
-      "stats": null,
-      "innateAbilities": [],
-      "armourSlots": null,
-      "hasDenizenSide": null,
-      "_placeholder": [
-        "species",
-        "stats",
-        "innateAbilities",
-        "armourSlots",
-        "hasDenizenSide"
-      ]
+      "species": "Human",
+      "stats": {
+        "health": {
+          "default": 3,
+          "max": 5
+        },
+        "skill": {
+          "default": 1,
+          "max": 3
+        },
+        "magic": {
+          "default": 3,
+          "max": 7
+        },
+        "actions": {
+          "default": 2,
+          "max": 2
+        },
+        "xp": {
+          "default": 4,
+          "max": 20
+        }
+      },
+      "armourSlots": 2,
+      "hasDenizenSide": true,
+      "_placeholder": [],
+      "boardGrants": [
+        {
+          "type": "skill",
+          "name": "Natural Remedies",
+          "default": 1,
+          "max": 1,
+          "armorSlot": false
+        },
+        {
+          "type": "skill",
+          "name": "Ready for Anything",
+          "default": 1,
+          "max": 1,
+          "armorSlot": true
+        }
+      ],
+      "_source": "Transcribed by Adam directly from the physical Adventurer board components, 2026-08-19.",
+      "expansion": "core"
     },
     {
       "id": "callan",
@@ -196,177 +174,120 @@
       "species": null,
       "stats": null,
       "innateAbilities": [],
-      "armourSlots": null,
-      "hasDenizenSide": null,
+      "armourSlots": 2,
+      "hasDenizenSide": true,
       "_placeholder": [
         "species",
         "stats",
         "innateAbilities",
         "armourSlots",
         "hasDenizenSide"
-      ]
-    },
-    {
-      "id": "chiau",
-      "name": "Chiau",
-      "cost": 71,
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
-      "species": null,
-      "stats": null,
-      "innateAbilities": [],
-      "armourSlots": null,
-      "hasDenizenSide": null,
-      "_placeholder": [
-        "species",
-        "stats",
-        "innateAbilities",
-        "armourSlots",
-        "hasDenizenSide"
-      ]
-    },
-    {
-      "id": "corazon",
-      "name": "Corazon",
-      "cost": 83,
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
-      "species": null,
-      "stats": null,
-      "innateAbilities": [],
-      "armourSlots": null,
-      "hasDenizenSide": null,
-      "_placeholder": [
-        "species",
-        "stats",
-        "innateAbilities",
-        "armourSlots",
-        "hasDenizenSide"
-      ]
-    },
-    {
-      "id": "emmerik",
-      "name": "Emmerik",
-      "cost": 60,
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
-      "species": null,
-      "stats": null,
-      "innateAbilities": [],
-      "armourSlots": null,
-      "hasDenizenSide": null,
-      "_placeholder": [
-        "species",
-        "stats",
-        "innateAbilities",
-        "armourSlots",
-        "hasDenizenSide"
-      ]
-    },
-    {
-      "id": "galen",
-      "name": "Galen",
-      "cost": 75,
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
-      "species": null,
-      "stats": null,
-      "innateAbilities": [],
-      "armourSlots": null,
-      "hasDenizenSide": null,
-      "_placeholder": [
-        "species",
-        "stats",
-        "innateAbilities",
-        "armourSlots",
-        "hasDenizenSide"
-      ]
+      ],
+      "expansion": "core"
     },
     {
       "id": "greet",
       "name": "Greet",
       "cost": 75,
       "_costSource": "Maladum_calculator_v0.4.4.xlsx",
-      "species": null,
-      "stats": null,
-      "innateAbilities": [],
-      "armourSlots": null,
-      "hasDenizenSide": null,
-      "_placeholder": [
-        "species",
-        "stats",
-        "innateAbilities",
-        "armourSlots",
-        "hasDenizenSide"
-      ]
+      "species": "Grobbler",
+      "stats": {
+        "health": {
+          "default": 3,
+          "max": 4
+        },
+        "skill": {
+          "default": 2,
+          "max": 5
+        },
+        "magic": {
+          "default": 1,
+          "max": 4
+        },
+        "actions": {
+          "default": 2,
+          "max": 3
+        },
+        "xp": {
+          "default": 2,
+          "max": 19
+        }
+      },
+      "armourSlots": 2,
+      "hasDenizenSide": true,
+      "_placeholder": [],
+      "boardGrants": [
+        {
+          "type": "skill",
+          "name": "Barter",
+          "default": 1,
+          "max": 1,
+          "armorSlot": false
+        },
+        {
+          "type": "skill",
+          "name": "Tricks of the Trade",
+          "default": 1,
+          "max": 1,
+          "armorSlot": false
+        }
+      ],
+      "_source": "Transcribed by Adam directly from the physical Adventurer board components, 2026-08-19.",
+      "expansion": "core"
     },
     {
       "id": "grogmar",
       "name": "Grogmar",
       "cost": 73,
       "_costSource": "Maladum_calculator_v0.4.4.xlsx",
-      "species": null,
-      "stats": null,
-      "innateAbilities": [],
-      "armourSlots": null,
-      "hasDenizenSide": null,
-      "_placeholder": [
-        "species",
-        "stats",
-        "innateAbilities",
-        "armourSlots",
-        "hasDenizenSide"
-      ]
-    },
-    {
-      "id": "hendley",
-      "name": "Hendley",
-      "cost": 73,
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
-      "species": null,
-      "stats": null,
-      "innateAbilities": [],
-      "armourSlots": null,
-      "hasDenizenSide": null,
-      "_placeholder": [
-        "species",
-        "stats",
-        "innateAbilities",
-        "armourSlots",
-        "hasDenizenSide"
-      ]
-    },
-    {
-      "id": "kaan",
-      "name": "Kaan",
-      "cost": 79,
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
-      "species": null,
-      "stats": null,
-      "innateAbilities": [],
-      "armourSlots": null,
-      "hasDenizenSide": null,
-      "_placeholder": [
-        "species",
-        "stats",
-        "innateAbilities",
-        "armourSlots",
-        "hasDenizenSide"
-      ]
-    },
-    {
-      "id": "kriga",
-      "name": "Kriga",
-      "cost": 73,
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
-      "species": null,
-      "stats": null,
-      "innateAbilities": [],
-      "armourSlots": null,
-      "hasDenizenSide": null,
-      "_placeholder": [
-        "species",
-        "stats",
-        "innateAbilities",
-        "armourSlots",
-        "hasDenizenSide"
-      ]
+      "species": "Ormen",
+      "stats": {
+        "health": {
+          "default": 5,
+          "max": 6
+        },
+        "skill": {
+          "default": 1,
+          "max": 3
+        },
+        "magic": {
+          "default": 1,
+          "max": 3
+        },
+        "actions": {
+          "default": 2,
+          "max": 2
+        },
+        "xp": {
+          "default": 2,
+          "max": 15
+        }
+      },
+      "armourSlots": 2,
+      "hasDenizenSide": true,
+      "_placeholder": [],
+      "boardGrants": [
+        {
+          "type": "statBonus",
+          "text": "+2 Melee",
+          "armorSlot": false
+        },
+        {
+          "type": "ability",
+          "name": "Size",
+          "armorSlot": false,
+          "detail": "2"
+        },
+        {
+          "type": "skill",
+          "name": "Quick Recovery",
+          "default": 1,
+          "max": 2,
+          "armorSlot": true
+        }
+      ],
+      "_source": "Transcribed by Adam directly from the physical Adventurer board components, 2026-08-19.",
+      "expansion": "core"
     },
     {
       "id": "moranna",
@@ -376,15 +297,16 @@
       "species": null,
       "stats": null,
       "innateAbilities": [],
-      "armourSlots": null,
-      "hasDenizenSide": null,
+      "armourSlots": 2,
+      "hasDenizenSide": true,
       "_placeholder": [
         "species",
         "stats",
         "innateAbilities",
         "armourSlots",
         "hasDenizenSide"
-      ]
+      ],
+      "expansion": "core"
     },
     {
       "id": "nerinda",
@@ -394,51 +316,16 @@
       "species": null,
       "stats": null,
       "innateAbilities": [],
-      "armourSlots": null,
-      "hasDenizenSide": null,
+      "armourSlots": 2,
+      "hasDenizenSide": true,
       "_placeholder": [
         "species",
         "stats",
         "innateAbilities",
         "armourSlots",
         "hasDenizenSide"
-      ]
-    },
-    {
-      "id": "numinor",
-      "name": "Numinor",
-      "cost": 79,
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
-      "species": null,
-      "stats": null,
-      "innateAbilities": [],
-      "armourSlots": null,
-      "hasDenizenSide": null,
-      "_placeholder": [
-        "species",
-        "stats",
-        "innateAbilities",
-        "armourSlots",
-        "hasDenizenSide"
-      ]
-    },
-    {
-      "id": "phedra",
-      "name": "Phedra",
-      "cost": 93,
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
-      "species": null,
-      "stats": null,
-      "innateAbilities": [],
-      "armourSlots": null,
-      "hasDenizenSide": null,
-      "_placeholder": [
-        "species",
-        "stats",
-        "innateAbilities",
-        "armourSlots",
-        "hasDenizenSide"
-      ]
+      ],
+      "expansion": "core"
     },
     {
       "id": "syrio",
@@ -469,33 +356,16 @@
         }
       },
       "innateAbilities": [],
-      "armourSlots": null,
-      "hasDenizenSide": null,
+      "armourSlots": 2,
+      "hasDenizenSide": true,
       "_placeholder": [
         "species",
         "innateAbilities",
         "armourSlots",
         "hasDenizenSide"
       ],
-      "_verified": "stats: Deluxe rulebook Adventurer Dashboards worked example; cost: calculator spreadsheet"
-    },
-    {
-      "id": "unger",
-      "name": "Unger",
-      "cost": 73,
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
-      "species": null,
-      "stats": null,
-      "innateAbilities": [],
-      "armourSlots": null,
-      "hasDenizenSide": null,
-      "_placeholder": [
-        "species",
-        "stats",
-        "innateAbilities",
-        "armourSlots",
-        "hasDenizenSide"
-      ]
+      "_verified": "stats: Deluxe rulebook Adventurer Dashboards worked example; cost: calculator spreadsheet",
+      "expansion": "core"
     }
   ],
   "classes": [
@@ -559,7 +429,8 @@
       "pairedWith": [
         "Guardian",
         "Curator"
-      ]
+      ],
+      "expansion": "core"
     },
     {
       "id": "barbarian",
@@ -613,7 +484,8 @@
       "boardCopies": 1,
       "pairedWith": [
         "Rogue"
-      ]
+      ],
+      "expansion": "core"
     },
     {
       "id": "blacksmith",
@@ -672,7 +544,8 @@
       "pairedWith": [
         "Eudaemon",
         "Rook"
-      ]
+      ],
+      "expansion": "of-ale-and-adventure"
     },
     {
       "id": "contender",
@@ -737,7 +610,8 @@
       ],
       "pairedWith": [
         "Strategist"
-      ]
+      ],
+      "expansion": "of-ale-and-adventure"
     },
     {
       "id": "curator",
@@ -804,7 +678,8 @@
       ],
       "pairedWith": [
         "Assassin"
-      ]
+      ],
+      "expansion": "of-ale-and-adventure"
     },
     {
       "id": "deceiver",
@@ -859,7 +734,8 @@
       ],
       "pairedWith": [
         "Ranger"
-      ]
+      ],
+      "expansion": "the-forbidden-creed"
     },
     {
       "id": "druid",
@@ -912,7 +788,8 @@
       "pairedWith": [
         "Ranger",
         "Warlock"
-      ]
+      ],
+      "expansion": "of-ale-and-adventure"
     },
     {
       "id": "eremite",
@@ -971,7 +848,8 @@
       "boardCopies": 1,
       "pairedWith": [
         "Swindler"
-      ]
+      ],
+      "expansion": "the-forbidden-creed"
     },
     {
       "id": "eudaemon",
@@ -1020,7 +898,8 @@
       "pairedWith": [
         "Blacksmith",
         "Sellsword"
-      ]
+      ],
+      "expansion": "core"
     },
     {
       "id": "guardian",
@@ -1079,7 +958,9 @@
       "pairedWith": [
         "Maestro",
         "Assassin"
-      ]
+      ],
+      "expansion": "core",
+      "_expansionNote": "Battle Systems' Of Ale and Adventure blog lists Guardian as an \"existing class also available\" in that expansion -- read as: originally a Core class, with additional physical board copies included in Of Ale and Adventure. boardCopies (2) reflects Adam's full owned total, not a per-expansion breakdown."
     },
     {
       "id": "maestro",
@@ -1140,7 +1021,8 @@
       ],
       "pairedWith": [
         "Guardian"
-      ]
+      ],
+      "expansion": "of-ale-and-adventure"
     },
     {
       "id": "magus",
@@ -1192,7 +1074,8 @@
       ],
       "pairedWith": [
         "Sellsword"
-      ]
+      ],
+      "expansion": "of-ale-and-adventure"
     },
     {
       "id": "marksman",
@@ -1253,7 +1136,8 @@
       ],
       "pairedWith": [
         "Swindler"
-      ]
+      ],
+      "expansion": "core"
     },
     {
       "id": "mentor",
@@ -1267,7 +1151,9 @@
         "innateAbility",
         "spellSchools"
       ],
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx"
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "expansion": "the-forbidden-creed",
+      "_expansionNote": "Confirmed by Adam 2026-08-19 (verbally, not from the blog source -- the blog didn't name it). Physical board may be misplaced inside the Forbidden Creed box; Adam is checking. Data (skills/spells/abilities/costs/pairing) still not transcribed -- this only resolves which expansion it belongs to."
     },
     {
       "id": "paladin",
@@ -1319,7 +1205,8 @@
       ],
       "pairedWith": [
         "Sellsword"
-      ]
+      ],
+      "expansion": "of-ale-and-adventure"
     },
     {
       "id": "prymorist",
@@ -1367,7 +1254,8 @@
       ],
       "pairedWith": [
         "Sellsword"
-      ]
+      ],
+      "expansion": "core"
     },
     {
       "id": "rambler",
@@ -1427,7 +1315,8 @@
       ],
       "pairedWith": [
         "Rogue"
-      ]
+      ],
+      "expansion": "of-ale-and-adventure"
     },
     {
       "id": "ranger",
@@ -1488,7 +1377,8 @@
         "Druid",
         "Scavenger",
         "Deceiver"
-      ]
+      ],
+      "expansion": "core"
     },
     {
       "id": "rogue",
@@ -1545,7 +1435,8 @@
       "pairedWith": [
         "Rambler",
         "Barbarian"
-      ]
+      ],
+      "expansion": "core"
     },
     {
       "id": "rook",
@@ -1594,7 +1485,8 @@
       "pairedWith": [
         "Blacksmith",
         "Sellsword"
-      ]
+      ],
+      "expansion": "core"
     },
     {
       "id": "scavenger",
@@ -1651,7 +1543,8 @@
       "pairedWith": [
         "Strategist",
         "Ranger"
-      ]
+      ],
+      "expansion": "core"
     },
     {
       "id": "sellsword",
@@ -1713,7 +1606,9 @@
         "Magus",
         "Eudaemon",
         "Rook"
-      ]
+      ],
+      "expansion": "core",
+      "_expansionNote": "Battle Systems' Of Ale and Adventure blog lists Sellsword as an \"existing class also available\" in that expansion -- read as: originally a Core class, with additional physical board copies included in Of Ale and Adventure. boardCopies (5) reflects Adam's full owned total, not a per-expansion breakdown."
     },
     {
       "id": "strategist",
@@ -1772,7 +1667,8 @@
         "Scavenger",
         "Contender"
       ],
-      "_boardCopiesCorrection": "Originally noted as (x3) in the class-skill batch. Cross-checked against the pairing list (20 pairs = 40 total appearances = 20 double-sided boards x 2 sides, matching Adam's count) and confirmed via parity check that the x3 was the error, not a missing pairing -- corrected to 2 to match the 2 confirmed partners (Scavenger, Contender)."
+      "_boardCopiesCorrection": "Originally noted as (x3) in the class-skill batch. Cross-checked against the pairing list (20 pairs = 40 total appearances = 20 double-sided boards x 2 sides, matching Adam's count) and confirmed via parity check that the x3 was the error, not a missing pairing -- corrected to 2 to match the 2 confirmed partners (Scavenger, Contender).",
+      "expansion": "of-ale-and-adventure"
     },
     {
       "id": "swindler",
@@ -1834,7 +1730,8 @@
       "pairedWith": [
         "Marksman",
         "Eremite"
-      ]
+      ],
+      "expansion": "of-ale-and-adventure"
     },
     {
       "id": "warlock",
@@ -1893,7 +1790,8 @@
       ],
       "pairedWith": [
         "Druid"
-      ]
+      ],
+      "expansion": "the-forbidden-creed"
     }
   ],
   "companions": [
@@ -6689,5 +6587,6 @@
     }
   ],
   "adversaries": [],
-  "quests": []
+  "quests": [],
+  "_expansionAttributionSource": "Sourced from Battle Systems' own expansion preview blog posts (dive-into-oblivions-maw, unboxing-forbidden-creed, ale-or-just-the-adventure), cross-referenced against Adam's physical-board transcriptions, 2026-08-19. Oblivion's Maw's blog post named no individual Adventurers or Classes, so nothing could be positively attributed to it from this source."
 }

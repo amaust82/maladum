@@ -53,6 +53,36 @@ const StatKeys = z.object({
   xp: StatBlock,
 })
 
+/**
+ * One thing a character board grants outright, printed in the board's own grant track.
+ *
+ * A discriminated union on `type`, mirroring how the boards actually print them:
+ *   - `skill`     — a skill from the rulebook reference, with the board's own
+ *                   `default`/`max` marks. These stack on top of the Class board's
+ *                   skill wheel and are exempt from the rank cap (design §3, p.80).
+ *   - `ability`   — a trait from the icon/trait glossary, with optional board shorthand.
+ *   - `spell`     — a spell the board grants regardless of Class.
+ *   - `statBonus` — free board text ("+2 Melee"), unstructured for the same reason
+ *                   `ClassDef.statBonuses` is.
+ *
+ * `armorSlot` marks a grant printed on an armour-slot position rather than the open
+ * track — it's a board-layout fact the character sheet needs to render faithfully.
+ */
+export const BoardGrant = z.looseObject({
+  type: z.enum(['skill', 'ability', 'spell', 'statBonus']),
+  /** Set for skill/ability/spell — resolves to the matching reference section by name. */
+  name: z.string().optional(),
+  /** Set for statBonus, which has no reference entry to point at. */
+  text: z.string().optional(),
+  /** Board shorthand qualifying an ability grant. Not parsed. */
+  detail: z.string().nullable().optional(),
+  /** Skill grants only: marks filled by default, and the board's own ceiling. */
+  default: z.number().optional(),
+  max: z.number().optional(),
+  armorSlot: z.boolean().optional(),
+})
+export type BoardGrant = z.infer<typeof BoardGrant>
+
 export const AdventurerDef = z.looseObject({
   id: z.string(),
   name: z.string(),
@@ -61,14 +91,24 @@ export const AdventurerDef = z.looseObject({
   cost: z.number().nullable().optional(),
   classId: z.string().nullable().optional(),
   /**
-   * Full stat block, or `null` when the board hasn't been transcribed. Only
-   * Syrio's is real so far (rulebook worked example) — the other 19 boards carry
-   * a verified name+cost and a `null` stat block rather than invented numbers.
+   * Full stat block, or `null` when the board hasn't been transcribed. Most boards
+   * were read off the physical components 2026-08-19; the stragglers keep a verified
+   * name+cost and a `null` stat block rather than invented numbers.
    */
   stats: StatKeys.nullable().optional(),
+  /** Superseded by `boardGrants` entries of type `ability`; see `ClassDef.innateAbility`. */
   innateAbilities: z.array(z.string()).optional(),
   armourSlots: z.number().nullable().optional(),
   hasDenizenSide: z.boolean().nullable().optional(),
+  /** What the character board grants outright, on top of whatever Class it's paired with. */
+  boardGrants: z.array(BoardGrant).default([]),
+  /**
+   * Which product this board ships in — `core` or an expansion pack id. The board
+   * lives in that pack's file; this field records the same fact so placement is
+   * self-checking (see `integrity.test.ts`) rather than relying on the file it
+   * happens to sit in.
+   */
+  expansion: z.string().optional(),
 })
 export type AdventurerDef = z.infer<typeof AdventurerDef>
 

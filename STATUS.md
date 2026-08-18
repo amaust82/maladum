@@ -11,20 +11,24 @@ clone with `git config core.hooksPath .githooks` (also listed in `README.md`); b
 genuine exception — a formatting sweep, a revert — with `git commit --no-verify`.
 `CLAUDE.md` states the same rule for agent sessions.
 
-## Status — updated 2026-08-19
+## Status — updated 2026-08-19 (later)
 
 **Phase 0 is complete; Phase 1 is under way.** Campaign management, the party builder
 and the Rules reference are in. `npm run build` is clean and `npm test` is green:
-**293 tests across 21 files**.
+**302 tests across 21 files**.
 
-The headline change is content, not code: `core.json` became a **substantially real
-dataset** (schemaVersion 2), and then Adam transcribed **the Class boards directly from
-the physical components** (2026-08-18/19), closing what this file spent two sessions
-calling "the one real content gap". 24 of 25 Class boards are in; Mentor is the holdout.
+**Board transcription is essentially done.** Adam read the Class boards (24/25) and then
+the Adventurer boards (16/20) straight off the components. Board data is no longer the
+project's bottleneck — for the first time, most content grades `ready`.
 
-Class boards were the harder half of the board data, and they are now the *complete* half
-— 24 of 25 Class boards vs 1 of 20 Adventurer stat blocks. The remaining content gap is
-Adventurer boards; see "The remaining content gap" below.
+How it got here: `core.json` became a **substantially real dataset** (schemaVersion 2)
+from the rulebook and fan spreadsheets, and then Adam transcribed the boards themselves —
+Classes on 2026-08-18/19, Adventurers on 2026-08-19 — closing what this file spent two
+sessions calling "the one real content gap".
+
+Outstanding, and flagged rather than guessed at: **Mentor** (Class), and **Callan /
+Moranna / Nerinda** (Adventurer), plus **Syrio**, whose stats come from the rulebook's
+worked example but whose physical board hasn't been read.
 
 This section is kept current as work lands, so a lost session costs nothing — read it
 first, then "Next actions" at the bottom.
@@ -66,7 +70,7 @@ and reading the images does not), a fan-made calculator spreadsheet
 | Key | Count | Confidence |
 | --- | --- | --- |
 | `craftingResources` | 15 | Real — crafting spreadsheet |
-| `adventurers` | 20 | **Name + cost real for all 20.** Stat block real for Syrio only. Species, innate abilities, armour slots: untranscribed everywhere |
+| `adventurers` | 20 (7 core + 13 in expansion packs) | **Real for 16 of 20** — stats, species, armour slots and a `boardGrants` track, transcribed from the physical boards. Callan/Moranna/Nerinda outstanding; Syrio has rulebook stats but an unread board |
 | `classes` | 25 | **Real for 24 of 25** — skill wheel, stat bonuses, granted spells/abilities, board pairings, transcribed from the physical boards. Mentor outstanding |
 | `companions` | 10 | Name + cost real; the four named ones cross-check against the rulebook's Companions section |
 | `items` | 273 | Real — name, rank, rarity, buy/sell cost, type, and a `notes` shorthand that names real traits |
@@ -180,15 +184,58 @@ carries the key and absent on the rest, while `grantedAbilities` (array) holds t
 data. It looks superseded — but it's still in the schema, with a comment, rather than
 deleted on a guess.
 
-### The remaining content gap: Adventurer stat blocks
+### Adventurer boards: transcribed (2026-08-19)
 
-19 of 20 Adventurer boards have a real name and Guilder cost but `stats: null` (only
-Syrio's is transcribed, from the rulebook's worked example), plus untranscribed `species`,
-`innateAbilities`, `armourSlots`. Same fix as the Class boards: read them off the
-cardboard. Every Adventurer therefore still grades `partial`.
+16 of 20 boards read off the components: real `stats`, `species`, `armourSlots`,
+`hasDenizenSide`, plus a **`boardGrants`** track — what the character board hands out on
+top of whatever Class it's paired with. Four boards outstanding (Callan, Moranna, Nerinda,
+Syrio), still flagged.
+
+`boardGrants` is a discriminated union on `type`, and every arm resolves against the
+reference section it claims (`integrity.test.ts`):
+
+| type | count | shape | resolves against |
+| --- | --- | --- | --- |
+| `skill` | 21 | `name` + `default` + `max` | the 43-skill reference |
+| `ability` | 9 | `name` + optional `detail` | the icon/trait glossary |
+| `spell` | 4 | `name` | transcribed spell names |
+| `statBonus` | 2 | `text` | nothing — free board text, like `ClassDef.statBonuses` |
+
+An `armorSlot` flag (11 of 36) marks grants printed on an armour-slot position rather than
+the open track. That's board layout, and the character sheet needs it to render faithfully.
+
+Board skill grants **stack on top of the Class wheel and are exempt from the rank cap**
+(design §3, p.80) — worth remembering when the character sheet computes what's markable.
+
+**A readiness bug this data exposed and fixed:** Moranna carries `armourSlots: 2` *and*
+lists `armourSlots` in `_placeholder` — the 2 is a stand-in, not a reading. The badge used
+to show `missing` fields *or* `unverified` ones, so it said "Unverified: species" and
+presented that 2 as trustworthy. `describeReadiness` now names the union of both. A field
+holding a distrusted value is exactly as unverified as a blank one.
 
 Not blocking: party bookkeeping doesn't need to validate what a board *should* have — it
 records what's on the physical board in front of the player.
+
+### Adventurer boards now live in the pack for the product they ship in
+
+13 of the 20 Adventurers are from expansions (`of-ale-and-adventure` 8,
+`the-forbidden-creed` 5), not the core box, and they had been staged in `core.json`. They
+now live in their own pack files — which is what the pack architecture is *for* (design
+§0.2): someone with only the base game must not be shown 13 boards they don't own. Adam
+owns both expansions so it was invisible locally, but it gets more expensive to unpick the
+more content lands on top.
+
+Those two packs moved to `schemaVersion: 2` and bumped `version` accordingly. No loader
+change was needed — merging packs is what it already does.
+
+Placement is **self-checking**: each board keeps its `expansion` field, and
+`integrity.test.ts` asserts it matches the pack file the board actually sits in. The two
+facts are maintained separately, so agreement between them is evidence rather than
+tautology.
+
+**Still missing, and the natural follow-on:** there's no notion of *which expansions you
+own*. Everything bundled is loaded, so the split doesn't yet change what a player sees —
+it just makes the fix possible without moving content again.
 
 ### Known but unmodelled: physical board availability
 
@@ -310,10 +357,11 @@ that wasn't in the source and wasn't invented. Crafted stubs have `name`/`type`/
 
 Content gaps:
 
-1. **Adventurer stat blocks** — the main remaining gap. 19 of 20 boards carry a real name
-   and cost with a `null` stat block, plus untranscribed species/armour slots. Fix is to
-   read them off the cardboard, as was just done for the Class boards.
+1. **Four Adventurer boards** — Callan, Moranna, Nerinda (nothing read) and Syrio (rulebook
+   stats, board unread). Everything else about them is real.
 2. **The Mentor Class board** — the 1 of 25 not yet transcribed.
+3. **Expansion ownership** — the packs are split by product now, but nothing lets a player
+   say which expansions they own, so all bundled content still loads for everyone.
 3. **Adversaries, quests and Side Quests have zero seed content** (`adversaries: []`,
    `quests: []`). Not blocking Phase 1.
 4. **Companion abilities** — names and costs only; the ability text is on the boards.
@@ -350,11 +398,12 @@ Phase 1 continues (design.md §4), in this order:
    computation against real data rather than a mock. Same for the spell list —
    `grantedSpells` names actual transcribed spells with full rules text behind them.
 
-   What the sheet still collides with is the *Adventurer* side: 19 of 20 boards have
-   `stats: null`, so it needs a way for the player to type their own board's numbers in.
-   That's arguably the right answer regardless — it closes the remaining content gap from
-   inside the app instead of from a photo session, and turns transcription into a
-   by-product of play.
+   The Adventurer side is now real too: `stats` gives the wax-seal rows their filled and
+   potential marks, and `boardGrants` supplies what the character board itself grants —
+   which **stacks on the Class wheel and is exempt from the rank cap** (p.80), so the two
+   sources have to be rendered as distinct things, not summed into one number. Four boards
+   are still untranscribed, so the sheet must degrade per-board via `readiness.ts` rather
+   than assume `stats` is present.
 
    One design decision to settle when this starts (recorded in design.md §3): does a
    board-granted spell land in the Adventurer's `spells[]`, or stay derived at display

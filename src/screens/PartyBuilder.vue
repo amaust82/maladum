@@ -133,8 +133,8 @@ addRow()
       </p>
       <p v-else class="opacity-70">
         {{ content.adventurers.length }} Adventurer and {{ content.classes.length }} Class boards
-        are installed. Names and Guilder costs are transcribed; stat blocks and skill wheels
-        mostly aren't — each card says which fields its board is still missing.
+        are installed<template v-if="content.unverifiedCount">, {{ content.unverifiedCount }} of
+        them not fully transcribed — those cards name the fields still missing</template>.
       </p>
     </div>
 

@@ -1,10 +1,271 @@
 {
   "id": "the-forbidden-creed",
   "name": "The Forbidden Creed",
-  "schemaVersion": 1,
-  "version": 1,
-  "_note": "Recipes and crafted-item stubs only, mechanically converted from Maladum Crafting Sheet Template V4.xlsx (a fan-transcribed spreadsheet, not official Battle Systems data \u2014 verify against your physical tokens before treating as authoritative). No Adventurer/Class/quest content transcribed for this expansion yet.",
-  "adventurers": [],
+  "schemaVersion": 2,
+  "version": 2,
+  "_note": "Recipes and crafted-item stubs only, mechanically converted from Maladum Crafting Sheet Template V4.xlsx (a fan-transcribed spreadsheet, not official Battle Systems data — verify against your physical tokens before treating as authoritative). No Adventurer/Class/quest content transcribed for this expansion yet. Adventurer boards added 2026-08-19: transcribed by Adam from the physical components and moved here out of core.json, where they had been staged. Their `expansion` field records the same placement and is integrity-checked.",
+  "adventurers": [
+    {
+      "id": "chiau",
+      "name": "Chiau",
+      "cost": 71,
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "species": "Ees",
+      "stats": {
+        "health": {
+          "default": 3,
+          "max": 4
+        },
+        "skill": {
+          "default": 2,
+          "max": 5
+        },
+        "magic": {
+          "default": 3,
+          "max": 7
+        },
+        "actions": {
+          "default": 2,
+          "max": 2
+        },
+        "xp": {
+          "default": 4,
+          "max": 18
+        }
+      },
+      "armourSlots": 2,
+      "hasDenizenSide": true,
+      "_placeholder": [],
+      "boardGrants": [
+        {
+          "type": "ability",
+          "name": "Malacyte Enhancement",
+          "armorSlot": false,
+          "detail": null
+        }
+      ],
+      "_source": "Transcribed by Adam directly from the physical Adventurer board components, 2026-08-19.",
+      "expansion": "the-forbidden-creed"
+    },
+    {
+      "id": "corazon",
+      "name": "Corazon",
+      "cost": 83,
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "species": "Grobbler",
+      "stats": {
+        "health": {
+          "default": 3,
+          "max": 3
+        },
+        "skill": {
+          "default": 2,
+          "max": 6
+        },
+        "magic": {
+          "default": 3,
+          "max": 7
+        },
+        "actions": {
+          "default": 2,
+          "max": 2
+        },
+        "xp": {
+          "default": 4,
+          "max": 23
+        }
+      },
+      "armourSlots": 2,
+      "hasDenizenSide": true,
+      "_placeholder": [],
+      "boardGrants": [
+        {
+          "type": "skill",
+          "name": "Persuasion",
+          "default": 2,
+          "max": 2,
+          "armorSlot": false
+        },
+        {
+          "type": "spell",
+          "name": "Curse",
+          "armorSlot": false
+        },
+        {
+          "type": "skill",
+          "name": "Camouflage",
+          "default": 0,
+          "max": 1,
+          "armorSlot": true
+        }
+      ],
+      "_source": "Transcribed by Adam directly from the physical Adventurer board components, 2026-08-19.",
+      "expansion": "the-forbidden-creed"
+    },
+    {
+      "id": "kaan",
+      "name": "Kaan",
+      "cost": 79,
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "species": "Therecian",
+      "stats": {
+        "health": {
+          "default": 5,
+          "max": 6
+        },
+        "skill": {
+          "default": 1,
+          "max": 3
+        },
+        "magic": {
+          "default": 2,
+          "max": 6
+        },
+        "actions": {
+          "default": 2,
+          "max": 2
+        },
+        "xp": {
+          "default": 1,
+          "max": 18
+        }
+      },
+      "armourSlots": 2,
+      "hasDenizenSide": true,
+      "_placeholder": [],
+      "boardGrants": [
+        {
+          "type": "statBonus",
+          "text": "3 Melee",
+          "armorSlot": false
+        },
+        {
+          "type": "ability",
+          "name": "Size",
+          "armorSlot": false,
+          "detail": "2"
+        },
+        {
+          "type": "skill",
+          "name": "Brutal Assault",
+          "default": 1,
+          "max": 2,
+          "armorSlot": true
+        }
+      ],
+      "_source": "Transcribed by Adam directly from the physical Adventurer board components, 2026-08-19.",
+      "expansion": "the-forbidden-creed"
+    },
+    {
+      "id": "numinor",
+      "name": "Numinor",
+      "cost": 79,
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "species": "Human",
+      "stats": {
+        "health": {
+          "default": 4,
+          "max": 7
+        },
+        "skill": {
+          "default": 2,
+          "max": 4
+        },
+        "magic": {
+          "default": 2,
+          "max": 5
+        },
+        "actions": {
+          "default": 2,
+          "max": 2
+        },
+        "xp": {
+          "default": 3,
+          "max": 21
+        }
+      },
+      "armourSlots": 2,
+      "hasDenizenSide": true,
+      "_placeholder": [],
+      "boardGrants": [
+        {
+          "type": "skill",
+          "name": "Bombast",
+          "default": 1,
+          "max": 2,
+          "armorSlot": false
+        },
+        {
+          "type": "spell",
+          "name": "Malacyte Shield",
+          "armorSlot": false
+        },
+        {
+          "type": "skill",
+          "name": "Ready for Anything",
+          "default": 1,
+          "max": 1,
+          "armorSlot": true
+        }
+      ],
+      "_source": "Transcribed by Adam directly from the physical Adventurer board components, 2026-08-19.",
+      "expansion": "the-forbidden-creed"
+    },
+    {
+      "id": "phedra",
+      "name": "Phedra",
+      "cost": 93,
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "species": "Human",
+      "stats": {
+        "health": {
+          "default": 4,
+          "max": 5
+        },
+        "skill": {
+          "default": 1,
+          "max": 4
+        },
+        "magic": {
+          "default": 3,
+          "max": 7
+        },
+        "actions": {
+          "default": 2,
+          "max": 3
+        },
+        "xp": {
+          "default": 4,
+          "max": 24
+        }
+      },
+      "armourSlots": 2,
+      "hasDenizenSide": true,
+      "_placeholder": [],
+      "boardGrants": [
+        {
+          "type": "spell",
+          "name": "Advanced Enchantment",
+          "armorSlot": false
+        },
+        {
+          "type": "ability",
+          "name": "Malacyte Stability",
+          "armorSlot": false,
+          "detail": null
+        },
+        {
+          "type": "skill",
+          "name": "Forbidden Arts",
+          "default": 1,
+          "max": 1,
+          "armorSlot": true
+        }
+      ],
+      "_source": "Transcribed by Adam directly from the physical Adventurer board components, 2026-08-19.",
+      "expansion": "the-forbidden-creed"
+    }
+  ],
   "classes": [],
   "items": [
     {

@@ -39,6 +39,16 @@ export const useContentStore = defineStore('content', () => {
     allClasses.value.filter((o) => isSelectable(o.readiness, showPlaceholders.value)),
   )
 
+  /**
+   * Selectable boards that aren't fully transcribed. Distinct from `hiddenCount`:
+   * these are usable and shown, they just have gaps the player should know about.
+   */
+  const unverifiedCount = computed(
+    () =>
+      adventurers.value.filter((o) => o.readiness.grade !== 'ready').length +
+      classes.value.filter((o) => o.readiness.grade !== 'ready').length,
+  )
+
   /** How many boards are hidden right now — shown next to the toggle so the gap is visible. */
   const hiddenCount = computed(
     () =>
@@ -60,6 +70,7 @@ export const useContentStore = defineStore('content', () => {
     adventurers,
     classes,
     hiddenCount,
+    unverifiedCount,
     manifest,
   }
 })

@@ -94,11 +94,16 @@ describe('the bundled core pack', () => {
     expect(r.verified).toMatch(/Deluxe rulebook/)
   })
 
-  it('grades every Adventurer partial — real names and costs, untranscribed boards', () => {
-    const grades = new Set(
-      [...library.adventurers.values()].map((a) => adventurerReadiness(a).grade),
+  it('grades the transcribed Adventurer boards ready and the stragglers partial', () => {
+    const graded = [...library.adventurers.values()].map(
+      (a) => [a.id, adventurerReadiness(a).grade] as const,
     )
-    expect(grades).toEqual(new Set(['partial']))
+    const partial = graded.filter(([, g]) => g === 'partial').map(([id]) => id)
+    // Four boards were still outstanding when this was written. If a transcription
+    // lands, this list shrinks — update it rather than loosening the assertion, so
+    // the suite keeps naming exactly what's missing.
+    expect(partial.sort()).toEqual(['callan', 'moranna', 'nerinda', 'syrio'])
+    expect(graded.filter(([, g]) => g === 'ready').length).toBe(graded.length - 4)
   })
 
   it('grades the transcribed Class boards ready — the first content in the pack to get there', () => {
@@ -118,11 +123,14 @@ describe('the bundled core pack', () => {
     expect(r.unverified).toContain('skills')
   })
 
-  it('has no fully ready board yet — the content gap is real, not hidden', () => {
-    const ready = [...library.adventurers.values()].filter(
-      (a) => adventurerReadiness(a).grade === 'ready',
-    )
-    expect(ready).toEqual([])
+  it('keeps naming the gaps on the boards that still have them', () => {
+    // The inverse of the old assertion that nothing could be ready. Now that most
+    // boards are transcribed, the thing worth protecting is that the remaining gaps
+    // are still spelled out rather than rounded away.
+    const syrio = adventurerReadiness(library.adventurers.get('syrio')!)
+    expect(syrio.grade).toBe('partial')
+    expect(syrio.missing).toContain('species')
+    expect(syrio.unverified).toContain('armourSlots')
   })
 })
 
@@ -145,5 +153,32 @@ describe('describeReadiness', () => {
     ]
     expect(new Set(lines).size).toBe(3)
     expect(lines[1]).toContain('cost')
+  })
+})
+
+describe('describeReadiness names every untrustworthy field', () => {
+  it('includes a flagged field that carries a stand-in value, not just blank ones', () => {
+    // core.json's Moranna is the real case: `armourSlots: 2` *and* `armourSlots` listed
+    // in `_placeholder`. The 2 is a stand-in, so the badge has to say so — otherwise a
+    // number the pack itself distrusts reads as verified.
+    const r = adventurerReadiness(
+      adventurer({
+        species: null,
+        armourSlots: 2,
+        _placeholder: ['armourSlots'],
+      } as Partial<AdventurerDef>),
+    )
+    expect(r.missing).toEqual(['species'])
+    expect(r.unverified).toEqual(['armourSlots'])
+    const line = describeReadiness(r)
+    expect(line).toContain('species')
+    expect(line).toContain('armourSlots')
+  })
+
+  it('does not repeat a field that is both missing and flagged', () => {
+    const r = adventurerReadiness(
+      adventurer({ species: null, _placeholder: ['species'] } as Partial<AdventurerDef>),
+    )
+    expect(describeReadiness(r)).toBe('Unverified: species')
   })
 })
