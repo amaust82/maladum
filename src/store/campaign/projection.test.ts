@@ -16,7 +16,7 @@ function seeded() {
     t: 'CAMPAIGN_CREATED',
     id: 'c1',
     name: 'The Descent',
-    contentPacks: [{ id: 'core', version: 1 }],
+    contentPacks: [{ id: 'core', name: 'Core', version: 1, schemaVersion: 1 }],
     createdAt: 1_700_000_000,
   })
   s.append({ t: 'PARTY_ADDED', partyId: 'p1', name: 'Wardens' })

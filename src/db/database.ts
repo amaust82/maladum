@@ -12,6 +12,7 @@
  */
 
 import Dexie, { type Table } from 'dexie'
+import type { PackRef } from '../content/manifest'
 import type { CampaignEvent } from '../store/campaign/events'
 
 export interface CampaignMeta {
@@ -19,7 +20,12 @@ export interface CampaignMeta {
   name: string
   createdAt: number
   updatedAt: number
-  contentPacks: { id: string; version: number }[]
+  /**
+   * Denormalized copy of the manifest held in the event log — a read-model for the
+   * campaign picker, so listing campaigns doesn't replay every log. Derived, never
+   * authoritative; see `src/content/manifest.ts` for the placement rationale.
+   */
+  contentPacks: PackRef[]
 }
 
 export interface EventRow {

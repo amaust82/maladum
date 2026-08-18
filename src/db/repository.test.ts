@@ -22,11 +22,11 @@ const meta = (id: string, name: string): CampaignMeta => ({
   name,
   createdAt: 1000,
   updatedAt: 1000,
-  contentPacks: [{ id: 'core', version: 1 }],
+  contentPacks: [{ id: 'core', name: 'Core', version: 1, schemaVersion: 1 }],
 })
 
 const sampleEvents: CampaignEvent[] = [
-  { t: 'CAMPAIGN_CREATED', id: 'c1', name: 'The Descent', contentPacks: [{ id: 'core', version: 1 }], createdAt: 1000 },
+  { t: 'CAMPAIGN_CREATED', id: 'c1', name: 'The Descent', contentPacks: [{ id: 'core', name: 'Core', version: 1, schemaVersion: 1 }], createdAt: 1000 },
   { t: 'PARTY_ADDED', partyId: 'p1', name: 'Wardens' },
   { t: 'ADVENTURER_ADDED', partyId: 'p1', advId: 'a1', characterId: 'syrio', classId: 'ranger', displayName: 'Syrio' },
   { t: 'XP_GAINED', advId: 'a1', amount: 3, reason: 'objective' },

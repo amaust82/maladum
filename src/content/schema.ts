@@ -124,6 +124,14 @@ export const ContentPack = z.looseObject({
   id: z.string(),
   name: z.string(),
   schemaVersion: z.number(),
+  /**
+   * Content revision of this pack, independent of `schemaVersion`. Correcting a
+   * transcribed stat block bumps `version`; changing the pack *shape* bumps
+   * `schemaVersion`. A campaign records the versions it was built against
+   * (design §2.4), so this is the number that tells a save "your data moved".
+   * Defaults to 1 so existing hand-authored packs stay valid.
+   */
+  version: z.number().default(1),
   craftingResources: z.array(CraftingResourceDef).default([]),
   adventurers: z.array(AdventurerDef).default([]),
   classes: z.array(ClassDef).default([]),

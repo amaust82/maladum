@@ -8,11 +8,11 @@ const meta: CampaignMeta = {
   name: 'The Descent',
   createdAt: 1_700_000_000,
   updatedAt: 1_700_000_500,
-  contentPacks: [{ id: 'core', version: 1 }],
+  contentPacks: [{ id: 'core', name: 'Core', version: 1, schemaVersion: 1 }],
 }
 
 const events: CampaignEvent[] = [
-  { t: 'CAMPAIGN_CREATED', id: 'c1', name: 'The Descent', contentPacks: [{ id: 'core', version: 1 }], createdAt: 1_700_000_000 },
+  { t: 'CAMPAIGN_CREATED', id: 'c1', name: 'The Descent', contentPacks: [{ id: 'core', name: 'Core', version: 1, schemaVersion: 1 }], createdAt: 1_700_000_000 },
   { t: 'PARTY_ADDED', partyId: 'p1', name: 'Wardens' },
   { t: 'RENOWN_CHANGED', partyId: 'p1', amount: 3, source: 'quest' },
 ]

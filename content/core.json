@@ -2,6 +2,7 @@
   "id": "core",
   "name": "Maladum Deluxe (Core)",
   "schemaVersion": 1,
+  "version": 1,
   "_note": "SEED PACK \u2014 proves the content-pack schema shape only. Only Syrio's core stats below are verified against rulebook prose (Deluxe rulebook, Adventurer Dashboards section, worked example). Everything marked _placeholder: true is a structurally-valid stand-in, NOT a real transcribed value \u2014 replace before relying on it. See docs/design.md and the handoff note for what still needs a real transcription pass.",
   "craftingResources": [
     {

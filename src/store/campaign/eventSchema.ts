@@ -16,7 +16,13 @@ const ItemRef = z.object({
 
 const XpReason = z.enum(['survived', 'escaped', 'objective', 'feat', 'other'])
 const AcquireVia = z.enum(['found', 'bought', 'reward', 'crafted'])
-const ContentPackRef = z.object({ id: z.string(), version: z.number() })
+/** Mirrors `PackRef` in content/manifest.ts — the manifest a save records (§2.4). */
+const ContentPackRef = z.object({
+  id: z.string(),
+  name: z.string(),
+  version: z.number(),
+  schemaVersion: z.number(),
+})
 
 export const CampaignEventSchema = z.discriminatedUnion('t', [
   z.object({
@@ -26,6 +32,13 @@ export const CampaignEventSchema = z.discriminatedUnion('t', [
     contentPacks: z.array(ContentPackRef),
     createdAt: z.number(),
   }),
+  z.object({ t: z.literal('CAMPAIGN_RENAMED'), name: z.string() }),
+  z.object({
+    t: z.literal('CONTENT_PACKS_CHANGED'),
+    contentPacks: z.array(ContentPackRef),
+    at: z.number(),
+    reason: z.string().optional(),
+  }),
   z.object({ t: z.literal('PARTY_ADDED'), partyId: z.string(), name: z.string() }),
   z.object({
     t: z.literal('ADVENTURER_ADDED'),
@@ -34,6 +47,12 @@ export const CampaignEventSchema = z.discriminatedUnion('t', [
     characterId: z.string(),
     classId: z.string(),
     displayName: z.string(),
+    startingXp: z.number().optional(),
+  }),
+  z.object({
+    t: z.literal('ADVENTURER_REMOVED'),
+    partyId: z.string(),
+    advId: z.string(),
   }),
   z.object({
     t: z.literal('RENOWN_CHANGED'),

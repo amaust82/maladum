@@ -2,6 +2,7 @@
   "id": "of-ale-and-adventure",
   "name": "Of Ale and Adventure",
   "schemaVersion": 1,
+  "version": 1,
   "_note": "Recipes and crafted-item stubs only, mechanically converted from Maladum Crafting Sheet Template V4.xlsx (a fan-transcribed spreadsheet, not official Battle Systems data \u2014 verify against your physical tokens before treating as authoritative). No Adventurer/Class/quest content transcribed for this expansion yet.",
   "adventurers": [],
   "classes": [],

@@ -20,7 +20,14 @@ const CampaignMetaSchema = z.object({
   name: z.string(),
   createdAt: z.number(),
   updatedAt: z.number(),
-  contentPacks: z.array(z.object({ id: z.string(), version: z.number() })),
+  contentPacks: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string(),
+      version: z.number(),
+      schemaVersion: z.number(),
+    }),
+  ),
 })
 
 export const CampaignExportSchema = z.object({

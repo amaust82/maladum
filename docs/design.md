@@ -344,6 +344,23 @@ Packs are merged by id at load time, validated with Zod, and a save file records
 pack versions it was created against so a content update can't silently corrupt a
 campaign.
 
+A pack carries **two** version numbers, because they answer different questions.
+`schemaVersion` is the pack's *shape* and gates whether this build can parse it at all;
+`version` is its *content revision* and is what bumps when a transcribed stat block is
+corrected. A save compares both, and reacts differently: a content upgrade is a warning,
+a downgrade or a shape change is an error.
+
+**Where the manifest attaches** (resolved in Phase 1): the authoritative copy lives
+**inside the event log**, on `CAMPAIGN_CREATED`, with any later change recorded as a
+`CONTENT_PACKS_CHANGED` event rather than an edit. The log is the source of truth and the
+thing export/import round-trips, so anything outside it isn't really saved; and modelling
+a pack change as a new fact rather than a mutation keeps the chronicle able to say which
+quests were played against which content. `CampaignMeta.contentPacks` in Dexie is a
+denormalized read-model copy so the picker can flag an incompatible save without replaying
+every log — derived, never authoritative. Nothing auto-repairs: a mismatch is reported and
+the player chooses, because the risk is silent drift and the cure for silent drift is to
+stop being silent, not to block the load.
+
 ---
 
 ## 3. Domain model
@@ -352,7 +369,7 @@ campaign.
 interface Campaign {
   id: Id;
   name: string;
-  contentPacks: { id: string; version: number }[];
+  contentPacks: PackRef[];    // { id, name, version, schemaVersion } — see §2.4
   parties: Party[];
   questLog: QuestRecord[];
   pouch: PouchState;          // persists between games, per p.59

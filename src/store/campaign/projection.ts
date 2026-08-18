@@ -6,6 +6,7 @@
  * covers exactly what the thin event slice touches today; extend both together.
  */
 
+import type { PackRef } from '../../content/manifest'
 import type { CampaignEvent, Id, ItemRef } from './events'
 
 export interface AdventurerState {
@@ -30,7 +31,10 @@ export interface PartyState {
 export interface CampaignState {
   id: Id | null
   name: string
-  contentPacks: { id: string; version: number }[]
+  /** Manifest currently in force (design §2.4) — see content/manifest.ts for why it lives here. */
+  contentPacks: PackRef[]
+  /** Every manifest this campaign has been played against, oldest first. */
+  contentPackHistory: { packs: PackRef[]; at: number; reason?: string }[]
   createdAt: number
   parties: PartyState[]
 }
@@ -39,7 +43,14 @@ export const RENOWN_MIN = 0
 export const RENOWN_MAX = 12
 
 export function emptyCampaign(): CampaignState {
-  return { id: null, name: '', contentPacks: [], createdAt: 0, parties: [] }
+  return {
+    id: null,
+    name: '',
+    contentPacks: [],
+    contentPackHistory: [],
+    createdAt: 0,
+    parties: [],
+  }
 }
 
 const clampRenown = (n: number): number => Math.min(RENOWN_MAX, Math.max(RENOWN_MIN, n))
@@ -76,7 +87,21 @@ export function campaignReducer(state: CampaignState, event: CampaignEvent): Cam
         id: event.id,
         name: event.name,
         contentPacks: event.contentPacks,
+        contentPackHistory: [{ packs: event.contentPacks, at: event.createdAt }],
         createdAt: event.createdAt,
+      }
+
+    case 'CAMPAIGN_RENAMED':
+      return { ...state, name: event.name }
+
+    case 'CONTENT_PACKS_CHANGED':
+      return {
+        ...state,
+        contentPacks: event.contentPacks,
+        contentPackHistory: [
+          ...state.contentPackHistory,
+          { packs: event.contentPacks, at: event.at, reason: event.reason },
+        ],
       }
 
     case 'PARTY_ADDED':
@@ -101,12 +126,18 @@ export function campaignReducer(state: CampaignState, event: CampaignEvent): Cam
               characterId: event.characterId,
               classId: event.classId,
               displayName: event.displayName,
-              xpFilled: 0,
+              xpFilled: event.startingXp ?? 0,
               inventory: [],
             },
           ],
         }
       })
+
+    case 'ADVENTURER_REMOVED':
+      return updateParty(state, event.partyId, (p) => ({
+        ...p,
+        adventurers: p.adventurers.filter((a) => a.id !== event.advId),
+      }))
 
     case 'RENOWN_CHANGED':
       return updateParty(state, event.partyId, (p) => ({

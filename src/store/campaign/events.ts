@@ -10,6 +10,8 @@
  * never generates it (design principle #2).
  */
 
+import type { PackRef } from '../../content/manifest'
+
 export type Id = string
 
 export interface ItemRef {
@@ -26,9 +28,21 @@ export type CampaignEvent =
       t: 'CAMPAIGN_CREATED'
       id: Id
       name: string
-      contentPacks: { id: string; version: number }[]
+      /**
+       * The content pack manifest this campaign was built against (design §2.4).
+       * It lives on the event because the log is the source of truth — see the
+       * placement rationale in `src/content/manifest.ts`.
+       */
+      contentPacks: PackRef[]
       createdAt: number
     }
+  | { t: 'CAMPAIGN_RENAMED'; name: string }
+  /**
+   * The player accepted a different set of content packs mid-campaign (a pack was
+   * updated, added, or removed). Recorded as a new fact rather than editing the
+   * creation event, so the log still says what each quest was played against.
+   */
+  | { t: 'CONTENT_PACKS_CHANGED'; contentPacks: PackRef[]; at: number; reason?: string }
   | { t: 'PARTY_ADDED'; partyId: Id; name: string }
   | {
       t: 'ADVENTURER_ADDED'
@@ -37,7 +51,15 @@ export type CampaignEvent =
       characterId: string
       classId: string
       displayName: string
+      /**
+       * XP spaces pre-filled from the character board's `stats.xp.default`
+       * (design §4 Phase 1: "auto-fill default XP spaces"). Carried on the event
+       * because the projection must stay content-free; omitted means 0.
+       */
+      startingXp?: number
     }
+  /** Undo the addition of an Adventurer while building a party (not a death — see p.78). */
+  | { t: 'ADVENTURER_REMOVED'; partyId: Id; advId: Id }
   /** Renown delta (may be negative); projection clamps the total to 0..12 (p.72). */
   | { t: 'RENOWN_CHANGED'; partyId: Id; amount: number; source: string }
   /** Guilder delta on a party's Stash (may be negative). */

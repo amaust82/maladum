@@ -11,11 +11,14 @@ clone with `git config core.hooksPath .githooks` (also listed in `README.md`); b
 genuine exception — a formatting sweep, a revert — with `git commit --no-verify`.
 `CLAUDE.md` states the same rule for agent sessions.
 
-## Status — updated 2026-08-17
+## Status — updated 2026-08-18
 
-**Phase 0 (Foundation) is complete.** The app builds, and `npm test` is green:
-**151 tests across 12 files**. Working tree is committed; `docs/design.md` remains the
-design source of truth and hasn't changed since implementation started.
+**Phase 0 is complete; Phase 1 is under way** — campaign management and the party builder
+are in, and the app now has real screens instead of the scaffold. `npm run build` is clean
+and `npm test` is green: **232 tests across 18 files**.
+
+`docs/design.md` was amended this session (§2.4 and the `Campaign` interface in §3) to
+record where the content pack manifest attaches — see "Resolved this session" below.
 
 This section is kept current as work lands, so a lost session costs nothing — read it
 first, then "Next actions" at the bottom.
@@ -31,7 +34,65 @@ first, then "Next actions" at the bottom.
 | Dexie schema + export/import to a single JSON file | done | `src/db/` |
 | Rules engine + tests for every derived value | done | `src/rules/` (difficulty, upkeep, advancement, market, crafting, escape) |
 
-### Loader notes (newest work)
+### Phase 1 checklist (design.md §4)
+
+| Item | State | Where |
+| --- | --- | --- |
+| Campaign management — create/list/duplicate/delete/rename, export/import | done | `src/services/campaignService.ts`, `src/stores/campaigns.ts`, `src/screens/CampaignPicker.vue` |
+| Content pack manifest recorded in saves + compatibility report | done | `src/content/manifest.ts` |
+| Party builder — boards, default XP fill, Guilder validation | done | `src/rules/partyBuilder.ts`, `src/services/partyService.ts`, `src/screens/PartyBuilder.vue` |
+| Incomplete-content model (how the app surfaces unverified data) | done | `src/content/readiness.ts`, `src/components/ReadinessBadge.vue` |
+| Routing + tab shell (Party live, other four stubbed) | done | `src/router.ts`, `src/screens/CampaignShell.vue` |
+| Character sheet | not started | — |
+| Companions & Apprentices | not started | — |
+| Campaign Phase wizard (Escape → Advancement → Market → Rest) | not started | — |
+| Base Camp, Side Quest tracker, Quest log, Pouch ledger | not started | — |
+
+### Resolved this session
+
+**1. Where the pack manifest attaches to a save (was an open decision).**
+The authoritative copy lives **inside the event log**, on `CAMPAIGN_CREATED`, and a later
+change is a new `CONTENT_PACKS_CHANGED` event rather than an edit to the old one. Reasons,
+in order of weight:
+
+- The log is the source of truth and the thing export/import round-trips. A manifest kept
+  only in the Dexie row would not survive an export, which defeats the point of recording
+  it (design §2.4).
+- Modelling a pack change as a *new fact with a timestamp* keeps the chronicle able to say
+  "quests 1–4 were played against core v1, 5+ against v2" — the exact question you ask
+  when an old number looks wrong. `CampaignState.contentPackHistory` holds that.
+- `CampaignMeta.contentPacks` in Dexie stays, but strictly as a denormalized read-model so
+  the picker can flag an incompatible save without replaying every log. Every write goes
+  "append event → re-derive the row" (`campaignService.metaFromState`), so it can't drift.
+- Nothing auto-repairs. `compareManifests()` reports and the player decides
+  (`acceptContentPacks()` records the choice). The risk being defended against is silent
+  drift, and the cure for that is to stop being silent, not to refuse the load.
+
+Packs now carry **two** numbers: `schemaVersion` (shape — gates parsing) and `version`
+(content revision — bumps when a transcribed value is corrected). A content upgrade is a
+warning; a downgrade or shape change is an error.
+
+**2. How the app surfaces incomplete content (the collision the party builder was
+expected to hit).** `src/content/readiness.ts` grades every Adventurer/Class board as
+`ready` / `partial` / `placeholder` from the packs' own `_placeholder` and `_verified`
+annotations, and that grade drives the UI:
+
+- **placeholder** (whole entity fake) — hidden from every picker behind an explicit
+  "show placeholder boards" opt-in, with a count of what's hidden. Fake data must not be
+  one careless tap away from looking like a real party.
+- **partial** (real data, some fields untranscribed — i.e. Syrio) — selectable, badged
+  amber, with the missing field names spelled out on the card.
+- The load-bearing rule: **an unknown number never becomes 0.** A missing Guilder cost
+  travels as `null` from the pack through `rules/partyBuilder.ts` to the screen, which
+  reads "at least 120 Guilders · 1 unknown cost" rather than a total that looks exact. A
+  budget that can't be checked produces a warning, never a green tick.
+
+A consequence worth knowing: with the current seed content the only Class board is a
+flagged placeholder, so **a party cannot be completed without opting into placeholders**.
+That's the honest state of the data, and the builder says so in as many words rather than
+letting you build a party out of fiction by accident.
+
+### Loader notes
 
 `src/content/loader.ts` never throws. `loadPacks(raws)` / `loadBundledPacks()` return
 `{ library, issues }`, so one broken pack doesn't take the app down — it lands in `issues`
@@ -45,9 +106,8 @@ and the good packs still load. Details worth knowing before you build on it:
 - **Cross-pack references resolve after merge** — an expansion recipe legitimately spends
   a resource defined in `core`, so integrity checking can't be per-pack.
 - **`library.provenance`** maps `"<entity>:<id>"` → winning pack id, and `library.packs` is
-  the manifest a save file records (design §2.4: "a save file records which pack versions
-  it was created against"). The event store does **not** record it yet — wiring that in is
-  a Phase 1 task, listed below.
+  the manifest a save file records (design §2.4). Campaign creation now writes it into the
+  log via `manifestFrom(library)` — see "Resolved this session" above.
 - **`SUPPORTED_SCHEMA_VERSION = 1`.** Packs above it are refused with an error rather than
   parsed optimistically.
 - Packs are bundled at build time via `import.meta.glob`, so loading is synchronous and
@@ -124,8 +184,9 @@ Content gaps (unchanged since the original drop — none of them block Phase 1 s
    structural placeholders flagged `"_placeholder": true`. Getting real data in means
    photographing the physical boards or using Battle Systems' Character Creator
    (rulebook p.94) — the PDF's graphical boards don't text-extract reliably. The party
-   builder can be built against the placeholders and will surface exactly which fields
-   the real data has to fill.
+   builder is built and names exactly which fields the real data has to fill: run it and
+   read the amber badges. Until a real Class board is transcribed, completing a party
+   requires ticking "show placeholder boards".
 2. **Item fields are thin.** Crafted-item stubs have `name`, `type`, `size`, `sellPrice`
    — no combat stats (attack dice, damage type), which weren't in the spreadsheet source.
    Fine for crafting bookkeeping; not yet real playable item data.
@@ -138,26 +199,36 @@ Open implementation decisions (genuine calls, not oversights):
   tokens alongside equipment tokens (same physical container) or separately (cleaner data
   model)? See the rules note at the bottom of this file for what physically goes in the
   pouch. Still undecided.
-- **Pack manifest in save files** — `library.packs` exists but nothing writes it into a
-  campaign's persisted state yet. Decide where it hangs off the event store / Dexie record
-  when campaign creation gets built.
+- **Starting Guilders for a new party** — not transcribed from the rulebook, so the party
+  builder takes a budget as optional player input and skips the check when it's blank
+  rather than assuming a purse. Fill this in when the number is verified.
+- **The 4-Adventurer party limit has no page citation yet.** `MAX_PARTY_SIZE` in
+  `src/rules/partyBuilder.ts` is enforced on design §3's say-so; the rulebook page is
+  unverified and deliberately not invented in the doc comment.
 
 ## Next actions
 
-Phase 0 is done, so the next session starts on **Phase 1 (design.md §4)**, in this order:
+Phase 1 continues (design.md §4), in this order:
 
-1. **Campaign management** — create/list/duplicate/delete campaigns on top of the existing
-   event store and Dexie layer, wiring `library.packs` into each campaign record as it's
-   created (see the open decision above). Export/import already exists in `src/db/`.
-2. **Party builder** — first real screen, because everything else depends on it having
-   data to show. Validates against Guilders, auto-fills default XP spaces. It will run
-   into the placeholder Adventurer/Class data above; that's the expected forcing function
-   for deciding how the app handles incomplete content.
-3. **Character sheet**, then the **Campaign Phase wizard** (Escape → Advancement → Market
-   → Rest) — the rules engine already has every calculation these need.
+1. **Character sheet** — stats as the physical wax-seal rows (filled vs. potential), XP
+   track grid with the level-up reward inline, Class skill tree greyed above the rank cap,
+   spell list, inventory with size accounting, armour slots. `src/rules/advancement.ts`
+   already computes rank, caps and level-up eligibility; this screen is presentation over
+   numbers that are already tested. It will need the projection extended beyond
+   `xpFilled`/`inventory` — grow `CampaignState.AdventurerState` and the event union
+   together, as `src/store/campaign/events.ts` says.
+2. **Base Camp (Camp tab)** — Stash, Renown track, storage, notes. Small, and it unblocks
+   the Market step of the wizard.
+3. **Campaign Phase wizard** (Escape → Advancement → Market → Rest) — the rules engine has
+   every calculation; this is the four-step flow over the top.
 
-`src/App.vue` is still the scaffold placeholder; it now shows loaded-content counts and
-any loader errors as a smoke check, and Phase 1 replaces it with real screens.
+Two smaller things left deliberately undone, so they don't get mistaken for oversights:
+
+- The Camp / Play / Log / Rules tabs render disabled in `CampaignShell.vue`. That's on
+  purpose — the finished shape is visible without pretending the screens exist.
+- `campaignService.commit()` re-reads the whole log to refresh the picker row. Correct and
+  cheap at campaign scale; if it ever isn't, the snapshotting in `eventStore.ts` is the
+  answer, not a hand-maintained cache.
 
 ## One rules question that came up along the way (not blocking, just FYI)
 

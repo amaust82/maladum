@@ -13,6 +13,7 @@
  * content update can't silently corrupt a campaign.
  */
 
+import type { PackRef } from './manifest'
 import { ContentPack, type AdventurerDef, type ClassDef, type CraftingResourceDef, type ItemDef, type RecipeDef } from './schema'
 
 /** Schema version this build understands. Packs above this are refused. */
@@ -41,16 +42,9 @@ export type EntityKind =
   | 'quests'
   | 'recipes'
 
-/** What a save file records: which packs, at which version, a campaign was built against. */
-export interface PackManifestEntry {
-  id: string
-  name: string
-  schemaVersion: number
-}
-
 export interface ContentLibrary {
-  /** Packs that merged successfully, in merge order. */
-  packs: PackManifestEntry[]
+  /** Packs that merged successfully, in merge order — the manifest a save records (§2.4). */
+  packs: PackRef[]
   craftingResources: Map<string, CraftingResourceDef>
   adventurers: Map<string, AdventurerDef>
   classes: Map<string, ClassDef>
@@ -155,7 +149,12 @@ export function loadPacks(raws: Record<string, unknown>): LoadResult {
   }
 
   for (const { pack } of parsed) {
-    library.packs.push({ id: pack.id, name: pack.name, schemaVersion: pack.schemaVersion })
+    library.packs.push({
+      id: pack.id,
+      name: pack.name,
+      version: pack.version,
+      schemaVersion: pack.schemaVersion,
+    })
 
     for (const entity of ENTITY_KINDS) {
       const index = library[entity] as Map<string, unknown>
