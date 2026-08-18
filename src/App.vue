@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const buildTime = new Date().toISOString()
-const env = import.meta.env.MODE
+const env = import.meta.env.VITE_APP_ENV ?? import.meta.env.MODE
 </script>
 
 <template>
