@@ -1,0 +1,24 @@
+#!/bin/sh
+# Keep STATUS.md honest: a commit that changes code or content must also update the
+# living status doc. A session can die mid-task at any moment; a stale STATUS.md is
+# what makes that expensive.
+#
+# Armed with: git config core.hooksPath .githooks
+# Bypass (rare, e.g. a pure formatting sweep): git commit --no-verify
+
+changed=$(git diff --cached --name-only --diff-filter=ACMRD)
+
+echo "$changed" | grep -qE '^(src/|content/)' || exit 0
+echo "$changed" | grep -qx 'STATUS.md' && exit 0
+
+cat >&2 <<'MSG'
+✗ pre-commit: this commit touches src/ or content/ but not STATUS.md.
+
+  Update STATUS.md before committing:
+    - Status heading: today's date and the current test count
+    - Phase checklist: move anything that just got finished
+    - Next actions: name the concrete next task
+
+  Intentionally skipping (formatting-only, revert, etc.)?  git commit --no-verify
+MSG
+exit 1

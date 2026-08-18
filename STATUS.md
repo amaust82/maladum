@@ -1,9 +1,15 @@
-# Project status & handoff — Maladum Campaign Companion
+# Project status — Maladum Campaign Companion
 
 **Purpose of this file:** the living "where are we" doc. Read this first when picking the
 project back up, then `docs/design.md` for the actual design (it stays the source of
 truth). Keep the Status and Next-actions sections current as work lands — they're what
 makes a dropped session cheap to resume.
+
+**Keeping it current is enforced**, not remembered: `.githooks/pre-commit` rejects a
+commit that touches `src/` or `content/` without also touching this file. Arm it once per
+clone with `git config core.hooksPath .githooks` (also listed in `README.md`); bypass a
+genuine exception — a formatting sweep, a revert — with `git commit --no-verify`.
+`CLAUDE.md` states the same rule for agent sessions.
 
 ## Status — updated 2026-08-17
 
