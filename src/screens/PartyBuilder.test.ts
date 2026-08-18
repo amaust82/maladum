@@ -47,10 +47,21 @@ describe('PartyBuilder against the seed content', () => {
     expect(wrapper.text()).toContain('armourSlots')
   })
 
-  it('names the Class board gap on the card, since the skill wheel is untranscribed', async () => {
+  it('names the gap on the card for the one Class board still untranscribed', async () => {
+    // Most Class boards are transcribed now, so this picks the one that isn't —
+    // the badge has to keep telling the truth about Mentor while its neighbours
+    // are complete.
+    const wrapper = mountBuilder()
+    await wrapper.findAll('select')[1].setValue('mentor')
+    expect(wrapper.text()).toContain('skills')
+  })
+
+  it('does not badge a fully transcribed Class board as unverified', async () => {
     const wrapper = mountBuilder()
     await wrapper.findAll('select')[1].setValue('barbarian')
-    expect(wrapper.text()).toContain('skills')
+    // Ariah (the default Adventurer) is still partial, so "Unverified" appears for
+    // her — what must not appear is a gap list naming the Class board's fields.
+    expect(wrapper.text()).not.toContain('spellSchools')
   })
 
   it('totals a real Guilder cost exactly once both boards are chosen', async () => {

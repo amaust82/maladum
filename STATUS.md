@@ -11,16 +11,20 @@ clone with `git config core.hooksPath .githooks` (also listed in `README.md`); b
 genuine exception — a formatting sweep, a revert — with `git commit --no-verify`.
 `CLAUDE.md` states the same rule for agent sessions.
 
-## Status — updated 2026-08-18 (second session)
+## Status — updated 2026-08-19
 
 **Phase 0 is complete; Phase 1 is under way.** Campaign management, the party builder
 and the Rules reference are in. `npm run build` is clean and `npm test` is green:
-**278 tests across 20 files**.
+**293 tests across 21 files**.
 
-The headline change this session is content, not code: `core.json` was replaced with a
-**substantially real dataset** (schemaVersion 2), and the schema/loader/readiness layers
-were extended to carry it. See "The content pack got real" below — most of the caveats
-that used to live in this file are no longer true.
+The headline change is content, not code: `core.json` became a **substantially real
+dataset** (schemaVersion 2), and then Adam transcribed **the Class boards directly from
+the physical components** (2026-08-18/19), closing what this file spent two sessions
+calling "the one real content gap". 24 of 25 Class boards are in; Mentor is the holdout.
+
+Class boards were the harder half of the board data, and they are now the *complete* half
+— 24 of 25 Class boards vs 1 of 20 Adventurer stat blocks. The remaining content gap is
+Adventurer boards; see "The remaining content gap" below.
 
 This section is kept current as work lands, so a lost session costs nothing — read it
 first, then "Next actions" at the bottom.
@@ -63,7 +67,7 @@ and reading the images does not), a fan-made calculator spreadsheet
 | --- | --- | --- |
 | `craftingResources` | 15 | Real — crafting spreadsheet |
 | `adventurers` | 20 | **Name + cost real for all 20.** Stat block real for Syrio only. Species, innate abilities, armour slots: untranscribed everywhere |
-| `classes` | 25 | **Name + cost real.** Skills, innate ability, spell schools: untranscribed (see the one real gap, below) |
+| `classes` | 25 | **Real for 24 of 25** — skill wheel, stat bonuses, granted spells/abilities, board pairings, transcribed from the physical boards. Mentor outstanding |
 | `companions` | 10 | Name + cost real; the four named ones cross-check against the rulebook's Companions section |
 | `items` | 273 | Real — name, rank, rarity, buy/sell cost, type, and a `notes` shorthand that names real traits |
 | `spells` | 4 schools × levels 1–5 | Real — rulebook pp.132–139 |
@@ -99,6 +103,11 @@ and reading the images does not), a fan-made calculator spreadsheet
   and `partyCreationEvents` **omits** `startingXp` rather than sending 0. Sending 0 would
   be a claim about the board; omitting it leaves the projection's own default, which is a
   claim about the save.
+- **Class skills are referenced by `name`, not `id`** (`ClassSkillRef` = `{ name,
+  levelCap }`). Skills have no ids anywhere in the source and the skills reference section
+  is already keyed by name, so the boards name them the way the rulebook does. This is what
+  the Class transcription initially broke against — the schema had assumed `{ id, maxLevel }`
+  from the design doc's sketch, and the doc was the stale side.
 - **`rules/difficulty.ts` is now cross-validated against the pack.** Its table was
   transcribed from rulebook prose; `core.json.difficultyTable` came from the spreadsheet.
   Two independent transcriptions of p.72, and they agree on every band boundary — the test
@@ -135,19 +144,59 @@ carry weight beyond "it searches":
 - Search ANDs its terms (an OR search over a 273-item price list returns most of the book
   for any two-word query) and ranks title > group/subtitle > body, stable within a score.
 
-### The one real content gap left: Class → skill/spell mapping
+### Class boards: transcribed (2026-08-19)
 
-Which of the 43 skills a Class board grants, which school(s) a Magus draws from, which
-innate abilities Syrio starts with. **This is not in the PDF** — it was checked page by
-page: the Adventurer Dashboards page shows one example board to label the layout, and the
-Adventurers/Classes sections (pp.114–129) are lore and portrait art only. The other 19
-Adventurer boards and 24 Class boards exist only as physical cardboard. Paths, if picked
-up later (decided with Adam 2026-08-18: **skipped for now**): photograph the 45 boards and
-transcribe from photos; check for a Battle Systems digital companion tool; check a fan
-wiki, with the same fan-source caveat as the spreadsheet.
+Adam transcribed 24 of 25 Class boards straight off the components. Each board carries its
+skill wheel (`skills[{ name, levelCap }]`), plus `statBonuses`, `grantedSpells`,
+`grantedAbilities`, `spellSlots`, `boardCopies` and `pairedWith`. **Mentor is the only
+board still outstanding**, and it stays flagged rather than guessed at.
 
-Not blocking: party bookkeeping doesn't need to validate which skills a Class *should*
-have — it records what's on the physical board in front of the player.
+This is the first content in the project to grade **`ready`** — the party builder now
+badges Class boards Complete instead of listing gaps.
+
+**The data checks out against itself**, which matters because the boards have no
+machine-readable source anywhere — a typo can't be caught by re-reading the source, only
+by the data disagreeing with itself. `src/content/integrity.test.ts` asserts, and all pass:
+
+- all 43 skill names resolve to the rulebook skill reference, **and** all 43 reference
+  skills are used by some board (no orphans either direction);
+- every `grantedSpells` / `grantedAbilities` entry resolves to a transcribed spell/ability;
+- `pairedWith` is symmetric, `boardCopies` equals the pairing count, and the inventory
+  closes exactly — 40 sides ÷ 2 = 20 = the number of distinct pairings.
+
+**What those tests do NOT catch** (verified by mutating the data and re-running, not
+assumed): a skill wheel entry *dropped entirely* from one board. Every skill appears on at
+least two boards, so the orphan check only fires if a skill vanishes from all of them, and
+boards carry 6–10 skills with no fixed slot count, so there's no arithmetic to catch an
+off-by-one. Irreducible without a second source — don't read a green suite as proof the
+wheels are complete.
+
+**One thing worth a second look:** Curator has 10 skills where every other board has 6–8.
+Possibly real, possibly a transcription artefact. It's pinned by a test so that changing it
+is a deliberate act rather than a silent edit.
+
+**Open question for Adam:** `innateAbility` (singular) is `null` on every class that still
+carries the key and absent on the rest, while `grantedAbilities` (array) holds the real
+data. It looks superseded — but it's still in the schema, with a comment, rather than
+deleted on a guess.
+
+### The remaining content gap: Adventurer stat blocks
+
+19 of 20 Adventurer boards have a real name and Guilder cost but `stats: null` (only
+Syrio's is transcribed, from the rulebook's worked example), plus untranscribed `species`,
+`innateAbilities`, `armourSlots`. Same fix as the Class boards: read them off the
+cardboard. Every Adventurer therefore still grades `partial`.
+
+Not blocking: party bookkeeping doesn't need to validate what a board *should* have — it
+records what's on the physical board in front of the player.
+
+### Known but unmodelled: physical board availability
+
+Class boards are double-sided — 25 classes on 20 boards, so `boardCopies`/`pairedWith`
+cap what a party can actually field (Sellsword is on 5 boards, Assassin on 2; you can't
+take Assassin and Guardian off the same board). **Recorded and integrity-checked, not
+enforced** — Adam's call, 2026-08-19. It's a matching problem rather than a per-class
+count, so it deserves its own change rather than a naive filter in the party builder.
 
 ### Known soft spots (be aware, not blocking)
 
@@ -261,9 +310,10 @@ that wasn't in the source and wasn't invented. Crafted stubs have `name`/`type`/
 
 Content gaps:
 
-1. **Class → skill/spell/ability mapping** — the one real gap, see above.
-2. **Adventurer stat blocks** — 19 of 20 boards carry a real name and cost with a `null`
-   stat block. Same fix as (1): photograph the physical boards.
+1. **Adventurer stat blocks** — the main remaining gap. 19 of 20 boards carry a real name
+   and cost with a `null` stat block, plus untranscribed species/armour slots. Fix is to
+   read them off the cardboard, as was just done for the Class boards.
+2. **The Mentor Class board** — the 1 of 25 not yet transcribed.
 3. **Adversaries, quests and Side Quests have zero seed content** (`adversaries: []`,
    `quests: []`). Not blocking Phase 1.
 4. **Companion abilities** — names and costs only; the ability text is on the boards.
@@ -292,10 +342,24 @@ Phase 1 continues (design.md §4), in this order:
    index (`content/reference.ts`) is the source for the skill/spell text it displays. It
    needs the projection extended beyond `xpFilled`/`inventory` — grow
    `CampaignState.AdventurerState` and the event union together, as
-   `src/store/campaign/events.ts` says. Note the sheet will hit the untranscribed stat
-   blocks head-on: 19 of 20 boards have `stats: null`, so it needs a way for the player to
-   type their own board's numbers in — which is arguably the right answer anyway, and
-   would close the content gap from the app instead of from a photo session.
+   `src/store/campaign/events.ts` says.
+
+   **The Class board transcription changes the shape of this task.** The skill tree is now
+   the best-supported part of the screen, not the worst: each board supplies its skill
+   wheel with a real `levelCap` per slot, so "greyed above the rank cap" is a genuine
+   computation against real data rather than a mock. Same for the spell list —
+   `grantedSpells` names actual transcribed spells with full rules text behind them.
+
+   What the sheet still collides with is the *Adventurer* side: 19 of 20 boards have
+   `stats: null`, so it needs a way for the player to type their own board's numbers in.
+   That's arguably the right answer regardless — it closes the remaining content gap from
+   inside the app instead of from a photo session, and turns transcription into a
+   by-product of play.
+
+   One design decision to settle when this starts (recorded in design.md §3): does a
+   board-granted spell land in the Adventurer's `spells[]`, or stay derived at display
+   time? Storing it is simpler to render but costs the log the ability to distinguish
+   "granted by the board" from "learned with XP".
 2. **Base Camp (Camp tab)** — Stash, Renown track, storage, notes. Small, and it unblocks
    the Market step of the wizard. The 273-item price list is real now, so a Market screen
    has something to sell.

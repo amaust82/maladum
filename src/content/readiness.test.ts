@@ -101,15 +101,21 @@ describe('the bundled core pack', () => {
     expect(grades).toEqual(new Set(['partial']))
   })
 
-  it('grades every Class partial — the skill wheel mapping is the outstanding gap', () => {
-    // Class name + cost are transcribed, so nothing is a whole-entity placeholder
-    // any more; what's missing is which skills/spell schools each board grants.
-    for (const klass of library.classes.values()) {
-      const r = classReadiness(klass)
-      expect(r.grade).toBe('partial')
-      expect(r.missing).toEqual([])
-      expect(r.unverified).toContain('skills')
-    }
+  it('grades the transcribed Class boards ready — the first content in the pack to get there', () => {
+    // The skill wheels were transcribed from the physical boards, so these boards
+    // are complete: nothing required is missing and the pack flags nothing unverified.
+    const graded = [...library.classes.values()].map((k) => [k.id, classReadiness(k)] as const)
+    const ready = graded.filter(([, r]) => r.grade === 'ready').map(([id]) => id)
+    expect(ready.length).toBe(library.classes.size - 1)
+    expect(ready).toContain('assassin')
+  })
+
+  it('still grades the one untranscribed Class board partial, naming its gaps', () => {
+    // Mentor is the only board not yet transcribed. It must not be quietly rounded
+    // up to "ready" just because every board around it is.
+    const r = classReadiness(library.classes.get('mentor')!)
+    expect(r.grade).toBe('partial')
+    expect(r.unverified).toContain('skills')
   })
 
   it('has no fully ready board yet — the content gap is real, not hidden', () => {

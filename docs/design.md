@@ -46,6 +46,28 @@ implementation.)
 > content-privacy posture stays exactly what it was, a "worth doing if this goes public"
 > note rather than something to build for today. Real rulebook content can live in the
 > repo as normal. Design is done for now; §9 has the concrete next step.
+>
+> **Revision note (5):** while transcribing the physical Class boards for `content/core.json`
+> (skills granted, level caps, innate bonuses, granted spells — see `HANDOFF.md` for the
+> full data breakdown), two things surfaced that change this doc:
+> 1. **Class boards are physically double-sided and finite**, and this is now real data,
+>    not a hypothetical. Each of the 20 double-sided Class boards pairs two specific
+>    Classes back-to-back (`classes[].pairedWith`), and some Classes have multiple
+>    physical copies (`classes[].boardCopies`, 1–5). This means "can I field three
+>    Sellswords and a Prymorist at once" is a real physical constraint the party builder
+>    can check, not just a Guilders-cost question — see the updated Phase 1 bullet and the
+>    board-availability row in §0.1. `Mentor`, the one Class not yet accounted for in the
+>    double-sided set, is suspected to live in *Oblivion's Maw* (unowned) rather than the
+>    base 20 boards — the numbers only balance (20 boards × 2 sides = 40 slots) without it.
+> 2. **Found the actual party-assembly budget rule** (p.70): default recommended budget is
+>    **350 Guilders** for Adventurers + Classes combined (any limit is allowed, agreed with
+>    the table), plus a separate **~50 Guilders recommended for starting equipment**;
+>    unspent budget goes to the Stash. A party may contain any number of Adventurers total,
+>    but only **up to 4** are taken into any single quest. This is now folded into the
+>    Phase 1 party builder bullet below instead of being an open question.
+> 3. **Two new brainstorm ideas from you, both promoted straight to design**: a
+>    reverse/skill-first party composer (§6, Tier A #9), and an AI-assisted party-advisor
+>    prompt/data export (§6, Tier B #10) — see those entries for the full shape.
 
 ---
 
@@ -79,7 +101,7 @@ it now *asks what you rolled* and does the bookkeeping from that input.
 | **NPC AI Action Chart** (p.41) | The chart is a 6-node decision tree whose inputs (LoS? in reach? already moved? does the NPC's ranged attack roll more dice than its melee?) are all human eyeball judgments about the physical board and the printed stat cards. App asks them in order as yes/no taps and states the resulting action — no dice involved anywhere in this chart. | **Yes — the sweet spot.** It's a decision-tree *navigator* over facts you read off the table, not a simulator of anything. |
 | **Enemy roster / peg tracking as a live mirror** | Track every NPC's current Health/Skill/Magic and status counters in the app, kept in sync with a tap every time a hit lands | **No, not as a default.** NPCs already have a physical tracking mechanism (counters/tokens on their board), same as Adventurers' pegs. Requiring a phone tap for every hit *in addition to* moving the physical counter is worse than the dry-wipe board this app is meant to replace — it's double bookkeeping, and it's exactly the tedium principle #3 exists to avoid. Cut from the default build; see the Phase 3 rewrite for what survives (a one-time arrival note, not an ongoing mirror) and where an opt-in detailed mode might still make sense for new players or solo play. |
 | **Search token pouch** (p.14, 18–19, 28, 71) | No simulation, ever — the physical draw is the game. The app is a **pouch ledger**: it tracks which tokens have been added to (or removed from) the physical pouch across the campaign, since the rules require that state to persist between games. | **Yes, as a ledger only.** |
-| **Random hire pool / board draws** (p.68–69, 82–83) | The rules have you shuffle your physical collection of unused Adventurer, Class, and Companion boards and draw from the top. The app can't and shouldn't replace that shuffle — but across a long campaign, remembering *which boards are already spoken for* (hired, dead, in another party) is real cognitive load. So: the app tracks board availability and tells you which physical boards are eligible to include in the shuffle; you shuffle and draw them yourself. | **Yes, as an availability filter — not a randomizer.** |
+| **Random hire pool / board draws** (p.68–69, 82–83) | The rules have you shuffle your physical collection of unused Adventurer, Class, and Companion boards and draw from the top. The app can't and shouldn't replace that shuffle — but across a long campaign, remembering *which boards are already spoken for* (hired, dead, in another party) is real cognitive load. So: the app tracks board availability and tells you which physical boards are eligible to include in the shuffle; you shuffle and draw them yourself. As of the Class-board transcription (Revision note (5)) this is backed by real per-Class `boardCopies` and `pairedWith` data — Class boards are physically double-sided, so a board doing duty as one Class isn't available as its paired Class at the same time. The availability filter now needs to account for that pairing, not just a flat per-Class copy count. | **Yes, as an availability filter — not a randomizer.** |
 | **Spell reference** (p.132–139) | Searchable spell list, auto-filtered to what each character actually knows at their current rank | **Yes.** Low effort, high daily use, nothing physical involved. |
 | **Board state / LoS / movement** | Virtual grid | **No.** Out of scope. This is where the project dies. |
 
@@ -312,54 +334,178 @@ Cost: modest discipline up front, and you must snapshot the projection periodica
 
 ### 2.4 Content packs
 
+A pack is one JSON file under `content/`, merged by id at load time and validated with
+Zod (`src/content/schema.ts`). `core` merges first, then expansions alphabetically; a
+later pack overriding an earlier id wins, and the override is recorded as a warning rather
+than a silent replacement.
+
 ```jsonc
 // content/core.json
 {
-  "id": "dungeons-of-enveron",
-  "name": "Dungeons of Enveron (Core)",
-  "schemaVersion": 1,
+  "id": "core",
+  "name": "Maladum Deluxe (Core)",
+  "schemaVersion": 2,          // shape — gates parsing
+  "version": 3,                // content revision — bumps when a value is corrected
+
+  // ── Boards ──────────────────────────────────────────────────────────────
   "adventurers": [
-    { "id": "syrio", "name": "Syrio", "species": "...", "cost": 30,
+    { "id": "syrio", "name": "Syrio", "species": "...", "cost": 64,
       "stats": { "health": { "default": 4, "max": 6 },
                  "skill":  { "default": 1, "max": 4 },
                  "magic":  { "default": 1, "max": 4 },
                  "actions":{ "default": 2, "max": 2 },
                  "xp":     { "default": 3, "max": 16 } },
-      "innateAbilities": ["..."], "armourSlots": 2, "hasDenizenSide": true }
+      "innateAbilities": ["..."], "armourSlots": 2, "hasDenizenSide": true,
+      "_placeholder": ["species", "armourSlots"],   // see "Honest gaps" below
+      "_verified": "stats: Deluxe rulebook worked example" }
   ],
-  "classes":   [ { "id": "...", "cost": 20, "skills": [ { "id": "...", "maxLevel": 3 } ],
-                   "innateAbility": "...", "spellSchools": ["proximate"] } ],
-  "items":     [ { "id": "...", "rarity": "common", "buy": 5, "sell": 2,
-                   "size": 1, "type": "weapon"|"armour"|"consumable", "breakable": true } ],
-  "spells":    [ { "id": "healing", "school": "proximate", "level": 1, "text": "..." } ],
+  "classes": [
+    { "id": "assassin", "name": "Assassin", "cost": 13,
+      // Skill wheel. Referenced by NAME, not id — skills have no ids in the source.
+      // levelCap is how far this board may mark that skill (3 unless it prints less).
+      "skills": [ { "name": "Reflexes", "levelCap": 3 },
+                  { "name": "Malacyte Mastery", "levelCap": 1 } ],
+      "statBonuses": ["+1 Melee Die"],          // board text, deliberately unstructured
+      "grantedSpells": ["Strength"],            // → spells[].levels[].spells[].name
+      "grantedAbilities": [ { "name": "Scramble", "detail": "2/3" } ],  // → abilities[].name
+      "spellSlots": null,                       // spell-track slots; null = no track
+      "boardCopies": 2,                         // physical copies — see "board inventory"
+      "pairedWith": ["Guardian", "Curator"],    // reverse side of each copy
+      "innateAbility": null,                    // appears superseded by grantedAbilities
+      "spellSchools": [] }
+  ],
+  "companions": [ { "id": "astet", "name": "Astet", "cost": 37 } ],
+
+  // ── Market / loot ───────────────────────────────────────────────────────
+  "items": [
+    { "id": "dagger", "name": "Dagger", "type": "Weapons - Melee", "rank": "Rank 1",
+      "rarity": "common", "buyCost": 2, "sellPrice": 1, "notes": "Combat 1",
+      "size": "XS", "craftedOnly": false, "breakable": true }
+  ],
+  "craftingResources": [ { "id": "wood", "name": "Wood", "symbol": "...",
+                           "rarity": "common", "buyCost": 2 } ],
+  "recipes": [ { "itemId": "...", "resources": { "wood": 1 }, "isRelic": false } ],
+
+  // ── Reference sections (rulebook appendices; no ids in the source) ──────
+  "spells": [
+    { "name": "Proximate", "targeting": "...",
+      "levels": [ { "level": 1, "spells": [ { "name": "Healing", "text": "...",
+                                             "passive": false } ] } ] }
+  ],
+  "skills": [
+    { "name": "Agility Skills",
+      "skills": [ { "name": "Acrobatics",
+                    "levels": [ { "level": 1, "text": "..." } ] } ] }
+  ],
+  "abilities":  [ { "name": "Sharp", "text": "..." } ],   // the icon/trait glossary
+  "itemLore":   [ { "name": "Potions", "text": "..." } ], // the "Item Notes" appendix
+  "difficultyTable": [ { "band": 1, "min": 0, "max": 300, "novice": 5, "veteran": 0 } ],
+
+  // ── Play content ────────────────────────────────────────────────────────
   "adversaries": [ { "id": "revenants", "members": ["lamentor","myria","hellfont","rot-troll"],
                      "dreadBoards": [ { "side": "A", "bands": [ /* arrival specs */ ] } ] } ],
-  "quests":    [ { "id": "...", "dreadStart": 3, "dreadBoard": "revenants/A",
-                   "objectives": [...], "rewards": {...}, "searchAllocation": {...},
-                   "keyItems": [...], "cardTypes": ["environment","dungeon","revenants"] } ]
+  "quests": [ { "id": "...", "dreadStart": 3, "dreadBoard": "revenants/A",
+                "objectives": [...], "rewards": {...}, "searchAllocation": {...},
+                "keyItems": [...], "cardTypes": ["environment","dungeon","revenants"] } ]
 }
 ```
 
-Packs are merged by id at load time, validated with Zod, and a save file records which
-pack versions it was created against so a content update can't silently corrupt a
-campaign.
+**Two version numbers, deliberately.** `schemaVersion` describes the *shape* and gates
+parsing — a pack above `SUPPORTED_SCHEMA_VERSION` is refused rather than parsed
+optimistically. `version` is the *content revision* and bumps when a transcribed value is
+corrected. A save records both (§3, `Campaign.contentPacks`), so a content upgrade under
+an existing campaign is a warning while a downgrade or shape change is an error. Nothing
+auto-repairs: the app reports and the player decides.
 
-A pack carries **two** version numbers, because they answer different questions.
-`schemaVersion` is the pack's *shape* and gates whether this build can parse it at all;
-`version` is its *content revision* and is what bumps when a transcribed stat block is
-corrected. A save compares both, and reacts differently: a content upgrade is a warning,
-a downgrade or a shape change is an error.
+**Some reference entities have no ids, and shouldn't be given one.** Spell schools, skill
+categories, the icon/trait glossary and the Item Notes appendix are published by the
+rulebook as prose sections keyed only by name — and `name` is also how the rest of the
+data refers to them (an item's `notes` says "Sharp"; a Class board names its school). They
+merge by `name`; everything else merges by `id`. Minting synthetic ids for them would add
+a second identifier that nothing in the source uses.
 
-**Where the manifest attaches** (resolved in Phase 1): the authoritative copy lives
-**inside the event log**, on `CAMPAIGN_CREATED`, with any later change recorded as a
-`CONTENT_PACKS_CHANGED` event rather than an edit. The log is the source of truth and the
-thing export/import round-trips, so anything outside it isn't really saved; and modelling
-a pack change as a new fact rather than a mutation keeps the chronicle able to say which
-quests were played against which content. `CampaignMeta.contentPacks` in Dexie is a
-denormalized read-model copy so the picker can flag an incompatible save without replaying
-every log — derived, never authoritative. Nothing auto-repairs: a mismatch is reported and
-the player chooses, because the risk is silent drift and the cure for silent drift is to
-stop being silent, not to block the load.
+**The reference sections are the definitions everything else points at.** `abilities` in
+particular is the single place a trait like Sharp, Cleave or Cumbersome is defined; item
+`notes`, skill level text and spell text all name traits from it. Resolving those
+references is a lookup, never an inference — a name the glossary doesn't define stays
+plain text rather than becoming a broken link.
+
+**Prices are not always numbers.** The market list genuinely contains variable prices
+(`"4D6"`, `"X"`, `"*"`) alongside fixed ones and blanks, so a price is
+`number | string | null`. Arithmetic goes through `numericPrice()`, which yields `null`
+for anything that isn't a fixed figure; screens that merely *display* a price show the raw
+value. A variable price must never be coerced to 0, or a free item appears in the market.
+
+#### Honest gaps in a pack
+
+Content is transcribed from physical components and fan-made sources, so a pack has to be
+able to say "this part isn't known" without either omitting the entity or inventing a
+value. Two annotations do that, and they mean different things:
+
+- `"_placeholder": true` — the **whole entity** is a structural stand-in. Valid shape,
+  fake content. Hidden from every picker behind an explicit opt-in.
+- `"_placeholder": ["species", "stats"]` — the entity is **real**, but those fields are
+  untranscribed. Selectable and usable, badged, with the field names shown.
+- `"_verified": "..."` — provenance for the fields that *are* trustworthy.
+
+`src/content/readiness.ts` turns these into a `ready` / `partial` / `placeholder` grade so
+every screen agrees on which numbers can be trusted. A field-level list grades `partial`,
+never `placeholder`, and holds an entity back from `ready` even when the app doesn't
+currently need the missing field — "we haven't checked" is not the same as "it's fine".
+
+The load-bearing consequence, which every feature must preserve: **an unknown number never
+becomes 0.** A missing cost travels as `null` from the pack through the rules engine to the
+screen, which reports a lower bound ("at least 120 Guilders · 1 unknown cost") rather than
+a total that looks exact. A check that can't be performed produces a warning, never a
+green tick.
+
+The same principle applies inside transcribed text: where a rulebook glyph couldn't be
+identified, the text carries a literal `[icon: dice showing 2 and 3]` marker. Screens
+render those as visibly-unresolved chips, never as prose — letting an unconfirmed glyph
+read as rules text would launder a gap into an answer.
+
+#### Board data is per-board configuration, not reference data
+
+Which skills a Class board grants, which spells it hands out, and which stats a named
+Adventurer starts with are **printed on the physical components** and are not reproduced
+anywhere in the rulebook PDF — its Adventurers and Classes sections are lore and portrait
+art, and only one example board is shown, to label the layout. So this data can only ever
+arrive by transcription from the cardboard, board by board.
+
+**Class boards: done** (24 of 25, Mentor outstanding) — transcribed directly from the
+components, 2026-08-18/19. **Adventurer boards: outstanding** (1 of 20 — only Syrio's stat
+block, from the rulebook's worked example). That asymmetry is the current state of the
+project's content, and `_placeholder` on each entity is the authoritative record of it,
+not this paragraph.
+
+Two design consequences, both of which outlive the gap:
+
+1. **No feature may assume board data is populated.** A screen reads `_placeholder` (via
+   `readiness.ts`) and degrades, rather than branching on which specific boards happen to
+   be transcribed today.
+2. **The app validates what the player records, not what a board "should" have.** Party
+   bookkeeping needs to know what is on the cardboard in front of the player; second-
+   guessing it against a transcription would make the app wrong whenever the transcription
+   is. Transcribed data drives *display and convenience*, never *permission*.
+
+Transcription proceeds a board at a time: clearing a field name out of `_placeholder` is
+the whole migration.
+
+#### Physical board inventory — a real constraint, deliberately not yet modelled
+
+Class boards are **double-sided**: 25 classes live on 20 physical boards. `boardCopies`
+records how many boards a class appears on and `pairedWith` names the class on the reverse
+of each, one entry per copy. Sellsword is on 5 boards, Ranger on 3, most on 1–2.
+
+This encodes a constraint the app does not currently enforce: **a party's class picks must
+be physically satisfiable.** Two Adventurers can't both take Assassin and Guardian off the
+same board, and no party can field more copies of a class than exist. It's a small matching
+problem, not a filter — which is exactly why it isn't bolted onto the party builder as a
+naive per-class count.
+
+Status: **recorded and integrity-checked, not enforced** (`src/content/integrity.test.ts`
+asserts the inventory closes — 40 sides, 20 distinct pairings). Noted here so the
+constraint isn't rediscovered from scratch when someone wonders what `pairedWith` is for.
 
 ---
 
@@ -369,7 +515,7 @@ stop being silent, not to block the load.
 interface Campaign {
   id: Id;
   name: string;
-  contentPacks: PackRef[];    // { id, name, version, schemaVersion } — see §2.4
+  contentPacks: { id: string; version: number }[];
   parties: Party[];
   questLog: QuestRecord[];
   pouch: PouchState;          // persists between games, per p.59
@@ -427,9 +573,17 @@ interface Adventurer {
 
   xpFilled: number;             // spaces filled on the XP track
   rank: number;                 // derived: rows with ≥1 filled space
+  // SkillId is the skill's *name* ("Acrobatics") — the reference sections carry no
+  // ids and the Class boards name skills the same way. See §2.4.
   skills:  Record<SkillId, { charBoard: number; classBoard: number }>;
   spells:  SpellId[];
   spellTrackFilled: number;
+  // GAP, input for the character sheet: nothing here represents what the Class board
+  // *grants* — `grantedSpells`, `statBonuses`, `spellSlots` (§2.4). Those are board
+  // facts, so they're read from the content pack rather than stored per-Adventurer;
+  // what's undecided is whether a granted spell also lands in `spells[]` (simpler to
+  // render, but then the log can't tell "granted by the board" from "learned with XP")
+  // or stays derived at display time. Decide when the character sheet needs it.
 
   inventory: ItemRef[];         // size-limited, mirrors the physical tray
   armourSlots: (ItemRef | null)[];
@@ -476,7 +630,12 @@ content-pack shape and its own event:
 
 ```ts
 // content pack additions
-interface CraftingResourceDef { id: string; name: string; icon: string }
+// `symbol` (not `icon`) — matches the crafting spreadsheet the seed data came from.
+// `buyCost: null` = found in play only, never purchasable (e.g. Necrotic Fluids).
+interface CraftingResourceDef {
+  id: string; name: string; symbol: string;
+  rarity: Rarity; buyCost?: number | null; notes?: string;
+}
 interface RecipeDef {
   itemId: string;                          // the crafted item this unlocks
   resources: Partial<Record<CraftingResourceId, number>>;  // e.g. { fungus: 1, minerals: 1 }
@@ -523,7 +682,7 @@ from a bought item's.
 
 ### Phase 0 — Foundation (no user-visible features)
 
-- Vite + Vue 3 + TS + Tailwind scaffold, PWA manifest, dark theme
+- Vite + React + TS + Tailwind scaffold, PWA manifest, dark theme
 - Content pack schema + Zod validators + core pack loader
 - Event store, projection engine, snapshotting, undo stack
 - Dexie schema + export/import to a single JSON file
@@ -537,7 +696,24 @@ This is the dry-wipe board replacement. Ship this and stop; it's already useful.
 
 - **Campaign management** — create/list/duplicate/delete campaigns, export/import
 - **Party builder** — pick Adventurer + Class boards, auto-fill default XP spaces, assign
-  starting skills/spells, validate against Guilders
+  starting skills/spells, validate against Guilders. Default budget **350** for
+  Adventurers + Classes combined (p.70), separately-tracked **~50** recommended for
+  starting equipment, both editable — any limit is fine, this is just the rulebook's
+  suggested default. Any party may hold any number of Adventurers, but the builder should
+  flag when more than **4** are marked for a given quest, since that's the hard cap taken
+  into play. Two build modes, same underlying data:
+  - **Adventurer-first** (classic): pick an Adventurer, then a Class for them, see the
+    granted skills/spells populate.
+  - **Skill-first** (new, see §6 Tier A #9): pick the skills you want the party to have,
+    see which Class/Adventurer combos deliver them, drag characters and skills around to
+    mix and match, live cost total throughout.
+  Either mode validates against **physical board availability**, not just Guilders — each
+  Class has a `boardCopies` count and a `pairedWith` list of the other Class(es) sharing
+  its physical board(s) (double-sided, see Revision note (5)). Assigning a Class to a
+  character should mark its board (and therefore its paired Class's matching board) as
+  in-use, and warn rather than silently allow it if the party composition can't be
+  physically assembled from the boards actually in the box — same "reference reality, warn
+  don't block" posture as everything else physical-component-related in this doc.
 - **Character sheet** — stats with default/potential visualisation matching the physical
   wax-seal rows, skill tree per Class, spell list, inventory with size accounting,
   armour slots
@@ -753,10 +929,50 @@ and starts being the reason you'd choose it over a spreadsheet.
 8. **Achievements.** The rulebook already references a Campaign Log with named
    achievements (e.g. "Blazing Trails"). Model them as data in the content pack, unlock
    them from event-log conditions.
+9. **Skill-first party composer [new — added once the Class-board data existed].** The
+   normal party builder flow is Adventurer → Class → see what skills you got. This is the
+   reverse: pick the skills you actually want in the party ("I want someone with
+   Camouflage, someone with Persuasion, someone who can heal") and the app shows every
+   Class/Adventurer combination that would deliver them, with a live total cost and the
+   ability to drag characters and skills around to mix and match before committing to
+   anything. This was genuinely hard to justify before this session — it needs a complete
+   Class → skill map to be useful at all — but that map now exists in `core.json`
+   (24 of 25 Classes transcribed as of 2026-08-19), which moves this from "interesting
+   someday" to "cheap now." It should also be the natural place to surface the physical
+   board-availability check (§0.1, Revision note (5)) — if your desired mix needs three
+   Sellswords, the picker can tell you whether the box actually has three Sellsword boards
+   free before you build around a party you can't physically field.
 
 ### Tier B — high value, real effort. Build if the app sticks.
 
-9. **Point-buy Character Creator [Deluxe, promoted from Tier C].** The Deluxe rulebook's
+10. **AI-assisted party advisor [new].** For the fuzzy, creative asks a rules engine can't
+    answer well — "a party of unexpected heroes, ordinary townsfolk you wouldn't expect,"
+    "all magic but nothing too fiddly to play," "give me a classic tank/healer/mage/
+    support lineup" — the right tool is a general-purpose AI chat, not bespoke
+    recommendation logic baked into this app. Building that logic in-app would mean either
+    a narrow set of canned presets or an actual LLM integration, and the latter conflicts
+    with local-first/no-backend/no-accounts (§1) for a feature that isn't core to
+    bookkeeping. Instead: a **"Copy party-building prompt"** action that assembles your
+    natural-language ask together with a compact, curated data export (available
+    Adventurers/Classes with costs, granted skills, and current physical board
+    availability, scoped to expansions you actually own) onto the clipboard, ready to
+    paste into whatever AI chat you already use. Two pieces, generated separately since
+    they change at different rates:
+    - **Rules Primer** — a short, mostly-static downloadable text/Markdown file covering
+      the mechanics an AI needs to reason about a party (the 350/50 Guilders budget rule,
+      how Skills/Classes/spend work, the point-buy basics) — written once, refreshed
+      occasionally, meant to be attached to an AI conversation a single time rather than
+      re-sent with every question.
+    - **Party Data Snapshot** — generated fresh each time from your current save: owned
+      expansions' Adventurers/Classes/costs/skills and current board availability, kept
+      deliberately narrow (no items/spells/crafting unless relevant) so it stays small
+      enough to paste comfortably rather than dumping the whole content pack.
+    You paste both into your AI tool of choice alongside your own request and get a
+    recommendation back in that conversation — this app never calls an AI API or stores a
+    key, it just prepares good inputs. Real effort is in curating what belongs in the
+    snapshot without it turning into "just attach core.json"; worth prototyping the Rules
+    Primer content by hand before automating its generation.
+11. **Point-buy Character Creator [Deluxe, promoted from Tier C].** The Deluxe rulebook's
    Character Creation system (p.94–96) is official, fully-specified rules — explicit
    min/max/cost tables for every stat, XP-rank allocation, and innate abilities, rolling
    up to an auto-computed Guilder cost. Since the numbers are exact and already
@@ -766,23 +982,23 @@ and starts being the reason you'd choose it over a spreadsheet.
    Adventurer it produces drops straight into the existing party model with no special
    casing. Do this before the general-purpose content editor below — it's scoped, rules
    already did the design work for you.
-11. **Quest progression map.** Dungeons of Enveron is a branching narrative campaign.
+12. **Quest progression map.** Dungeons of Enveron is a branching narrative campaign.
    A visual node graph of quests completed, paths taken, and what's now available — with
    the branch you *didn't* take greyed out — turns the app into a campaign navigator.
-12. **Print/PDF "next game setup sheet."** One page: who's in the party, their current
+13. **Print/PDF "next game setup sheet."** One page: who's in the party, their current
     stats and gear, the difficulty numbers, the setup checklist. For people who want the
     app between games and paper at the table.
-13. **Rules search.** Full-text index over the rulebook so "what happens when Dread hits
+14. **Rules search.** Full-text index over the rulebook so "what happens when Dread hits
     Doom?" is answerable in three seconds. Build the search *engine*; have the user point
     it at their own PDF rather than shipping the text (§8).
-14. **Party composition advisor.** Flag gaps — no healer, no ranged attack, nobody who
+15. **Party composition advisor.** Flag gaps — no healer, no ranged attack, nobody who
     can Persuade, everyone rank 1 so you can't buy anything good. Useful for new players.
-15. **Multi-party support at one table.** The data model already allows it; the work is
+16. **Multi-party support at one table.** The data model already allows it; the work is
     UI — a party switcher, the Market Phase pick-order rule, and a barter helper.
-16. **Campaign branching / "what if" saves.** Snapshot a campaign before a risky quest so
+17. **Campaign branching / "what if" saves.** Snapshot a campaign before a risky quest so
     a TPK doesn't end 20 sessions of investment. Easy given the event log; contentious
     for purists, so make it opt-in and clearly labelled.
-17. **Batched solo-NPC resolution [promoted from Tier C — you play mostly solo].** The
+18. **Batched solo-NPC resolution [promoted from Tier C — you play mostly solo].** The
     NPC AI walkthrough (Phase 3) is built as one activation at a time; since you're
     resolving *every* NPC's turn yourself each round with no second player to share the
     load, a mode that walks all of a round's NPC activations in one guided sequence — the
@@ -793,20 +1009,20 @@ and starts being the reason you'd choose it over a spreadsheet.
 
 ### Tier C — interesting, uncertain payoff. Consider later.
 
-18. **Statistics dashboard.** Kills, rounds per quest, luckiest/unluckiest die roller,
+19. **Statistics dashboard.** Kills, rounds per quest, luckiest/unluckiest die roller,
     most-frequent cause of death — built from data the app already has (quest outcomes,
     reported roll results). Deliberately drops "damage taken per Adventurer" from the
     original draft, since that would require per-hit capture and runs straight into
     principle #3; not worth the tedium for a nice-to-have stat.
-19. **Custom content editor.** A UI for authoring content packs — homebrew Adventurers,
+20. **Custom content editor.** A UI for authoring content packs — homebrew Adventurers,
     Classes, and quests. Turns your users into your content team.
-20. **Cross-device sync.** Only if you actually feel the pain. The event log makes it
+21. **Cross-device sync.** Only if you actually feel the pain. The event log makes it
     tractable; a simple approach is exporting the log to a file in a synced folder rather
     than building a server.
-21. **Voice input.** "Syrio takes two damage." Sounds gimmicky, but during play your
+22. **Voice input.** "Syrio takes two damage." Sounds gimmicky, but during play your
     hands are full of miniatures. Web Speech API makes a limited command grammar cheap
     to try.
-22. **Timer / pacing.** Track how long each quest and phase takes. Mostly a curiosity,
+23. **Timer / pacing.** Track how long each quest and phase takes. Mostly a curiosity,
     but useful if you're trying to fit a game into a weeknight.
 
 ### Explicitly out of scope

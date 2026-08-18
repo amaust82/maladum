@@ -2,7 +2,7 @@
   "id": "core",
   "name": "Maladum Deluxe (Core)",
   "schemaVersion": 2,
-  "_note": "Real data merged from three sources: (1) Deluxe rulebook Reference sections for spells/skills/abilities, transcribed page-by-page from rendered page images; (2) Maladum_calculator_v0.4.4.xlsx (fan calculator tool) for Adventurer/Class/Companion names+costs, the full 272-item price list, and the difficulty table; (3) Deluxe rulebook worked example for Syrio's stat block. Remaining gaps are marked _placeholder on individual entries: full stat blocks for Adventurers other than Syrio, and which skills/spells belong to which Class board (that mapping isn't in either source \u2014 it lives on the physical Class boards' skill wheels).",
+  "_note": "Real data merged from three sources: (1) Deluxe rulebook Reference sections for spells/skills/abilities, transcribed page-by-page from rendered page images; (2) Maladum_calculator_v0.4.4.xlsx (fan calculator tool) for Adventurer/Class/Companion names+costs, the full 272-item price list, and the difficulty table; (3) Deluxe rulebook worked example for Syrio's stat block. Remaining gaps are marked _placeholder on individual entries: full stat blocks for Adventurers other than Syrio, and which skills/spells belong to which Class board (that mapping isn't in either source — it lives on the physical Class boards' skill wheels).",
   "craftingResources": [
     {
       "id": "wood",
@@ -112,7 +112,7 @@
       "symbol": "N",
       "rarity": "special",
       "buyCost": null,
-      "notes": "Not purchasable \u2014 found in the crucible; token introduced in the Oblivion's Maw expansion"
+      "notes": "Not purchasable — found in the crucible; token introduced in the Oblivion's Maw expansion"
     }
   ],
   "adventurers": [
@@ -503,183 +503,757 @@
       "id": "assassin",
       "name": "Assassin",
       "cost": 13,
-      "skills": [],
+      "skills": [
+        {
+          "name": "Reflexes",
+          "levelCap": 3
+        },
+        {
+          "name": "Combat Arts",
+          "levelCap": 3
+        },
+        {
+          "name": "Acrobatics",
+          "levelCap": 3
+        },
+        {
+          "name": "Hard to Hit",
+          "levelCap": 3
+        },
+        {
+          "name": "Disarm",
+          "levelCap": 3
+        },
+        {
+          "name": "Trick Shot",
+          "levelCap": 3
+        },
+        {
+          "name": "Quick Recovery",
+          "levelCap": 3
+        },
+        {
+          "name": "Malacyte Mastery",
+          "levelCap": 1
+        }
+      ],
       "innateAbility": null,
       "spellSchools": [],
-      "_placeholder": [
-        "skills",
-        "innateAbility",
-        "spellSchools"
+      "_placeholder": [],
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "statBonuses": [],
+      "grantedSpells": [],
+      "spellSlots": null,
+      "grantedAbilities": [
+        {
+          "name": "Scramble",
+          "detail": "2/3"
+        }
       ],
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx"
+      "boardCopies": 2,
+      "_source": "Transcribed by Adam directly from the physical Class board components, 2026-08-18/19.",
+      "_assumptions": [
+        "levelCap defaults to 3 unless Adam's board notes marked an override via asterisks (* = 1, ** = 2, *** = 3); confirmed by Adam.",
+        "boardCopies read from a '(xN)' marker after the class name on Adam's notes; unmarked classes assumed 1. Confirmed correct 2026-08-19 by cross-checking against the full class-pairing list (each class's boardCopies must equal how many times it appears across all pairings, since physical boards are double-sided) -- 23/24 matched on the first pass, and the one mismatch (Strategist) was resolved as a marker typo, not a missing pairing."
+      ],
+      "pairedWith": [
+        "Guardian",
+        "Curator"
+      ]
     },
     {
       "id": "barbarian",
       "name": "Barbarian",
       "cost": 7,
-      "skills": [],
-      "innateAbility": null,
-      "spellSchools": [],
-      "_placeholder": [
-        "skills",
-        "innateAbility",
-        "spellSchools"
+      "skills": [
+        {
+          "name": "Frenzy",
+          "levelCap": 3
+        },
+        {
+          "name": "Reflexes",
+          "levelCap": 3
+        },
+        {
+          "name": "Brutal Assault",
+          "levelCap": 3
+        },
+        {
+          "name": "Onslaught",
+          "levelCap": 3
+        },
+        {
+          "name": "Impervious",
+          "levelCap": 3
+        },
+        {
+          "name": "Combat Arts",
+          "levelCap": 3
+        },
+        {
+          "name": "Intimidating",
+          "levelCap": 3
+        }
       ],
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx"
+      "_placeholder": [],
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "spellSlots": null,
+      "grantedAbilities": [],
+      "_source": "Transcribed by Adam directly from the physical Class board components, 2026-08-18/19.",
+      "_assumptions": [
+        "levelCap defaults to 3 unless Adam's board notes marked an override via asterisks (* = 1, ** = 2, *** = 3); confirmed by Adam.",
+        "boardCopies read from a '(xN)' marker after the class name on Adam's notes; unmarked classes assumed 1. Confirmed correct 2026-08-19 by cross-checking against the full class-pairing list (each class's boardCopies must equal how many times it appears across all pairings, since physical boards are double-sided) -- 23/24 matched on the first pass, and the one mismatch (Strategist) was resolved as a marker typo, not a missing pairing."
+      ],
+      "statBonuses": [
+        "+1 Melee Die"
+      ],
+      "grantedSpells": [
+        "Strength"
+      ],
+      "boardCopies": 1,
+      "pairedWith": [
+        "Rogue"
+      ]
     },
     {
       "id": "blacksmith",
       "name": "Blacksmith",
       "cost": 9,
-      "skills": [],
+      "skills": [
+        {
+          "name": "Smithing",
+          "levelCap": 3
+        },
+        {
+          "name": "Weapons Master",
+          "levelCap": 3
+        },
+        {
+          "name": "Steady",
+          "levelCap": 3
+        },
+        {
+          "name": "Impervious",
+          "levelCap": 3
+        },
+        {
+          "name": "Ranged Expert",
+          "levelCap": 3
+        },
+        {
+          "name": "Barter",
+          "levelCap": 3
+        },
+        {
+          "name": "Tricks of the Trade",
+          "levelCap": 2
+        },
+        {
+          "name": "Duck for Cover",
+          "levelCap": 2
+        }
+      ],
       "innateAbility": null,
       "spellSchools": [],
-      "_placeholder": [
-        "skills",
-        "innateAbility",
-        "spellSchools"
+      "_placeholder": [],
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "statBonuses": [],
+      "grantedSpells": [
+        "Weaken Armour"
       ],
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx"
+      "spellSlots": null,
+      "grantedAbilities": [],
+      "boardCopies": 2,
+      "_source": "Transcribed by Adam directly from the physical Class board components, 2026-08-18/19.",
+      "_assumptions": [
+        "levelCap defaults to 3 unless Adam's board notes marked an override via asterisks (* = 1, ** = 2, *** = 3); confirmed by Adam.",
+        "boardCopies read from a '(xN)' marker after the class name on Adam's notes; unmarked classes assumed 1. Confirmed correct 2026-08-19 by cross-checking against the full class-pairing list (each class's boardCopies must equal how many times it appears across all pairings, since physical boards are double-sided) -- 23/24 matched on the first pass, and the one mismatch (Strategist) was resolved as a marker typo, not a missing pairing."
+      ],
+      "pairedWith": [
+        "Eudaemon",
+        "Rook"
+      ]
     },
     {
       "id": "contender",
       "name": "Contender",
       "cost": 12,
-      "skills": [],
+      "skills": [
+        {
+          "name": "Acrobatics",
+          "levelCap": 3
+        },
+        {
+          "name": "Bombast",
+          "levelCap": 1
+        },
+        {
+          "name": "Steady",
+          "levelCap": 3
+        },
+        {
+          "name": "Tactical Gift",
+          "levelCap": 2
+        },
+        {
+          "name": "Weapons Master",
+          "levelCap": 3
+        },
+        {
+          "name": "Intimidating",
+          "levelCap": 2
+        },
+        {
+          "name": "Reflexes",
+          "levelCap": 3
+        },
+        {
+          "name": "Onslaught",
+          "levelCap": 3
+        }
+      ],
       "innateAbility": null,
       "spellSchools": [],
-      "_placeholder": [
-        "skills",
-        "innateAbility",
-        "spellSchools"
+      "_placeholder": [],
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "statBonuses": [
+        "+1 Red Die (when using an ability with the Channel icon)"
       ],
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx"
+      "grantedSpells": [
+        "Hyper Awareness"
+      ],
+      "spellSlots": null,
+      "grantedAbilities": [
+        {
+          "name": "Worthy Opponent",
+          "detail": null
+        }
+      ],
+      "boardCopies": 1,
+      "_source": "Transcribed by Adam directly from the physical Class board components, 2026-08-18/19.",
+      "_assumptions": [
+        "levelCap defaults to 3 unless Adam's board notes marked an override via asterisks (* = 1, ** = 2, *** = 3); confirmed by Adam.",
+        "boardCopies read from a '(xN)' marker after the class name on Adam's notes; unmarked classes assumed 1. Confirmed correct 2026-08-19 by cross-checking against the full class-pairing list (each class's boardCopies must equal how many times it appears across all pairings, since physical boards are double-sided) -- 23/24 matched on the first pass, and the one mismatch (Strategist) was resolved as a marker typo, not a missing pairing."
+      ],
+      "pairedWith": [
+        "Strategist"
+      ]
     },
     {
       "id": "curator",
       "name": "Curator",
       "cost": 9,
-      "skills": [],
+      "skills": [
+        {
+          "name": "Loremaster",
+          "levelCap": 3
+        },
+        {
+          "name": "Herbalism",
+          "levelCap": 2
+        },
+        {
+          "name": "Unlikely Hero",
+          "levelCap": 3
+        },
+        {
+          "name": "Smithing",
+          "levelCap": 1
+        },
+        {
+          "name": "Duck for Cover",
+          "levelCap": 3
+        },
+        {
+          "name": "Tactical Gift",
+          "levelCap": 1
+        },
+        {
+          "name": "Barter",
+          "levelCap": 3
+        },
+        {
+          "name": "Tracking",
+          "levelCap": 1
+        },
+        {
+          "name": "Natural Remedies",
+          "levelCap": 3
+        },
+        {
+          "name": "Malacyte Mastery",
+          "levelCap": 1
+        }
+      ],
       "innateAbility": null,
       "spellSchools": [],
-      "_placeholder": [
-        "skills",
-        "innateAbility",
-        "spellSchools"
+      "_placeholder": [],
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "statBonuses": [
+        "-1 Health Peg",
+        "+2 Skill Pegs"
       ],
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx"
+      "grantedSpells": [],
+      "spellSlots": null,
+      "grantedAbilities": [],
+      "boardCopies": 1,
+      "_source": "Transcribed by Adam directly from the physical Class board components, 2026-08-18/19.",
+      "_assumptions": [
+        "levelCap defaults to 3 unless Adam's board notes marked an override via asterisks (* = 1, ** = 2, *** = 3); confirmed by Adam.",
+        "boardCopies read from a '(xN)' marker after the class name on Adam's notes; unmarked classes assumed 1. Confirmed correct 2026-08-19 by cross-checking against the full class-pairing list (each class's boardCopies must equal how many times it appears across all pairings, since physical boards are double-sided) -- 23/24 matched on the first pass, and the one mismatch (Strategist) was resolved as a marker typo, not a missing pairing."
+      ],
+      "pairedWith": [
+        "Assassin"
+      ]
     },
     {
       "id": "deceiver",
       "name": "Deceiver",
       "cost": 21,
-      "skills": [],
+      "skills": [
+        {
+          "name": "Malacyte Mastery",
+          "levelCap": 2
+        },
+        {
+          "name": "Forbidden Arts",
+          "levelCap": 3
+        },
+        {
+          "name": "Persuasion",
+          "levelCap": 3
+        },
+        {
+          "name": "Impervious",
+          "levelCap": 3
+        },
+        {
+          "name": "Bombast",
+          "levelCap": 2
+        },
+        {
+          "name": "Loremaster",
+          "levelCap": 3
+        }
+      ],
       "innateAbility": null,
       "spellSchools": [],
-      "_placeholder": [
-        "skills",
-        "innateAbility",
-        "spellSchools"
+      "_placeholder": [],
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "statBonuses": [
+        "+1 Skill Peg"
       ],
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx"
+      "grantedSpells": [],
+      "spellSlots": 12,
+      "grantedAbilities": [
+        {
+          "name": "Unsanctioned",
+          "detail": null
+        }
+      ],
+      "boardCopies": 1,
+      "_source": "Transcribed by Adam directly from the physical Class board components, 2026-08-18/19.",
+      "_assumptions": [
+        "levelCap defaults to 3 unless Adam's board notes marked an override via asterisks (* = 1, ** = 2, *** = 3); confirmed by Adam.",
+        "boardCopies read from a '(xN)' marker after the class name on Adam's notes; unmarked classes assumed 1. Confirmed correct 2026-08-19 by cross-checking against the full class-pairing list (each class's boardCopies must equal how many times it appears across all pairings, since physical boards are double-sided) -- 23/24 matched on the first pass, and the one mismatch (Strategist) was resolved as a marker typo, not a missing pairing."
+      ],
+      "pairedWith": [
+        "Ranger"
+      ]
     },
     {
       "id": "druid",
       "name": "Druid",
       "cost": 13,
-      "skills": [],
+      "skills": [
+        {
+          "name": "Tracking",
+          "levelCap": 3
+        },
+        {
+          "name": "Distraction",
+          "levelCap": 2
+        },
+        {
+          "name": "One with Nature",
+          "levelCap": 3
+        },
+        {
+          "name": "Reflexes",
+          "levelCap": 3
+        },
+        {
+          "name": "Fortified Mind",
+          "levelCap": 3
+        },
+        {
+          "name": "Natural Remedies",
+          "levelCap": 3
+        },
+        {
+          "name": "Ambush",
+          "levelCap": 3
+        }
+      ],
       "innateAbility": null,
       "spellSchools": [],
-      "_placeholder": [
-        "skills",
-        "innateAbility",
-        "spellSchools"
+      "_placeholder": [],
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "statBonuses": [],
+      "grantedSpells": [],
+      "spellSlots": 8,
+      "grantedAbilities": [],
+      "boardCopies": 2,
+      "_source": "Transcribed by Adam directly from the physical Class board components, 2026-08-18/19.",
+      "_assumptions": [
+        "levelCap defaults to 3 unless Adam's board notes marked an override via asterisks (* = 1, ** = 2, *** = 3); confirmed by Adam.",
+        "boardCopies read from a '(xN)' marker after the class name on Adam's notes; unmarked classes assumed 1. Confirmed correct 2026-08-19 by cross-checking against the full class-pairing list (each class's boardCopies must equal how many times it appears across all pairings, since physical boards are double-sided) -- 23/24 matched on the first pass, and the one mismatch (Strategist) was resolved as a marker typo, not a missing pairing."
       ],
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx"
+      "pairedWith": [
+        "Ranger",
+        "Warlock"
+      ]
     },
     {
       "id": "eremite",
       "name": "Eremite",
       "cost": 13,
-      "skills": [],
-      "innateAbility": null,
-      "spellSchools": [],
-      "_placeholder": [
-        "skills",
-        "innateAbility",
-        "spellSchools"
+      "skills": [
+        {
+          "name": "Duck for Cover",
+          "levelCap": 3
+        },
+        {
+          "name": "Power Manipulation",
+          "levelCap": 2
+        },
+        {
+          "name": "Hard to Hit",
+          "levelCap": 3
+        },
+        {
+          "name": "Forbidden Arts",
+          "levelCap": 2
+        },
+        {
+          "name": "Natural Remedies",
+          "levelCap": 3
+        },
+        {
+          "name": "Tricks of the Trade",
+          "levelCap": 2
+        },
+        {
+          "name": "One with Nature",
+          "levelCap": 3
+        },
+        {
+          "name": "Distraction",
+          "levelCap": 3
+        }
       ],
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx"
+      "_placeholder": [],
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "spellSlots": 8,
+      "grantedAbilities": [
+        {
+          "name": "Unsanctioned",
+          "detail": null
+        }
+      ],
+      "_source": "Transcribed by Adam directly from the physical Class board components, 2026-08-18/19.",
+      "_assumptions": [
+        "levelCap defaults to 3 unless Adam's board notes marked an override via asterisks (* = 1, ** = 2, *** = 3); confirmed by Adam.",
+        "boardCopies read from a '(xN)' marker after the class name on Adam's notes; unmarked classes assumed 1. Confirmed correct 2026-08-19 by cross-checking against the full class-pairing list (each class's boardCopies must equal how many times it appears across all pairings, since physical boards are double-sided) -- 23/24 matched on the first pass, and the one mismatch (Strategist) was resolved as a marker typo, not a missing pairing."
+      ],
+      "statBonuses": [],
+      "grantedSpells": [],
+      "boardCopies": 1,
+      "pairedWith": [
+        "Swindler"
+      ]
     },
     {
       "id": "eudaemon",
       "name": "Eudaemon",
       "cost": 16,
-      "skills": [],
+      "skills": [
+        {
+          "name": "Malacyte Mastery",
+          "levelCap": 3
+        },
+        {
+          "name": "Impervious",
+          "levelCap": 3
+        },
+        {
+          "name": "Inspiring",
+          "levelCap": 3
+        },
+        {
+          "name": "Fortified Mind",
+          "levelCap": 3
+        },
+        {
+          "name": "Reflexes",
+          "levelCap": 3
+        },
+        {
+          "name": "Onslaught",
+          "levelCap": 3
+        }
+      ],
       "innateAbility": null,
       "spellSchools": [],
-      "_placeholder": [
-        "skills",
-        "innateAbility",
-        "spellSchools"
+      "_placeholder": [],
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "statBonuses": [],
+      "grantedSpells": [],
+      "spellSlots": 12,
+      "grantedAbilities": [],
+      "boardCopies": 2,
+      "_source": "Transcribed by Adam directly from the physical Class board components, 2026-08-18/19.",
+      "_assumptions": [
+        "levelCap defaults to 3 unless Adam's board notes marked an override via asterisks (* = 1, ** = 2, *** = 3); confirmed by Adam.",
+        "boardCopies read from a '(xN)' marker after the class name on Adam's notes; unmarked classes assumed 1. Confirmed correct 2026-08-19 by cross-checking against the full class-pairing list (each class's boardCopies must equal how many times it appears across all pairings, since physical boards are double-sided) -- 23/24 matched on the first pass, and the one mismatch (Strategist) was resolved as a marker typo, not a missing pairing."
       ],
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx"
+      "pairedWith": [
+        "Blacksmith",
+        "Sellsword"
+      ]
     },
     {
       "id": "guardian",
       "name": "Guardian",
       "cost": 7,
-      "skills": [],
+      "skills": [
+        {
+          "name": "Onslaught",
+          "levelCap": 3
+        },
+        {
+          "name": "Quick Recovery",
+          "levelCap": 3
+        },
+        {
+          "name": "Steady",
+          "levelCap": 3
+        },
+        {
+          "name": "Impervious",
+          "levelCap": 3
+        },
+        {
+          "name": "Weapons Master",
+          "levelCap": 3
+        },
+        {
+          "name": "Frenzy",
+          "levelCap": 2
+        },
+        {
+          "name": "Brutal Assault",
+          "levelCap": 3
+        },
+        {
+          "name": "Ready for Anything",
+          "levelCap": 2
+        }
+      ],
       "innateAbility": null,
       "spellSchools": [],
-      "_placeholder": [
-        "skills",
-        "innateAbility",
-        "spellSchools"
+      "_placeholder": [],
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "statBonuses": [
+        "+1 Health Peg"
       ],
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx"
+      "grantedSpells": [],
+      "spellSlots": null,
+      "grantedAbilities": [],
+      "boardCopies": 2,
+      "_source": "Transcribed by Adam directly from the physical Class board components, 2026-08-18/19.",
+      "_assumptions": [
+        "levelCap defaults to 3 unless Adam's board notes marked an override via asterisks (* = 1, ** = 2, *** = 3); confirmed by Adam.",
+        "boardCopies read from a '(xN)' marker after the class name on Adam's notes; unmarked classes assumed 1. Confirmed correct 2026-08-19 by cross-checking against the full class-pairing list (each class's boardCopies must equal how many times it appears across all pairings, since physical boards are double-sided) -- 23/24 matched on the first pass, and the one mismatch (Strategist) was resolved as a marker typo, not a missing pairing."
+      ],
+      "pairedWith": [
+        "Maestro",
+        "Assassin"
+      ]
     },
     {
       "id": "maestro",
       "name": "Maestro",
       "cost": 13,
-      "skills": [],
+      "skills": [
+        {
+          "name": "Entertainer",
+          "levelCap": 3
+        },
+        {
+          "name": "Unlikely Hero",
+          "levelCap": 3
+        },
+        {
+          "name": "Inspiring",
+          "levelCap": 3
+        },
+        {
+          "name": "Barter",
+          "levelCap": 3
+        },
+        {
+          "name": "Hard to Hit",
+          "levelCap": 3
+        },
+        {
+          "name": "Persuasion",
+          "levelCap": 3
+        },
+        {
+          "name": "Quick Recovery",
+          "levelCap": 2
+        },
+        {
+          "name": "Malacyte Mastery",
+          "levelCap": 2
+        }
+      ],
       "innateAbility": null,
       "spellSchools": [],
-      "_placeholder": [
-        "skills",
-        "innateAbility",
-        "spellSchools"
+      "_placeholder": [],
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "statBonuses": [],
+      "grantedSpells": [],
+      "spellSlots": null,
+      "grantedAbilities": [
+        {
+          "name": "Re-roll",
+          "detail": "Adam's read: grants a single re-roll of one die (basic Re-roll ability). Exact trigger/frequency not pinned down further -- Adam noted it may not matter much."
+        }
       ],
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx"
+      "boardCopies": 1,
+      "_source": "Transcribed by Adam directly from the physical Class board components, 2026-08-18/19.",
+      "_assumptions": [
+        "levelCap defaults to 3 unless Adam's board notes marked an override via asterisks (* = 1, ** = 2, *** = 3); confirmed by Adam.",
+        "boardCopies read from a '(xN)' marker after the class name on Adam's notes; unmarked classes assumed 1. Confirmed correct 2026-08-19 by cross-checking against the full class-pairing list (each class's boardCopies must equal how many times it appears across all pairings, since physical boards are double-sided) -- 23/24 matched on the first pass, and the one mismatch (Strategist) was resolved as a marker typo, not a missing pairing."
+      ],
+      "pairedWith": [
+        "Guardian"
+      ]
     },
     {
       "id": "magus",
       "name": "Magus",
       "cost": 14,
-      "skills": [],
+      "skills": [
+        {
+          "name": "Quick Recovery",
+          "levelCap": 3
+        },
+        {
+          "name": "Power Manipulation",
+          "levelCap": 3
+        },
+        {
+          "name": "Reflexes",
+          "levelCap": 2
+        },
+        {
+          "name": "Intimidating",
+          "levelCap": 3
+        },
+        {
+          "name": "Fortified Mind",
+          "levelCap": 3
+        },
+        {
+          "name": "Ready for Anything",
+          "levelCap": 3
+        },
+        {
+          "name": "Frenzy",
+          "levelCap": 3
+        }
+      ],
       "innateAbility": null,
       "spellSchools": [],
-      "_placeholder": [
-        "skills",
-        "innateAbility",
-        "spellSchools"
+      "_placeholder": [],
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "statBonuses": [],
+      "grantedSpells": [],
+      "spellSlots": 8,
+      "grantedAbilities": [],
+      "boardCopies": 1,
+      "_source": "Transcribed by Adam directly from the physical Class board components, 2026-08-18/19.",
+      "_assumptions": [
+        "levelCap defaults to 3 unless Adam's board notes marked an override via asterisks (* = 1, ** = 2, *** = 3); confirmed by Adam.",
+        "boardCopies read from a '(xN)' marker after the class name on Adam's notes; unmarked classes assumed 1. Confirmed correct 2026-08-19 by cross-checking against the full class-pairing list (each class's boardCopies must equal how many times it appears across all pairings, since physical boards are double-sided) -- 23/24 matched on the first pass, and the one mismatch (Strategist) was resolved as a marker typo, not a missing pairing."
       ],
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx"
+      "pairedWith": [
+        "Sellsword"
+      ]
     },
     {
       "id": "marksman",
       "name": "Marksman",
       "cost": 6,
-      "skills": [],
+      "skills": [
+        {
+          "name": "Trick Shot",
+          "levelCap": 3
+        },
+        {
+          "name": "Ranged Expert",
+          "levelCap": 3
+        },
+        {
+          "name": "Counter Shot",
+          "levelCap": 3
+        },
+        {
+          "name": "Bullseye",
+          "levelCap": 3
+        },
+        {
+          "name": "Ambush",
+          "levelCap": 3
+        },
+        {
+          "name": "Duck for Cover",
+          "levelCap": 3
+        },
+        {
+          "name": "Fleet of Foot",
+          "levelCap": 2
+        },
+        {
+          "name": "Reflexes",
+          "levelCap": 2
+        }
+      ],
       "innateAbility": null,
       "spellSchools": [],
-      "_placeholder": [
-        "skills",
-        "innateAbility",
-        "spellSchools"
+      "_placeholder": [],
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "statBonuses": [],
+      "grantedSpells": [],
+      "spellSlots": null,
+      "grantedAbilities": [
+        {
+          "name": "Hawkeye",
+          "detail": null
+        }
       ],
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx"
+      "boardCopies": 1,
+      "_source": "Transcribed by Adam directly from the physical Class board components, 2026-08-18/19.",
+      "_assumptions": [
+        "levelCap defaults to 3 unless Adam's board notes marked an override via asterisks (* = 1, ** = 2, *** = 3); confirmed by Adam.",
+        "boardCopies read from a '(xN)' marker after the class name on Adam's notes; unmarked classes assumed 1. Confirmed correct 2026-08-19 by cross-checking against the full class-pairing list (each class's boardCopies must equal how many times it appears across all pairings, since physical boards are double-sided) -- 23/24 matched on the first pass, and the one mismatch (Strategist) was resolved as a marker typo, not a missing pairing."
+      ],
+      "pairedWith": [
+        "Swindler"
+      ]
     },
     {
       "id": "mentor",
@@ -699,155 +1273,627 @@
       "id": "paladin",
       "name": "Paladin",
       "cost": 12,
-      "skills": [],
+      "skills": [
+        {
+          "name": "Inspiring",
+          "levelCap": 3
+        },
+        {
+          "name": "Barter",
+          "levelCap": 3
+        },
+        {
+          "name": "Steady",
+          "levelCap": 3
+        },
+        {
+          "name": "Impervious",
+          "levelCap": 3
+        },
+        {
+          "name": "Weapons Master",
+          "levelCap": 3
+        },
+        {
+          "name": "Disarm",
+          "levelCap": 3
+        },
+        {
+          "name": "Persuasion",
+          "levelCap": 2
+        }
+      ],
       "innateAbility": null,
       "spellSchools": [],
-      "_placeholder": [
-        "skills",
-        "innateAbility",
-        "spellSchools"
+      "_placeholder": [],
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "statBonuses": [],
+      "grantedSpells": [],
+      "spellSlots": 8,
+      "grantedAbilities": [],
+      "boardCopies": 1,
+      "_source": "Transcribed by Adam directly from the physical Class board components, 2026-08-18/19.",
+      "_assumptions": [
+        "levelCap defaults to 3 unless Adam's board notes marked an override via asterisks (* = 1, ** = 2, *** = 3); confirmed by Adam.",
+        "boardCopies read from a '(xN)' marker after the class name on Adam's notes; unmarked classes assumed 1. Confirmed correct 2026-08-19 by cross-checking against the full class-pairing list (each class's boardCopies must equal how many times it appears across all pairings, since physical boards are double-sided) -- 23/24 matched on the first pass, and the one mismatch (Strategist) was resolved as a marker typo, not a missing pairing."
       ],
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx"
+      "pairedWith": [
+        "Sellsword"
+      ]
     },
     {
       "id": "prymorist",
       "name": "Prymorist",
       "cost": 16,
-      "skills": [],
+      "skills": [
+        {
+          "name": "Power Manipulation",
+          "levelCap": 3
+        },
+        {
+          "name": "Malacyte Mastery",
+          "levelCap": 3
+        },
+        {
+          "name": "Hard to Hit",
+          "levelCap": 3
+        },
+        {
+          "name": "Fortified Mind",
+          "levelCap": 3
+        },
+        {
+          "name": "Natural Remedies",
+          "levelCap": 3
+        },
+        {
+          "name": "Counter Shot",
+          "levelCap": 3
+        }
+      ],
       "innateAbility": null,
       "spellSchools": [],
-      "_placeholder": [
-        "skills",
-        "innateAbility",
-        "spellSchools"
+      "_placeholder": [],
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "statBonuses": [],
+      "grantedSpells": [],
+      "spellSlots": 12,
+      "grantedAbilities": [],
+      "boardCopies": 1,
+      "_source": "Transcribed by Adam directly from the physical Class board components, 2026-08-18/19.",
+      "_assumptions": [
+        "levelCap defaults to 3 unless Adam's board notes marked an override via asterisks (* = 1, ** = 2, *** = 3); confirmed by Adam.",
+        "boardCopies read from a '(xN)' marker after the class name on Adam's notes; unmarked classes assumed 1. Confirmed correct 2026-08-19 by cross-checking against the full class-pairing list (each class's boardCopies must equal how many times it appears across all pairings, since physical boards are double-sided) -- 23/24 matched on the first pass, and the one mismatch (Strategist) was resolved as a marker typo, not a missing pairing."
       ],
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx"
+      "pairedWith": [
+        "Sellsword"
+      ]
     },
     {
       "id": "rambler",
       "name": "Rambler",
       "cost": 11,
-      "skills": [],
+      "skills": [
+        {
+          "name": "Herbalism",
+          "levelCap": 3
+        },
+        {
+          "name": "Tracking",
+          "levelCap": 3
+        },
+        {
+          "name": "Fleet of Foot",
+          "levelCap": 3
+        },
+        {
+          "name": "Quick Recovery",
+          "levelCap": 3
+        },
+        {
+          "name": "Tricks of the Trade",
+          "levelCap": 2
+        },
+        {
+          "name": "Hard to Hit",
+          "levelCap": 3
+        },
+        {
+          "name": "One with Nature",
+          "levelCap": 1
+        }
+      ],
       "innateAbility": null,
       "spellSchools": [],
-      "_placeholder": [
-        "skills",
-        "innateAbility",
-        "spellSchools"
+      "_placeholder": [],
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "statBonuses": [],
+      "grantedSpells": [
+        "Recover",
+        "Detect"
       ],
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx"
+      "spellSlots": null,
+      "grantedAbilities": [
+        {
+          "name": "Immunity",
+          "detail": "Entangling"
+        }
+      ],
+      "boardCopies": 1,
+      "_source": "Transcribed by Adam directly from the physical Class board components, 2026-08-18/19.",
+      "_assumptions": [
+        "levelCap defaults to 3 unless Adam's board notes marked an override via asterisks (* = 1, ** = 2, *** = 3); confirmed by Adam.",
+        "boardCopies read from a '(xN)' marker after the class name on Adam's notes; unmarked classes assumed 1. Confirmed correct 2026-08-19 by cross-checking against the full class-pairing list (each class's boardCopies must equal how many times it appears across all pairings, since physical boards are double-sided) -- 23/24 matched on the first pass, and the one mismatch (Strategist) was resolved as a marker typo, not a missing pairing."
+      ],
+      "pairedWith": [
+        "Rogue"
+      ]
     },
     {
       "id": "ranger",
       "name": "Ranger",
       "cost": 9,
-      "skills": [],
-      "innateAbility": null,
-      "spellSchools": [],
-      "_placeholder": [
-        "skills",
-        "innateAbility",
-        "spellSchools"
+      "skills": [
+        {
+          "name": "Ambush",
+          "levelCap": 3
+        },
+        {
+          "name": "Camouflage",
+          "levelCap": 3
+        },
+        {
+          "name": "Tracking",
+          "levelCap": 3
+        },
+        {
+          "name": "Ranged Expert",
+          "levelCap": 3
+        },
+        {
+          "name": "Reflexes",
+          "levelCap": 3
+        },
+        {
+          "name": "Quick Recovery",
+          "levelCap": 3
+        },
+        {
+          "name": "One with Nature",
+          "levelCap": 1
+        },
+        {
+          "name": "Ready for Anything",
+          "levelCap": 3
+        }
       ],
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx"
+      "_placeholder": [],
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "spellSlots": null,
+      "grantedAbilities": [
+        {
+          "name": "Defensive Re-roll",
+          "detail": null
+        }
+      ],
+      "_source": "Transcribed by Adam directly from the physical Class board components, 2026-08-18/19.",
+      "_assumptions": [
+        "levelCap defaults to 3 unless Adam's board notes marked an override via asterisks (* = 1, ** = 2, *** = 3); confirmed by Adam.",
+        "boardCopies read from a '(xN)' marker after the class name on Adam's notes; unmarked classes assumed 1. Confirmed correct 2026-08-19 by cross-checking against the full class-pairing list (each class's boardCopies must equal how many times it appears across all pairings, since physical boards are double-sided) -- 23/24 matched on the first pass, and the one mismatch (Strategist) was resolved as a marker typo, not a missing pairing."
+      ],
+      "statBonuses": [],
+      "grantedSpells": [],
+      "boardCopies": 3,
+      "pairedWith": [
+        "Druid",
+        "Scavenger",
+        "Deceiver"
+      ]
     },
     {
       "id": "rogue",
       "name": "Rogue",
       "cost": 5,
-      "skills": [],
-      "innateAbility": null,
-      "spellSchools": [],
-      "_placeholder": [
-        "skills",
-        "innateAbility",
-        "spellSchools"
+      "skills": [
+        {
+          "name": "Light Fingers",
+          "levelCap": 3
+        },
+        {
+          "name": "Reflexes",
+          "levelCap": 3
+        },
+        {
+          "name": "Tricks of the Trade",
+          "levelCap": 3
+        },
+        {
+          "name": "Distraction",
+          "levelCap": 3
+        },
+        {
+          "name": "Persuasion",
+          "levelCap": 3
+        },
+        {
+          "name": "Camouflage",
+          "levelCap": 3
+        },
+        {
+          "name": "Duck for Cover",
+          "levelCap": 3
+        },
+        {
+          "name": "Tracking",
+          "levelCap": 3
+        }
       ],
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx"
+      "_placeholder": [],
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "spellSlots": null,
+      "grantedAbilities": [],
+      "_source": "Transcribed by Adam directly from the physical Class board components, 2026-08-18/19.",
+      "_assumptions": [
+        "levelCap defaults to 3 unless Adam's board notes marked an override via asterisks (* = 1, ** = 2, *** = 3); confirmed by Adam.",
+        "boardCopies read from a '(xN)' marker after the class name on Adam's notes; unmarked classes assumed 1. Confirmed correct 2026-08-19 by cross-checking against the full class-pairing list (each class's boardCopies must equal how many times it appears across all pairings, since physical boards are double-sided) -- 23/24 matched on the first pass, and the one mismatch (Strategist) was resolved as a marker typo, not a missing pairing."
+      ],
+      "statBonuses": [],
+      "grantedSpells": [
+        "Open Door"
+      ],
+      "boardCopies": 2,
+      "pairedWith": [
+        "Rambler",
+        "Barbarian"
+      ]
     },
     {
       "id": "rook",
       "name": "Rook",
       "cost": 16,
-      "skills": [],
+      "skills": [
+        {
+          "name": "Power Manipulation",
+          "levelCap": 3
+        },
+        {
+          "name": "Malacyte Mastery",
+          "levelCap": 3
+        },
+        {
+          "name": "Distraction",
+          "levelCap": 3
+        },
+        {
+          "name": "Persuasion",
+          "levelCap": 3
+        },
+        {
+          "name": "Barter",
+          "levelCap": 3
+        },
+        {
+          "name": "Duck for Cover",
+          "levelCap": 3
+        }
+      ],
       "innateAbility": null,
       "spellSchools": [],
-      "_placeholder": [
-        "skills",
-        "innateAbility",
-        "spellSchools"
+      "_placeholder": [],
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "statBonuses": [],
+      "grantedSpells": [],
+      "spellSlots": 12,
+      "grantedAbilities": [],
+      "boardCopies": 2,
+      "_source": "Transcribed by Adam directly from the physical Class board components, 2026-08-18/19.",
+      "_assumptions": [
+        "levelCap defaults to 3 unless Adam's board notes marked an override via asterisks (* = 1, ** = 2, *** = 3); confirmed by Adam.",
+        "boardCopies read from a '(xN)' marker after the class name on Adam's notes; unmarked classes assumed 1. Confirmed correct 2026-08-19 by cross-checking against the full class-pairing list (each class's boardCopies must equal how many times it appears across all pairings, since physical boards are double-sided) -- 23/24 matched on the first pass, and the one mismatch (Strategist) was resolved as a marker typo, not a missing pairing."
       ],
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx"
+      "pairedWith": [
+        "Blacksmith",
+        "Sellsword"
+      ]
     },
     {
       "id": "scavenger",
       "name": "Scavenger",
       "cost": 9,
-      "skills": [],
-      "innateAbility": null,
-      "spellSchools": [],
-      "_placeholder": [
-        "skills",
-        "innateAbility",
-        "spellSchools"
+      "skills": [
+        {
+          "name": "Acrobatics",
+          "levelCap": 3
+        },
+        {
+          "name": "Fleet of Foot",
+          "levelCap": 3
+        },
+        {
+          "name": "Combat Arts",
+          "levelCap": 2
+        },
+        {
+          "name": "Tricks of the Trade",
+          "levelCap": 3
+        },
+        {
+          "name": "Light Fingers",
+          "levelCap": 3
+        },
+        {
+          "name": "Hard to Hit",
+          "levelCap": 3
+        },
+        {
+          "name": "Barter",
+          "levelCap": 3
+        },
+        {
+          "name": "Ready for Anything",
+          "levelCap": 2
+        }
       ],
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx"
+      "_placeholder": [],
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "spellSlots": null,
+      "grantedAbilities": [],
+      "_source": "Transcribed by Adam directly from the physical Class board components, 2026-08-18/19.",
+      "_assumptions": [
+        "levelCap defaults to 3 unless Adam's board notes marked an override via asterisks (* = 1, ** = 2, *** = 3); confirmed by Adam.",
+        "boardCopies read from a '(xN)' marker after the class name on Adam's notes; unmarked classes assumed 1. Confirmed correct 2026-08-19 by cross-checking against the full class-pairing list (each class's boardCopies must equal how many times it appears across all pairings, since physical boards are double-sided) -- 23/24 matched on the first pass, and the one mismatch (Strategist) was resolved as a marker typo, not a missing pairing."
+      ],
+      "statBonuses": [
+        "+1 Movement"
+      ],
+      "grantedSpells": [],
+      "boardCopies": 2,
+      "pairedWith": [
+        "Strategist",
+        "Ranger"
+      ]
     },
     {
       "id": "sellsword",
       "name": "Sellsword",
       "cost": 10,
-      "skills": [],
+      "skills": [
+        {
+          "name": "Reflexes",
+          "levelCap": 3
+        },
+        {
+          "name": "Frenzy",
+          "levelCap": 3
+        },
+        {
+          "name": "Weapons Master",
+          "levelCap": 3
+        },
+        {
+          "name": "Counter Shot",
+          "levelCap": 3
+        },
+        {
+          "name": "Bullseye",
+          "levelCap": 3
+        },
+        {
+          "name": "Training",
+          "levelCap": 2
+        },
+        {
+          "name": "Quick Recovery",
+          "levelCap": 3
+        },
+        {
+          "name": "Ambush",
+          "levelCap": 2
+        }
+      ],
       "innateAbility": null,
       "spellSchools": [],
-      "_placeholder": [
-        "skills",
-        "innateAbility",
-        "spellSchools"
+      "_placeholder": [],
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "statBonuses": [
+        "+1 Skill Peg"
       ],
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx"
+      "grantedSpells": [],
+      "spellSlots": null,
+      "grantedAbilities": [],
+      "boardCopies": 5,
+      "_source": "Transcribed by Adam directly from the physical Class board components, 2026-08-18/19.",
+      "_assumptions": [
+        "levelCap defaults to 3 unless Adam's board notes marked an override via asterisks (* = 1, ** = 2, *** = 3); confirmed by Adam.",
+        "boardCopies read from a '(xN)' marker after the class name on Adam's notes; unmarked classes assumed 1. Confirmed correct 2026-08-19 by cross-checking against the full class-pairing list (each class's boardCopies must equal how many times it appears across all pairings, since physical boards are double-sided) -- 23/24 matched on the first pass, and the one mismatch (Strategist) was resolved as a marker typo, not a missing pairing."
+      ],
+      "pairedWith": [
+        "Prymorist",
+        "Paladin",
+        "Magus",
+        "Eudaemon",
+        "Rook"
+      ]
     },
     {
       "id": "strategist",
       "name": "Strategist",
       "cost": 20,
-      "skills": [],
+      "skills": [
+        {
+          "name": "Tactical Gift",
+          "levelCap": 3
+        },
+        {
+          "name": "Bombast",
+          "levelCap": 3
+        },
+        {
+          "name": "Training",
+          "levelCap": 3
+        },
+        {
+          "name": "Ready for Anything",
+          "levelCap": 3
+        },
+        {
+          "name": "Ranged Expert",
+          "levelCap": 3
+        },
+        {
+          "name": "Counter Shot",
+          "levelCap": 3
+        },
+        {
+          "name": "Distraction",
+          "levelCap": 3
+        }
+      ],
       "innateAbility": null,
       "spellSchools": [],
-      "_placeholder": [
-        "skills",
-        "innateAbility",
-        "spellSchools"
+      "_placeholder": [],
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "statBonuses": [
+        "+3 XP"
       ],
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx"
+      "grantedSpells": [
+        "Foresight",
+        "Remote Resistance"
+      ],
+      "spellSlots": null,
+      "grantedAbilities": [],
+      "boardCopies": 2,
+      "_source": "Transcribed by Adam directly from the physical Class board components, 2026-08-18/19.",
+      "_assumptions": [
+        "levelCap defaults to 3 unless Adam's board notes marked an override via asterisks (* = 1, ** = 2, *** = 3); confirmed by Adam.",
+        "boardCopies read from a '(xN)' marker after the class name on Adam's notes; unmarked classes assumed 1. Confirmed correct 2026-08-19 by cross-checking against the full class-pairing list (each class's boardCopies must equal how many times it appears across all pairings, since physical boards are double-sided) -- 23/24 matched on the first pass, and the one mismatch (Strategist) was resolved as a marker typo, not a missing pairing."
+      ],
+      "pairedWith": [
+        "Scavenger",
+        "Contender"
+      ],
+      "_boardCopiesCorrection": "Originally noted as (x3) in the class-skill batch. Cross-checked against the pairing list (20 pairs = 40 total appearances = 20 double-sided boards x 2 sides, matching Adam's count) and confirmed via parity check that the x3 was the error, not a missing pairing -- corrected to 2 to match the 2 confirmed partners (Scavenger, Contender)."
     },
     {
       "id": "swindler",
       "name": "Swindler",
       "cost": 11,
-      "skills": [],
-      "innateAbility": null,
-      "spellSchools": [],
-      "_placeholder": [
-        "skills",
-        "innateAbility",
-        "spellSchools"
+      "skills": [
+        {
+          "name": "Bombast",
+          "levelCap": 3
+        },
+        {
+          "name": "Disarm",
+          "levelCap": 3
+        },
+        {
+          "name": "Light Fingers",
+          "levelCap": 3
+        },
+        {
+          "name": "Distraction",
+          "levelCap": 3
+        },
+        {
+          "name": "Reflexes",
+          "levelCap": 3
+        },
+        {
+          "name": "Bullseye",
+          "levelCap": 2
+        },
+        {
+          "name": "Trick Shot",
+          "levelCap": 2
+        },
+        {
+          "name": "Entertainer",
+          "levelCap": 1
+        }
       ],
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx"
+      "_placeholder": [],
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "spellSlots": null,
+      "grantedAbilities": [
+        {
+          "name": "Plunderer",
+          "detail": null
+        }
+      ],
+      "_source": "Transcribed by Adam directly from the physical Class board components, 2026-08-18/19.",
+      "_assumptions": [
+        "levelCap defaults to 3 unless Adam's board notes marked an override via asterisks (* = 1, ** = 2, *** = 3); confirmed by Adam.",
+        "boardCopies read from a '(xN)' marker after the class name on Adam's notes; unmarked classes assumed 1. Confirmed correct 2026-08-19 by cross-checking against the full class-pairing list (each class's boardCopies must equal how many times it appears across all pairings, since physical boards are double-sided) -- 23/24 matched on the first pass, and the one mismatch (Strategist) was resolved as a marker typo, not a missing pairing."
+      ],
+      "statBonuses": [],
+      "grantedSpells": [
+        "Illusion"
+      ],
+      "boardCopies": 2,
+      "pairedWith": [
+        "Marksman",
+        "Eremite"
+      ]
     },
     {
       "id": "warlock",
       "name": "Warlock",
       "cost": 21,
-      "skills": [],
+      "skills": [
+        {
+          "name": "Intimidating",
+          "levelCap": 3
+        },
+        {
+          "name": "Fortified Mind",
+          "levelCap": 1
+        },
+        {
+          "name": "Frenzy",
+          "levelCap": 2
+        },
+        {
+          "name": "Forbidden Arts",
+          "levelCap": 3
+        },
+        {
+          "name": "Power Manipulation",
+          "levelCap": 2
+        },
+        {
+          "name": "Ready for Anything",
+          "levelCap": 1
+        },
+        {
+          "name": "Counter Shot",
+          "levelCap": 3
+        }
+      ],
       "innateAbility": null,
       "spellSchools": [],
-      "_placeholder": [
-        "skills",
-        "innateAbility",
-        "spellSchools"
+      "_placeholder": [],
+      "_costSource": "Maladum_calculator_v0.4.4.xlsx",
+      "statBonuses": [
+        "+1 Magic Peg"
       ],
-      "_costSource": "Maladum_calculator_v0.4.4.xlsx"
+      "grantedSpells": [],
+      "spellSlots": 12,
+      "grantedAbilities": [
+        {
+          "name": "Unsanctioned",
+          "detail": null
+        }
+      ],
+      "boardCopies": 1,
+      "_source": "Transcribed by Adam directly from the physical Class board components, 2026-08-18/19.",
+      "_assumptions": [
+        "levelCap defaults to 3 unless Adam's board notes marked an override via asterisks (* = 1, ** = 2, *** = 3); confirmed by Adam.",
+        "boardCopies read from a '(xN)' marker after the class name on Adam's notes; unmarked classes assumed 1. Confirmed correct 2026-08-19 by cross-checking against the full class-pairing list (each class's boardCopies must equal how many times it appears across all pairings, since physical boards are double-sided) -- 23/24 matched on the first pass, and the one mismatch (Strategist) was resolved as a marker typo, not a missing pairing."
+      ],
+      "pairedWith": [
+        "Druid"
+      ]
     }
   ],
   "companions": [
@@ -856,70 +1902,70 @@
       "name": "Aerial Assahant",
       "cost": 16,
       "_costSource": "Maladum_calculator_v0.4.4.xlsx",
-      "_note": "Named companions cross-verified against Deluxe rulebook Companions section (Astet, Miri, Nynn, Tilik'eti all appear there with bespoke ability text \u2014 see abilities/skills data for what's captured)."
+      "_note": "Named companions cross-verified against Deluxe rulebook Companions section (Astet, Miri, Nynn, Tilik'eti all appear there with bespoke ability text — see abilities/skills data for what's captured)."
     },
     {
       "id": "astet",
       "name": "Astet",
       "cost": 37,
       "_costSource": "Maladum_calculator_v0.4.4.xlsx",
-      "_note": "Named companions cross-verified against Deluxe rulebook Companions section (Astet, Miri, Nynn, Tilik'eti all appear there with bespoke ability text \u2014 see abilities/skills data for what's captured)."
+      "_note": "Named companions cross-verified against Deluxe rulebook Companions section (Astet, Miri, Nynn, Tilik'eti all appear there with bespoke ability text — see abilities/skills data for what's captured)."
     },
     {
       "id": "beast-of-burden",
       "name": "Beast of Burden",
       "cost": 19,
       "_costSource": "Maladum_calculator_v0.4.4.xlsx",
-      "_note": "Named companions cross-verified against Deluxe rulebook Companions section (Astet, Miri, Nynn, Tilik'eti all appear there with bespoke ability text \u2014 see abilities/skills data for what's captured)."
+      "_note": "Named companions cross-verified against Deluxe rulebook Companions section (Astet, Miri, Nynn, Tilik'eti all appear there with bespoke ability text — see abilities/skills data for what's captured)."
     },
     {
       "id": "ferocious-fiend",
       "name": "Ferocious Fiend",
       "cost": 21,
       "_costSource": "Maladum_calculator_v0.4.4.xlsx",
-      "_note": "Named companions cross-verified against Deluxe rulebook Companions section (Astet, Miri, Nynn, Tilik'eti all appear there with bespoke ability text \u2014 see abilities/skills data for what's captured)."
+      "_note": "Named companions cross-verified against Deluxe rulebook Companions section (Astet, Miri, Nynn, Tilik'eti all appear there with bespoke ability text — see abilities/skills data for what's captured)."
     },
     {
       "id": "magikal-familiar",
       "name": "Magikal Familiar",
       "cost": 24,
       "_costSource": "Maladum_calculator_v0.4.4.xlsx",
-      "_note": "Named companions cross-verified against Deluxe rulebook Companions section (Astet, Miri, Nynn, Tilik'eti all appear there with bespoke ability text \u2014 see abilities/skills data for what's captured)."
+      "_note": "Named companions cross-verified against Deluxe rulebook Companions section (Astet, Miri, Nynn, Tilik'eti all appear there with bespoke ability text — see abilities/skills data for what's captured)."
     },
     {
       "id": "miri-bound",
       "name": "Miri (Bound)",
       "cost": 31,
       "_costSource": "Maladum_calculator_v0.4.4.xlsx",
-      "_note": "Named companions cross-verified against Deluxe rulebook Companions section (Astet, Miri, Nynn, Tilik'eti all appear there with bespoke ability text \u2014 see abilities/skills data for what's captured)."
+      "_note": "Named companions cross-verified against Deluxe rulebook Companions section (Astet, Miri, Nynn, Tilik'eti all appear there with bespoke ability text — see abilities/skills data for what's captured)."
     },
     {
       "id": "miri-free",
       "name": "Miri (free)",
       "cost": 31,
       "_costSource": "Maladum_calculator_v0.4.4.xlsx",
-      "_note": "Named companions cross-verified against Deluxe rulebook Companions section (Astet, Miri, Nynn, Tilik'eti all appear there with bespoke ability text \u2014 see abilities/skills data for what's captured)."
+      "_note": "Named companions cross-verified against Deluxe rulebook Companions section (Astet, Miri, Nynn, Tilik'eti all appear there with bespoke ability text — see abilities/skills data for what's captured)."
     },
     {
       "id": "nynn",
       "name": "Nynn",
       "cost": 17,
       "_costSource": "Maladum_calculator_v0.4.4.xlsx",
-      "_note": "Named companions cross-verified against Deluxe rulebook Companions section (Astet, Miri, Nynn, Tilik'eti all appear there with bespoke ability text \u2014 see abilities/skills data for what's captured)."
+      "_note": "Named companions cross-verified against Deluxe rulebook Companions section (Astet, Miri, Nynn, Tilik'eti all appear there with bespoke ability text — see abilities/skills data for what's captured)."
     },
     {
       "id": "reeki",
       "name": "Reeki",
       "cost": 28,
       "_costSource": "Maladum_calculator_v0.4.4.xlsx",
-      "_note": "Named companions cross-verified against Deluxe rulebook Companions section (Astet, Miri, Nynn, Tilik'eti all appear there with bespoke ability text \u2014 see abilities/skills data for what's captured)."
+      "_note": "Named companions cross-verified against Deluxe rulebook Companions section (Astet, Miri, Nynn, Tilik'eti all appear there with bespoke ability text — see abilities/skills data for what's captured)."
     },
     {
       "id": "tilik-eti",
       "name": "Tilik'eti",
       "cost": 22,
       "_costSource": "Maladum_calculator_v0.4.4.xlsx",
-      "_note": "Named companions cross-verified against Deluxe rulebook Companions section (Astet, Miri, Nynn, Tilik'eti all appear there with bespoke ability text \u2014 see abilities/skills data for what's captured)."
+      "_note": "Named companions cross-verified against Deluxe rulebook Companions section (Astet, Miri, Nynn, Tilik'eti all appear there with bespoke ability text — see abilities/skills data for what's captured)."
     }
   ],
   "items": [
@@ -3917,7 +4963,7 @@
     },
     {
       "id": "",
-      "name": "\u200b\u200b",
+      "name": "​​",
       "rank": null,
       "rarity": null,
       "buyCost": 0,
@@ -4032,7 +5078,7 @@
             },
             {
               "name": "Foresight",
-              "text": "[icon: spell-action symbol]: Look at the top X cards of the Event Deck. Place them back in any order, but turn them 90\u00b0 to mark which ones you have seen. When any of these rotated cards is resolved, you may spend a Magic peg to re-roll any randomised effect such as an Entry Point or chosen Adventurer.",
+              "text": "[icon: spell-action symbol]: Look at the top X cards of the Event Deck. Place them back in any order, but turn them 90° to mark which ones you have seen. When any of these rotated cards is resolved, you may spend a Magic peg to re-roll any randomised effect such as an Entry Point or chosen Adventurer.",
               "passive": false
             }
           ]
@@ -4179,7 +5225,7 @@
           "spells": [
             {
               "name": "Telekinesis",
-              "text": "[icon: free-action symbol]: Choose one: Move a loose item, an item in a friendly character's inventory, or a random item inside an unlocked terrain piece (whichever one you draw first) up to X+2 squares. Traps drawn are triggered against a single target in contact with the terrain piece, if any, and then discarded. If the item reaches a friendly character place it in their inventory. If the item is a weapon and it reaches an enemy, treat it as having been thrown at them. Spread a fire \u2013 choose a source of fire and add a Burning counter to any character or terrain piece within X+2 squares of it.",
+              "text": "[icon: free-action symbol]: Choose one: Move a loose item, an item in a friendly character's inventory, or a random item inside an unlocked terrain piece (whichever one you draw first) up to X+2 squares. Traps drawn are triggered against a single target in contact with the terrain piece, if any, and then discarded. If the item reaches a friendly character place it in their inventory. If the item is a weapon and it reaches an enemy, treat it as having been thrown at them. Spread a fire – choose a source of fire and add a Burning counter to any character or terrain piece within X+2 squares of it.",
               "passive": false
             },
             {
@@ -4259,7 +5305,7 @@
             },
             {
               "name": "Cocoon",
-              "text": "[icon: spell-action symbol]: Gain the benefits of a Rest action, regardless of enemies in the room or in short range and LoS (enemies engaged with a Resting character will still prevent it as normal). Nearby characters may Rest as part of the spell \u2013 it affects up to X characters (including the caster) with a range of X squares.",
+              "text": "[icon: spell-action symbol]: Gain the benefits of a Rest action, regardless of enemies in the room or in short range and LoS (enemies engaged with a Resting character will still prevent it as normal). Nearby characters may Rest as part of the spell – it affects up to X characters (including the caster) with a range of X squares.",
               "passive": false
             }
           ]
@@ -4554,7 +5600,7 @@
             },
             {
               "level": 3,
-              "text": "Use when Searching (terrain or General) to draw one additional token from the pouch and one random uncommon item. Do not resolve any traps drawn \u2013 they should either be returned to the pouch or left inside a Searched terrain piece.\n\nPassive: Your attacks gain [icon: Poison]."
+              "text": "Use when Searching (terrain or General) to draw one additional token from the pouch and one random uncommon item. Do not resolve any traps drawn – they should either be returned to the pouch or left inside a Searched terrain piece.\n\nPassive: Your attacks gain [icon: Poison]."
             }
           ]
         }
@@ -4610,7 +5656,7 @@
             },
             {
               "level": 3,
-              "text": "Reaction: Use after being defeated. You are no longer defeated \u2013 restore 1 Health and Stand Up.\n\nPassive: At the start of your turn you may remove one Fatigued counter."
+              "text": "Reaction: Use after being defeated. You are no longer defeated – restore 1 Health and Stand Up.\n\nPassive: At the start of your turn you may remove one Fatigued counter."
             }
           ]
         },
@@ -4787,15 +5833,15 @@
           "levels": [
             {
               "level": 1,
-              "text": "Make a Ranged Attack at short range. This attack does not roll any dice \u2013 it scores 1 automatic hit, ignoring cover."
+              "text": "Make a Ranged Attack at short range. This attack does not roll any dice – it scores 1 automatic hit, ignoring cover."
             },
             {
               "level": 2,
-              "text": "Make a Ranged Attack at up to medium range. This attack does not roll any dice \u2013 it scores 1 automatic hit, ignoring cover and physical armour.\n\nPassive: This character's ranged attacks ignore cover at short range."
+              "text": "Make a Ranged Attack at up to medium range. This attack does not roll any dice – it scores 1 automatic hit, ignoring cover and physical armour.\n\nPassive: This character's ranged attacks ignore cover at short range."
             },
             {
               "level": 3,
-              "text": "Make a Ranged Attack at up to medium range. This attack does not roll any dice \u2013 it scores 2 automatic hits, ignoring cover and physical armour.\n\nPassive: This character's ranged attacks ignore cover at medium range."
+              "text": "Make a Ranged Attack at up to medium range. This attack does not roll any dice – it scores 2 automatic hits, ignoring cover and physical armour.\n\nPassive: This character's ranged attacks ignore cover at medium range."
             }
           ]
         },
@@ -4933,7 +5979,7 @@
           "levels": [
             {
               "level": 1,
-              "text": "Market Phase: You may perform one of the following:\n- Purchase an item of any value, in addition to the normal limits.\n- Draw an additional rare item from the supply \u2013 this will now be available to purchase.\n- Sell one item for its buy value, to a maximum of [icon: currency]10 x your rank."
+              "text": "Market Phase: You may perform one of the following:\n- Purchase an item of any value, in addition to the normal limits.\n- Draw an additional rare item from the supply – this will now be available to purchase.\n- Sell one item for its buy value, to a maximum of [icon: currency]10 x your rank."
             },
             {
               "level": 2,
@@ -5061,7 +6107,7 @@
             },
             {
               "level": 2,
-              "text": "Based on the current Dread, roll for the arrival of all NPCs due to arrive this round and place them next to the appropriate Entry Points. Grave Points or any other arrival location within short range of this Adventurer cannot be used. You may then move the NPCs at any one Entry Point to a different one. Their arrival will not be rolled again this round \u2013 they will just be activated and enter the gaming area as normal.\n\nPassive: If any rule causes your Staging Point to be swapped with a random Entry Point, you may roll the Magic Die twice and pick your preferred result."
+              "text": "Based on the current Dread, roll for the arrival of all NPCs due to arrive this round and place them next to the appropriate Entry Points. Grave Points or any other arrival location within short range of this Adventurer cannot be used. You may then move the NPCs at any one Entry Point to a different one. Their arrival will not be rolled again this round – they will just be activated and enter the gaming area as normal.\n\nPassive: If any rule causes your Staging Point to be swapped with a random Entry Point, you may roll the Magic Die twice and pick your preferred result."
             },
             {
               "level": 3,
@@ -5134,7 +6180,7 @@
             },
             {
               "level": 2,
-              "text": "Use before setting up a quest to add an additional random rare item to the token pouch.\n\nPassive \u2013 Market Phase: You may re-roll the die when resolving a Book [icon: book]."
+              "text": "Use before setting up a quest to add an additional random rare item to the token pouch.\n\nPassive – Market Phase: You may re-roll the die when resolving a Book [icon: book]."
             }
           ]
         },
@@ -5199,7 +6245,7 @@
     },
     {
       "name": "Ammunition",
-      "text": "A character firing a weapon with this icon must have a Gear or Armour token of the matching type to fire it. However, Throwing Stars are a weapon in themselves \u2013 they do not require a separate Gear token and the Weapon token itself is discarded if they run out."
+      "text": "A character firing a weapon with this icon must have a Gear or Armour token of the matching type to fire it. However, Throwing Stars are a weapon in themselves – they do not require a separate Gear token and the Weapon token itself is discarded if they run out."
     },
     {
       "name": "Balanced",
@@ -5211,7 +6257,7 @@
     },
     {
       "name": "Book",
-      "text": "In the next Market Phase after obtaining this item, roll the Magic Die to see what literary secrets you've uncovered. If the token is Uncommon, add 1 to the roll. If the token is Rare or Exclusive, add 2 to the roll.\n\n- 1-2: The book is worthless \u2013 discard it.\n- 3-5: The book is sold for [icon: currency/coin symbol] equal to the number rolled.\n- 6-7: An Adventurer of your choice gains 1 Experience. Discard the book.\n- 8: You find information on an ancient artefact. Add one random relic resource [icon: relic resource symbol] token to the token pouch and discard the book."
+      "text": "In the next Market Phase after obtaining this item, roll the Magic Die to see what literary secrets you've uncovered. If the token is Uncommon, add 1 to the roll. If the token is Rare or Exclusive, add 2 to the roll.\n\n- 1-2: The book is worthless – discard it.\n- 3-5: The book is sold for [icon: currency/coin symbol] equal to the number rolled.\n- 6-7: An Adventurer of your choice gains 1 Experience. Discard the book.\n- 8: You find information on an ancient artefact. Add one random relic resource [icon: relic resource symbol] token to the token pouch and discard the book."
     },
     {
       "name": "Burning",
@@ -5230,8 +6276,8 @@
       "text": "If a melee attack with this weapon defeats an enemy, you may resolve the same attack against another eligible enemy, removing one hit from the roll. You may continue to do this until you fail to defeat an enemy or there are no eligible enemies remaining."
     },
     {
-      "name": "Crafting \u2013 Resource",
-      "text": "This item is used as an ingredient for crafting \u2013 see page 84. The letter and colour determine the resource type. Numbered items are used to craft unique relics."
+      "name": "Crafting – Resource",
+      "text": "This item is used as an ingredient for crafting – see page 84. The letter and colour determine the resource type. Numbered items are used to craft unique relics."
     },
     {
       "name": "Creature",
@@ -5239,7 +6285,7 @@
     },
     {
       "name": "Cumbersome",
-      "text": "If an attack with this weapon rolls any [icon: skull] and is not broken, turn the token 180\u00b0. It cannot be used in this position. It requires an effortless action to ready the weapon for use again.\n\nCumbersome weapons cannot be thrown."
+      "text": "If an attack with this weapon rolls any [icon: skull] and is not broken, turn the token 180°. It cannot be used in this position. It requires an effortless action to ready the weapon for use again.\n\nCumbersome weapons cannot be thrown."
     },
     {
       "name": "Curse",
@@ -5267,7 +6313,7 @@
     },
     {
       "name": "Fast",
-      "text": "When making a Move action, this character can move X additional squares. If a character has this ability from multiple sources, they use the highest value \u2013 they do not stack."
+      "text": "When making a Move action, this character can move X additional squares. If a character has this ability from multiple sources, they use the highest value – they do not stack."
     },
     {
       "name": "First Strike",
@@ -5315,7 +6361,7 @@
     },
     {
       "name": "Lasting Effect",
-      "text": "Effects granted by this item last until the end of the round. Rotate the token 180\u00b0 as a reminder. If the token is discarded after use, place it on your character board instead and discard it at the end of the round.\n\nThe user may spend X Magic pegs (max 2) to add X Reminder counters to the item. In each Assessment Phase, remove a Reminder counter instead of discarding/rotating the item."
+      "text": "Effects granted by this item last until the end of the round. Rotate the token 180° as a reminder. If the token is discarded after use, place it on your character board instead and discard it at the end of the round.\n\nThe user may spend X Magic pegs (max 2) to add X Reminder counters to the item. In each Assessment Phase, remove a Reminder counter instead of discarding/rotating the item."
     },
     {
       "name": "Location-Specific",
@@ -5331,7 +6377,7 @@
     },
     {
       "name": "Magical Armour",
-      "text": "Spend an action and up to X Magic pegs to increase your Warded value by the number of pegs spent.\n\nRotate the token 180\u00b0 to mark it as active. The token cannot be used in this position."
+      "text": "Spend an action and up to X Magic pegs to increase your Warded value by the number of pegs spent.\n\nRotate the token 180° to mark it as active. The token cannot be used in this position."
     },
     {
       "name": "Malacyte Enhancement",
@@ -5379,7 +6425,7 @@
     },
     {
       "name": "Preparation",
-      "text": "After this weapon is used, turn the token 180\u00b0. It cannot be used in this position. It requires an action to ready the weapon for use again."
+      "text": "After this weapon is used, turn the token 180°. It cannot be used in this position. It requires an action to ready the weapon for use again."
     },
     {
       "name": "Purification",
@@ -5395,7 +6441,7 @@
     },
     {
       "name": "Reach",
-      "text": "This weapon may be used to make a Melee Attack against an enemy up to X squares away, including diagonally. Unless in contact, the characters are not considered to be engaged for any other purpose, including attacks of opportunity.\n\nWhen using multi-level terrain this rule applies vertically as well \u2013 the marks on the ruler can be used to determine how many squares a target is from their attacker when measuring up or down at an angle. Measure from ground level.\n\nNPCs with this rule will make Attack actions as soon as their weapon is in range of their target \u2013 they will not Move closer if they do not need to. Characters with First Strike [icon: First Strike symbol] may also choose to stop and attack once they are within their weapon's range."
+      "text": "This weapon may be used to make a Melee Attack against an enemy up to X squares away, including diagonally. Unless in contact, the characters are not considered to be engaged for any other purpose, including attacks of opportunity.\n\nWhen using multi-level terrain this rule applies vertically as well – the marks on the ruler can be used to determine how many squares a target is from their attacker when measuring up or down at an angle. Measure from ground level.\n\nNPCs with this rule will make Attack actions as soon as their weapon is in range of their target – they will not Move closer if they do not need to. Characters with First Strike [icon: First Strike symbol] may also choose to stop and attack once they are within their weapon's range."
     },
     {
       "name": "Reactive",
@@ -5435,7 +6481,7 @@
     },
     {
       "name": "Scramble",
-      "text": "The top number is the maximum height or width in squares/inches of objects/characters that the character can move up or over as part of a normal Move action \u2013 they do not need to Climb them or spend any actions, just like a regular character climbing stairs.\n\nThe bottom number is the character's safe distance for Jumping down or across."
+      "text": "The top number is the maximum height or width in squares/inches of objects/characters that the character can move up or over as part of a normal Move action – they do not need to Climb them or spend any actions, just like a regular character climbing stairs.\n\nThe bottom number is the character's safe distance for Jumping down or across."
     },
     {
       "name": "Sharp",
@@ -5455,7 +6501,7 @@
     },
     {
       "name": "Stash",
-      "text": "This item may be instantly discarded when found to add its value to your Stash \u2013 it does not have to be placed into an Adventurer's inventory."
+      "text": "This item may be instantly discarded when found to add its value to your Stash – it does not have to be placed into an Adventurer's inventory."
     },
     {
       "name": "Terrifying",
@@ -5463,7 +6509,7 @@
     },
     {
       "name": "Trap",
-      "text": "This item is a trap that can be set by an Adventurer. They may make an Interact action to set it and place it in an adjacent square.\n\nNPCs are unaware of the trap and will not adjust their route to avoid it. The trap is triggered immediately when an enemy enters a square containing or adjacent to it and its effects are resolved against that enemy. Then flip the token face down \u2013 it will not resolve again this round. Flip it face up again in the Assessment Phase. Each time the trap is resolved, roll a die. On a [icon: skull], discard the token.\n\nAdventurers may pick the item up."
+      "text": "This item is a trap that can be set by an Adventurer. They may make an Interact action to set it and place it in an adjacent square.\n\nNPCs are unaware of the trap and will not adjust their route to avoid it. The trap is triggered immediately when an enemy enters a square containing or adjacent to it and its effects are resolved against that enemy. Then flip the token face down – it will not resolve again this round. Flip it face up again in the Assessment Phase. Each time the trap is resolved, roll a die. On a [icon: skull], discard the token.\n\nAdventurers may pick the item up."
     },
     {
       "name": "Unarmed Combat",
@@ -5471,7 +6517,7 @@
     },
     {
       "name": "Unreliable",
-      "text": "If an attack with this weapon rolls a single [icon: skull], it has jammed. Turn the token 180\u00b0. It cannot be used in this position. It requires an action to ready the weapon for use again. If it rolls two or more [icon: skull] it has broken."
+      "text": "If an attack with this weapon rolls a single [icon: skull], it has jammed. Turn the token 180°. It cannot be used in this position. It requires an action to ready the weapon for use again. If it rolls two or more [icon: skull] it has broken."
     },
     {
       "name": "Unsanctioned",
@@ -5491,13 +6537,13 @@
     },
     {
       "name": "Worthy Opponent",
-      "text": "If an Adventurer defeats this character, their party gains one Renown. The character must be defeated with a direct attack or effect \u2013 death from delayed effects such as being Poisoned or Wounded do not grant Renown.\n\nThis character can only appear once per quest. Once it has arrived, any further rules that cause another to enter play are ignored, even after it has been defeated."
+      "text": "If an Adventurer defeats this character, their party gains one Renown. The character must be defeated with a direct attack or effect – death from delayed effects such as being Poisoned or Wounded do not grant Renown.\n\nThis character can only appear once per quest. Once it has arrived, any further rules that cause another to enter play are ignored, even after it has been defeated."
     }
   ],
   "itemLore": [
     {
       "name": "Potions",
-      "text": "[NOTE: This entry begins a distinct 'Item Notes' section on page 156 (file icons-158.png), not the alphabetical icon glossary proper.] Some equipment requires more specific rules than can be covered by the standard icons and statistics. These items will be marked [icon: exclamation mark] \u2013 if you see this on an item you should check the rulebook for full details.\n\nPOTIONS: Some rules refer to \"Potions\". These are all items marked [icon: potion bottle symbol] on the back."
+      "text": "[NOTE: This entry begins a distinct 'Item Notes' section on page 156 (file icons-158.png), not the alphabetical icon glossary proper.] Some equipment requires more specific rules than can be covered by the standard icons and statistics. These items will be marked [icon: exclamation mark] – if you see this on an item you should check the rulebook for full details.\n\nPOTIONS: Some rules refer to \"Potions\". These are all items marked [icon: potion bottle symbol] on the back."
     },
     {
       "name": "Healing Knowledge",
@@ -5521,7 +6567,7 @@
     },
     {
       "name": "Daemon Mantle",
-      "text": "This item may be used to cast the Rearrange Cells spell with X = 5. No pegs are spent and the Magic Die is not rolled. Rotate the token 180\u00b0 - it cannot be used for the rest of the game."
+      "text": "This item may be used to cast the Rearrange Cells spell with X = 5. No pegs are spent and the Magic Die is not rolled. Rotate the token 180° - it cannot be used for the rest of the game."
     },
     {
       "name": "Doorbuster",

@@ -72,19 +72,64 @@ export const AdventurerDef = z.looseObject({
 })
 export type AdventurerDef = z.infer<typeof AdventurerDef>
 
-/** A class board's reference to a skill it grants — see `SkillCategoryDef` for the skill itself. */
+/**
+ * One slot on a Class board's skill wheel.
+ *
+ * Referenced by `name`, not by id — skills have no ids anywhere in the source, the
+ * `skills` reference section is keyed by name (see `NamedEntityKind` in loader.ts),
+ * and the boards name them exactly as the rulebook does. `levelCap` is how far up
+ * that skill this board may be marked (3 unless the board prints an override).
+ */
 export const ClassSkillRef = z.looseObject({
-  id: z.string(),
-  maxLevel: z.number().optional(),
+  name: z.string(),
+  levelCap: z.number().optional(),
 })
+export type ClassSkillRef = z.infer<typeof ClassSkillRef>
+
+/** An ability a Class board grants outright, with the board's own qualifier text. */
+export const GrantedAbilityRef = z.looseObject({
+  /** Resolves to an `abilities[].name` in the icon/trait glossary. */
+  name: z.string(),
+  /** Board shorthand qualifying the grant, e.g. "2/3". Not parsed. */
+  detail: z.string().nullable().optional(),
+})
+export type GrantedAbilityRef = z.infer<typeof GrantedAbilityRef>
 
 export const ClassDef = z.looseObject({
   id: z.string(),
   name: z.string().optional(),
   cost: z.number().nullable().optional(),
   skills: z.array(ClassSkillRef).default([]),
+  /**
+   * Appears superseded by `grantedAbilities`: it is `null` on every class that still
+   * carries the key and absent on the rest, while `grantedAbilities` holds the real
+   * data. Kept rather than deleted until confirmed against the physical boards —
+   * removing a field the boards might still use is the more expensive mistake.
+   */
   innateAbility: z.string().nullable().optional(),
+  /** Empty on every transcribed board so far; schools reach a class via `grantedSpells`. */
   spellSchools: z.array(z.string()).default([]),
+  /**
+   * Stat modifiers as printed on the board ("+1 Melee Die", "-1 Health Peg"). Free text
+   * on purpose: this is board text, not a closed vocabulary, and inventing a structured
+   * shape for it would be inventing game data. Structure it when something needs to
+   * compute with it and the vocabulary has been verified.
+   */
+  statBonuses: z.array(z.string()).default([]),
+  /** Spell names granted by the board → resolve to a `spells[].levels[].spells[].name`. */
+  grantedSpells: z.array(z.string()).default([]),
+  grantedAbilities: z.array(GrantedAbilityRef).default([]),
+  /** Spell-track slots on the board; null when the board has no spell track. */
+  spellSlots: z.number().nullable().optional(),
+  /**
+   * How many physical copies of this Class board are in the box. Class boards are
+   * double-sided, so a class shares each of its boards with the class in `pairedWith`
+   * at the same position — which caps how many of a class a party can field at once.
+   * Recorded and integrity-checked; not yet enforced by the party builder.
+   */
+  boardCopies: z.number().nullable().optional(),
+  /** The class on the reverse of each physical copy, by `name`, one per copy. */
+  pairedWith: z.array(z.string()).default([]),
 })
 export type ClassDef = z.infer<typeof ClassDef>
 
