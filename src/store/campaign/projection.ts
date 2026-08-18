@@ -24,6 +24,13 @@ export interface AdventurerState {
   displayName: string
   xpFilled: number
   inventory: ItemRef[]
+  /** Items in the board's armour slots — where armour's rules actually apply (p.6). */
+  armour: ItemRef[]
+  /**
+   * Labels of board grants currently covered by armour (p.32). Only the player can see
+   * which side of a slot they covered, so this is recorded, never derived.
+   */
+  coveredGrants: string[]
   /** Skill name → marks per board. Absent key means no marks on either board. */
   skillMarks: Record<string, SkillMarks>
   /**
@@ -92,6 +99,14 @@ export function emptyCampaign(): CampaignState {
     createdAt: 0,
     parties: [],
   }
+}
+
+/** Drop one matching ref, not every copy — an Adventurer can carry two Daggers. */
+function removeOne(list: ItemRef[], item: ItemRef): ItemRef[] {
+  const i = list.findIndex(
+    (x) => x.itemId === item.itemId && x.instanceId === item.instanceId,
+  )
+  return i === -1 ? list : [...list.slice(0, i), ...list.slice(i + 1)]
 }
 
 const clampRenown = (n: number): number => Math.min(RENOWN_MAX, Math.max(RENOWN_MIN, n))
@@ -178,6 +193,8 @@ export function campaignReducer(state: CampaignState, event: CampaignEvent): Cam
               displayName: event.displayName,
               xpFilled: event.startingXp ?? 0,
               inventory: [],
+              armour: [],
+              coveredGrants: [],
               skillMarks: {},
               spells: [],
               statIncreases: {},
@@ -248,6 +265,37 @@ export function campaignReducer(state: CampaignState, event: CampaignEvent): Cam
       return updateAdventurer(state, event.advId, (a) => ({
         ...a,
         inventory: [...a.inventory, event.item],
+      }))
+
+    case 'ITEM_REMOVED':
+      return updateAdventurer(state, event.advId, (a) => ({
+        ...a,
+        inventory: removeOne(a.inventory, event.item),
+      }))
+
+    case 'ARMOUR_EQUIPPED':
+      return updateAdventurer(state, event.advId, (a) => ({
+        ...a,
+        // Armour moves out of the inventory into the slot — it can't be in both (p.30).
+        inventory: removeOne(a.inventory, event.item),
+        armour: [...a.armour, event.item],
+      }))
+
+    case 'ARMOUR_REMOVED':
+      return updateAdventurer(state, event.advId, (a) => ({
+        ...a,
+        armour: removeOne(a.armour, event.item),
+        inventory: [...a.inventory, event.item],
+      }))
+
+    case 'GRANT_COVERED_SET':
+      return updateAdventurer(state, event.advId, (a) => ({
+        ...a,
+        coveredGrants: event.covered
+          ? a.coveredGrants.includes(event.grant)
+            ? a.coveredGrants
+            : [...a.coveredGrants, event.grant]
+          : a.coveredGrants.filter((g) => g !== event.grant),
       }))
 
     case 'XP_SET':

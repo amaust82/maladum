@@ -21,13 +21,28 @@
  *    inventing them.
  */
 
-import type { AdventurerDef, ClassDef, SkillCategoryDef, SpellSchoolDef } from '../content/schema'
+import type {
+  AdventurerDef,
+  ClassDef,
+  ItemDef,
+  SkillCategoryDef,
+  SpellSchoolDef,
+} from '../content/schema'
 import type { AdventurerState, SkillMarks } from '../store/campaign/projection'
+import type { ItemRef } from '../store/campaign/events'
 import type { LevellableStat } from '../store/campaign/events'
 import { rankFromXp } from './advancement'
 
 /** Default cap on a Class-board skill when the board doesn't print an override. */
 export const DEFAULT_SKILL_LEVEL_CAP = 3
+
+/**
+ * Hard ceiling on any Skill's usable level, however it was reached (p.32, Duplicate
+ * Skills): "All Skills have a maximum level of 3." Character-board marks stack on Class
+ * marks past the rank cap, so a board can legitimately be *marked* above 3 — the excess
+ * simply doesn't do anything in play, which is why `level` and `marksTotal` differ.
+ */
+export const SKILL_MAX_LEVEL = 3
 
 export interface StatRow {
   key: LevellableStat
@@ -47,8 +62,16 @@ export interface SkillRow {
   name: string
   /** Marks on each board, kept apart because they cap differently. */
   marks: SkillMarks
-  /** Total level in play — the two boards' marks added (p.80). */
+  /** Marks actually on the boards, added together (p.80). May exceed the usable level. */
+  marksTotal: number
+  /** Usable level in play: `marksTotal` capped at 3 (p.32), and net of armour cover. */
   level: number
+  /**
+   * True when this skill's character-board marks sit under an armour slot the player has
+   * covered — "putting armour on may reduce the level of a certain Skill available to a
+   * character, even if they also had it on their Class board" (p.32).
+   */
+  coveredByArmour: boolean
   /** Ceiling printed on the Class wheel for this skill, if the class carries it. */
   classCap: number | null
   /** Ceiling for character-board marks, from the board grant. */
@@ -86,6 +109,8 @@ export interface SheetIssue {
     | 'marks-exceed-xp'
     | 'stat-over-max'
     | 'rank-unknown'
+    | 'skill-over-max-level'
+    | 'armour-over-slots'
   message: string
 }
 
@@ -101,8 +126,25 @@ export interface CharacterSheet {
   rankIsDerived: boolean
   skills: SkillRow[]
   spells: SpellRow[]
-  /** Abilities and stat bonuses the boards grant — reference material, nothing to mark. */
-  grants: { label: string; detail: string | null; from: 'character' | 'class' }[]
+  /**
+   * Abilities and stat bonuses the boards grant — reference material, nothing to mark.
+   * `onArmourSlot` grants are printed in an armour slot, so equipping armour there covers
+   * them; `covered` is the player's record of having done so.
+   */
+  grants: {
+    label: string
+    detail: string | null
+    from: 'character' | 'class'
+    onArmourSlot: boolean
+    covered: boolean
+  }[]
+  /** Items carried. Capacity is the physical tray, so it is reported, never enforced. */
+  inventory: ItemRef[]
+  /** Total token size carried, and how many items had no transcribed size. */
+  carried: { sized: number; unsized: number; total: number }
+  /** Items in the armour slots, and how many slots the board has. */
+  armour: ItemRef[]
+  armourSlots: number | null
   issues: SheetIssue[]
 }
 
@@ -113,6 +155,21 @@ export interface SheetInput {
   /** Reference sections, for resolving a spell's school and level. */
   spellSchools?: Iterable<SpellSchoolDef>
   skillCategories?: Iterable<SkillCategoryDef>
+  /** Item definitions, for the carried-size tally. */
+  items?: Map<string, ItemDef>
+}
+
+/**
+ * Token size in inventory spaces. p.14: "the size of the token simply represents how much
+ * space it takes up in your inventory". The letters are the printed sizes; a number is
+ * accepted because the design sketch used one.
+ */
+const SIZE_SPACES: Record<string, number> = { XS: 1, S: 2, M: 3, L: 4, XL: 5 }
+
+export function itemSpaces(item: ItemDef | undefined): number | null {
+  if (!item || item.size === null || item.size === undefined) return null
+  if (typeof item.size === 'number') return item.size
+  return SIZE_SPACES[item.size] ?? null
 }
 
 /**
@@ -178,6 +235,7 @@ export function buildCharacterSheet(input: SheetInput): CharacterSheet {
   const issues: SheetIssue[] = []
 
   const granted = grantedSkillMarks(character)
+  const coveredGrants = new Set(state.coveredGrants)
   const classSkills = new Map((klass?.skills ?? []).map((s) => [s.name, s.levelCap ?? DEFAULT_SKILL_LEVEL_CAP]))
 
   // Every skill either board knows about, plus anything already marked (so a mark can
@@ -217,10 +275,26 @@ export function buildCharacterSheet(input: SheetInput): CharacterSheet {
         })
       }
 
+      // A covered armour slot hides the character-board marks printed on it (p.32).
+      const coveredByArmour = coveredGrants.has(name)
+      const effectiveCharacter = coveredByArmour ? 0 : marks.character
+      const marksTotal = marks.character + marks.class
+      const level = Math.min(SKILL_MAX_LEVEL, effectiveCharacter + marks.class)
+
+      if (marksTotal > SKILL_MAX_LEVEL) {
+        issues.push({
+          severity: 'warning',
+          kind: 'skill-over-max-level',
+          message: `${name} is marked to ${marksTotal} but no Skill goes above level ${SKILL_MAX_LEVEL} (p.32)`,
+        })
+      }
+
       return {
         name,
         marks,
-        level: marks.character + marks.class,
+        marksTotal,
+        level,
+        coveredByArmour,
         classCap,
         characterCap,
         rankCap,
@@ -254,18 +328,27 @@ export function buildCharacterSheet(input: SheetInput): CharacterSheet {
 
   const grants: CharacterSheet['grants'] = []
   for (const grant of character?.boardGrants ?? []) {
-    if (grant.type === 'ability' && grant.name) {
-      grants.push({ label: grant.name, detail: grant.detail ?? null, from: 'character' })
-    }
-    if (grant.type === 'statBonus' && grant.text) {
-      grants.push({ label: grant.text, detail: null, from: 'character' })
-    }
+    const label = grant.type === 'statBonus' ? grant.text : grant.name
+    if (grant.type === 'skill' || !label) continue // skills are rendered in the skill table
+    grants.push({
+      label,
+      detail: grant.detail ?? null,
+      from: 'character',
+      onArmourSlot: grant.armorSlot === true,
+      covered: coveredGrants.has(label),
+    })
   }
   for (const ability of klass?.grantedAbilities ?? []) {
-    grants.push({ label: ability.name, detail: ability.detail ?? null, from: 'class' })
+    grants.push({
+      label: ability.name,
+      detail: ability.detail ?? null,
+      from: 'class',
+      onArmourSlot: false,
+      covered: false,
+    })
   }
   for (const bonus of klass?.statBonuses ?? []) {
-    grants.push({ label: bonus, detail: null, from: 'class' })
+    grants.push({ label: bonus, detail: null, from: 'class', onArmourSlot: false, covered: false })
   }
 
   const stats = statRows(character, state)
@@ -293,6 +376,27 @@ export function buildCharacterSheet(input: SheetInput): CharacterSheet {
     })
   }
 
+  const armourSlots = character?.armourSlots ?? null
+  if (armourSlots !== null && state.armour.length > armourSlots) {
+    issues.push({
+      severity: 'warning',
+      kind: 'armour-over-slots',
+      message: `${state.armour.length} items in armour slots but this board has ${armourSlots}`,
+    })
+  }
+
+  // Carrying capacity is the physical tray, not a number the rules state (p.7: "the
+  // character cannot carry more than the tray can hold"). So the size is tallied and
+  // shown, never checked against an invented limit — and items whose size wasn't
+  // transcribed are counted separately rather than treated as weightless.
+  let sized = 0
+  let unsized = 0
+  for (const ref of state.inventory) {
+    const spaces = itemSpaces(input.items?.get(ref.itemId))
+    if (spaces === null) unsized += 1
+    else sized += spaces
+  }
+
   if (rank === null) {
     issues.push({
       severity: 'warning',
@@ -313,6 +417,10 @@ export function buildCharacterSheet(input: SheetInput): CharacterSheet {
     skills,
     spells,
     grants,
+    inventory: state.inventory,
+    carried: { sized, unsized, total: state.inventory.length },
+    armour: state.armour,
+    armourSlots,
     issues,
   }
 }

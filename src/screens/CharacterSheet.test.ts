@@ -173,6 +173,36 @@ describe('CharacterSheet', () => {
     expect(wrapper.text()).toContain('each Experience buys one mark')
   })
 
+  it('carries an item, moves it to an armour slot, and takes it off again', async () => {
+    const { campaigns, id } = await openCampaignWithAdventurer()
+    const wrapper = mountSheet(id)
+    const itemSelect = wrapper.findAll('select').find((sel) => sel.text().includes('add an item'))!
+    await itemSelect.setValue('dagger')
+    await wrapper.findAll('button').find((b) => b.text() === 'Add')!.trigger('click')
+    await settleUntil(() => adventurer(campaigns).inventory.length === 1, 'carried item')
+
+    await wrapper.findAll('button').find((b) => b.text() === 'To armour slot')!.trigger('click')
+    await settleUntil(() => adventurer(campaigns).armour.length === 1, 'equipped')
+    // It moved rather than duplicated: armour can't be in both places (p.30).
+    expect(adventurer(campaigns).inventory).toHaveLength(0)
+
+    await wrapper.findAll('button').find((b) => b.text() === 'Back to inventory')!.trigger('click')
+    await settleUntil(() => adventurer(campaigns).armour.length === 0, 'unequipped')
+    expect(adventurer(campaigns).inventory).toHaveLength(1)
+  })
+
+  it('records armour covering a board grant, and the skill level drops', async () => {
+    // Syrio's board prints "+1 Movement" in an armour slot.
+    const { campaigns, id } = await openCampaignWithAdventurer()
+    const wrapper = mountSheet(id)
+    const box = wrapper
+      .findAll('input[type="checkbox"]')
+      .find((b) => b.element.parentElement?.textContent?.includes('covered'))!
+    await box.setValue(true)
+    await settleUntil(() => adventurer(campaigns).coveredGrants.length === 1, 'covered grant')
+    expect(adventurer(campaigns).coveredGrants).toEqual(['+1 Movement'])
+  })
+
   it('says so plainly for an id that is not in the campaign', async () => {
     const { id } = await openCampaignWithAdventurer()
     const wrapper = mount(CharacterSheet, {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildCharacterSheet, rankFor, type SheetInput } from './characterSheet'
+import { buildCharacterSheet, itemSpaces, rankFor, type SheetInput } from './characterSheet'
 import type { AdventurerDef, ClassDef } from '../content/schema'
 import type { AdventurerState } from '../store/campaign/projection'
 import { loadBundledPacks } from '../content/loader'
@@ -35,6 +35,8 @@ const state = (over: Partial<AdventurerState> = {}): AdventurerState => ({
   displayName: 'Someone',
   xpFilled: 0,
   inventory: [],
+  armour: [],
+  coveredGrants: [],
   skillMarks: {},
   spells: [],
   statIncreases: {},
@@ -266,5 +268,132 @@ describe('against real boards', () => {
     expect(malacyte.classHeadroom).toBe(1)
     const reflexes = s.skills.find((r) => r.name === 'Reflexes')!
     expect(reflexes.classCap).toBe(3)
+  })
+})
+
+describe('the level-3 ceiling on any Skill (p.32)', () => {
+  const withSkill = {
+    character: character({ boardGrants: [{ type: 'skill', name: 'Ambush', default: 1, max: 3 }] }),
+    klass: klass({ skills: [{ name: 'Ambush', levelCap: 3 }] }),
+  }
+
+  it('caps the usable level at 3 while keeping the marks that were made', () => {
+    // Character marks stack past the rank cap, so a board can legitimately be marked
+    // above 3 — the excess just does nothing in play.
+    const s = buildCharacterSheet({
+      ...withSkill,
+      state: state({ rank: 5, skillMarks: { Ambush: { character: 3, class: 3 } }, xpFilled: 6 }),
+    })
+    const row = s.skills.find((r) => r.name === 'Ambush')!
+    expect(row.marksTotal).toBe(6)
+    expect(row.level).toBe(3)
+    expect(kinds(s)).toContain('skill-over-max-level')
+  })
+
+  it('says nothing when the total is within the ceiling', () => {
+    const s = buildCharacterSheet({
+      ...withSkill,
+      state: state({ rank: 3, skillMarks: { Ambush: { character: 1, class: 2 } }, xpFilled: 3 }),
+    })
+    expect(s.skills.find((r) => r.name === 'Ambush')!.level).toBe(3)
+    expect(kinds(s)).not.toContain('skill-over-max-level')
+  })
+})
+
+describe('armour covering a board grant (p.32)', () => {
+  const withSlotSkill = {
+    character: character({
+      boardGrants: [{ type: 'skill', name: 'Ambush', default: 1, max: 1, armorSlot: true }],
+    }),
+    klass: klass({ skills: [{ name: 'Ambush', levelCap: 3 }] }),
+  }
+
+  it('drops the character-board marks a covered slot hides', () => {
+    // "Putting armour on may reduce the level of a certain Skill available to a
+    // character, even if they also had it on their Class board."
+    const uncovered = buildCharacterSheet({
+      ...withSlotSkill,
+      state: state({ rank: 2, skillMarks: { Ambush: { character: 1, class: 2 } }, xpFilled: 3 }),
+    })
+    expect(uncovered.skills.find((r) => r.name === 'Ambush')!.level).toBe(3)
+
+    const covered = buildCharacterSheet({
+      ...withSlotSkill,
+      state: state({
+        rank: 2,
+        skillMarks: { Ambush: { character: 1, class: 2 } },
+        xpFilled: 3,
+        coveredGrants: ['Ambush'],
+      }),
+    })
+    const row = covered.skills.find((r) => r.name === 'Ambush')!
+    expect(row.coveredByArmour).toBe(true)
+    expect(row.level).toBe(2)
+    // The marks themselves are untouched — the armour comes off again.
+    expect(row.marks).toEqual({ character: 1, class: 2 })
+  })
+
+  it('flags which grants sit on an armour slot, so the trade-off is visible', () => {
+    const s = buildCharacterSheet({
+      state: state(),
+      character: character({
+        boardGrants: [{ type: 'ability', name: 'First Strike', armorSlot: true }],
+      }),
+      klass: klass(),
+    })
+    expect(s.grants.find((g) => g.label === 'First Strike')).toMatchObject({
+      onArmourSlot: true,
+      covered: false,
+    })
+  })
+})
+
+describe('inventory and armour slots', () => {
+  const { library } = loadBundledPacks()
+
+  it('tallies carried size and counts unsized items separately', () => {
+    // Only crafted items carry a transcribed size; the core price list does not, and
+    // an unsized item must not be silently treated as weightless.
+    const s = buildCharacterSheet({
+      state: state({ inventory: [{ itemId: 'arrow-entangle-x2' }, { itemId: 'dagger' }] }),
+      character: character(),
+      klass: klass(),
+      items: library.items,
+    })
+    expect(s.carried.total).toBe(2)
+    expect(s.carried.sized).toBeGreaterThan(0)
+    expect(s.carried.unsized).toBe(1)
+  })
+
+  it('reports the board’s armour slot count without enforcing carrying capacity', () => {
+    const s = buildCharacterSheet({
+      state: state(),
+      character: library.adventurers.get('syrio')!,
+      klass: klass(),
+    })
+    expect(s.armourSlots).toBe(2)
+  })
+
+  it('warns when more armour is worn than the board has slots for', () => {
+    const s = buildCharacterSheet({
+      state: state({ armour: [{ itemId: 'a' }, { itemId: 'b' }, { itemId: 'c' }] }),
+      character: character({ armourSlots: 2 }),
+      klass: klass(),
+    })
+    expect(kinds(s)).toContain('armour-over-slots')
+  })
+})
+
+describe('itemSpaces', () => {
+  it('maps the printed letter sizes to inventory spaces', () => {
+    expect(itemSpaces({ size: 'XS' } as never)).toBe(1)
+    expect(itemSpaces({ size: 'XL' } as never)).toBe(5)
+  })
+
+  it('returns null for an untranscribed size rather than zero', () => {
+    // Zero would make an unknown item free to carry, which is the wrong direction.
+    expect(itemSpaces({ } as never)).toBeNull()
+    expect(itemSpaces({ size: null } as never)).toBeNull()
+    expect(itemSpaces(undefined)).toBeNull()
   })
 })

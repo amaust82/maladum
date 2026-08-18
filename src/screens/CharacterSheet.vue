@@ -21,7 +21,7 @@
  * packs on every render rather than stored, so a transcription fix reaches an existing
  * campaign instead of leaving a stale copy behind.
  */
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useCampaignStore } from '../stores/campaigns'
 import { useContentStore } from '../stores/content'
 import { buildCharacterSheet } from '../rules/characterSheet'
@@ -48,6 +48,7 @@ const sheet = computed(() => {
     character: content.library.adventurers.get(found.adventurer.characterId),
     klass: content.library.classes.get(found.adventurer.classId),
     spellSchools: content.library.spells.values(),
+    items: content.library.items,
   })
 })
 
@@ -69,6 +70,28 @@ const setMarks = (skill: string, source: SkillSource, marks: number) =>
   campaigns.commit([{ t: 'SKILL_MARKS_SET', advId: props.advId, skill, source, marks }])
 const setStat = (stat: LevellableStat, increase: number) =>
   campaigns.commit([{ t: 'STAT_INCREASE_SET', advId: props.advId, stat, increase }])
+const addItem = (itemId: string) =>
+  campaigns.commit([{ t: 'ITEM_ACQUIRED', advId: props.advId, item: { itemId }, via: 'found' }])
+const dropItem = (itemId: string, instanceId?: string) =>
+  campaigns.commit([{ t: 'ITEM_REMOVED', advId: props.advId, item: { itemId, instanceId } }])
+const equip = (itemId: string, instanceId?: string) =>
+  campaigns.commit([{ t: 'ARMOUR_EQUIPPED', advId: props.advId, item: { itemId, instanceId } }])
+const unequip = (itemId: string, instanceId?: string) =>
+  campaigns.commit([{ t: 'ARMOUR_REMOVED', advId: props.advId, item: { itemId, instanceId } }])
+const setCovered = (grant: string, covered: boolean) =>
+  campaigns.commit([{ t: 'GRANT_COVERED_SET', advId: props.advId, grant, covered }])
+
+const itemName = (itemId: string) => content.library.items.get(itemId)?.name ?? itemId
+const allItems = computed(() =>
+  [...content.library.items.values()].sort((a, b) => a.name.localeCompare(b.name)),
+)
+const itemPick = ref('')
+function pickItem() {
+  if (!itemPick.value) return
+  addItem(itemPick.value)
+  itemPick.value = ''
+}
+
 const learn = (spell: string) =>
   campaigns.commit([{ t: 'SPELL_LEARNED', advId: props.advId, spell }])
 const unlearn = (spell: string) =>
@@ -185,7 +208,7 @@ const sourceLabel: Record<string, string> = {
             <th class="py-1 font-normal">Skill</th>
             <th class="w-24 font-normal">Character</th>
             <th class="w-24 font-normal">Class</th>
-            <th class="w-16 font-normal">Level</th>
+            <th class="w-20 font-normal">Level</th>
           </tr>
         </thead>
         <tbody>
@@ -221,7 +244,11 @@ const sourceLabel: Record<string, string> = {
               <span v-else class="opacity-30">—</span>
               <span v-if="row.classCap" class="ml-1 opacity-40">/{{ row.classCap }}</span>
             </td>
-            <td class="font-medium">{{ row.level }}</td>
+            <td class="font-medium">
+              {{ row.level }}
+              <span v-if="row.marksTotal > row.level" class="opacity-50">({{ row.marksTotal }} marked)</span>
+              <span v-if="row.coveredByArmour" class="ml-1 text-amber-300" title="Covered by armour">▲</span>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -271,18 +298,104 @@ const sourceLabel: Record<string, string> = {
       </label>
     </section>
 
+    <!-- Inventory -->
+    <section class="mt-4 rounded border border-neutral-800 bg-neutral-900/40 p-3">
+      <h3 class="mb-1 text-sm font-medium">Inventory</h3>
+      <p class="mb-2 text-xs opacity-60">
+        {{ sheet.carried.total }} item(s), {{ sheet.carried.sized }} spaces used<template
+          v-if="sheet.carried.unsized"
+        >
+          · {{ sheet.carried.unsized }} with no transcribed size</template
+        >. Capacity is the physical tray, so it isn't checked here — the rulebook's limit is
+        what actually fits.
+      </p>
+      <ul class="space-y-1 text-xs">
+        <li
+          v-for="(ref_, i) in sheet.inventory"
+          :key="'inv' + i"
+          class="flex items-center gap-2 rounded border border-neutral-800 px-2 py-1"
+        >
+          <span>{{ itemName(ref_.itemId) }}</span>
+          <button class="ml-auto opacity-70 hover:underline" @click="equip(ref_.itemId, ref_.instanceId)">
+            To armour slot
+          </button>
+          <button class="text-rose-400 hover:underline" @click="dropItem(ref_.itemId, ref_.instanceId)">
+            Remove
+          </button>
+        </li>
+      </ul>
+      <p v-if="!sheet.inventory.length" class="text-xs opacity-50">Carrying nothing.</p>
+      <div class="mt-2 flex gap-2">
+        <select
+          v-model="itemPick"
+          class="min-w-0 flex-1 rounded border border-neutral-700 bg-neutral-900 px-2 py-1.5 text-xs text-neutral-100"
+        >
+          <option value="">— add an item —</option>
+          <option v-for="item in allItems" :key="item.id" :value="item.id">{{ item.name }}</option>
+        </select>
+        <button
+          class="rounded border border-neutral-700 px-2 py-1.5 text-xs disabled:opacity-40"
+          :disabled="!itemPick"
+          @click="pickItem"
+        >
+          Add
+        </button>
+      </div>
+    </section>
+
+    <!-- Armour slots -->
+    <section class="mt-4 rounded border border-neutral-800 bg-neutral-900/40 p-3">
+      <h3 class="mb-1 text-sm font-medium">
+        Armour slots
+        <span v-if="sheet.armourSlots !== null" class="opacity-50">
+          ({{ sheet.armour.length }}/{{ sheet.armourSlots }})
+        </span>
+      </h3>
+      <p class="mb-2 text-xs opacity-60">
+        Armour's rules only apply while it's in a slot (p.6). Slots are punched out of the
+        board, so anything printed there is covered — tick it below when that happens.
+      </p>
+      <ul class="space-y-1 text-xs">
+        <li
+          v-for="(ref_, i) in sheet.armour"
+          :key="'arm' + i"
+          class="flex items-center gap-2 rounded border border-neutral-800 px-2 py-1"
+        >
+          <span>{{ itemName(ref_.itemId) }}</span>
+          <button class="ml-auto opacity-70 hover:underline" @click="unequip(ref_.itemId, ref_.instanceId)">
+            Back to inventory
+          </button>
+        </li>
+      </ul>
+      <p v-if="!sheet.armour.length" class="text-xs opacity-50">Slots empty.</p>
+    </section>
+
     <!-- Board grants -->
     <section v-if="sheet.grants.length" class="mt-4 rounded border border-neutral-800 bg-neutral-900/40 p-3">
       <h3 class="mb-1 text-sm font-medium">Granted by the boards</h3>
-      <p class="mb-2 text-xs opacity-60">Nothing to record — these come with the boards.</p>
-      <ul class="flex flex-wrap gap-1.5">
+      <p class="mb-2 text-xs opacity-60">
+        These come with the boards. The ones printed in an armour slot can be covered by
+        wearing armour there — tick those, since only you can see which side you covered.
+      </p>
+      <ul class="space-y-1">
         <li
           v-for="(grant, i) in sheet.grants"
           :key="i"
-          class="rounded border border-neutral-700 px-1.5 py-0.5 text-xs"
+          class="flex items-center gap-2 text-xs"
+          :class="grant.covered ? 'opacity-50' : ''"
         >
-          {{ grant.label }}<span v-if="grant.detail" class="opacity-60"> {{ grant.detail }}</span>
-          <span class="ml-1 opacity-40">{{ grant.from }}</span>
+          <span :class="grant.covered ? 'line-through' : ''">
+            {{ grant.label }}<span v-if="grant.detail" class="opacity-60"> {{ grant.detail }}</span>
+          </span>
+          <span class="opacity-40">{{ grant.from }}</span>
+          <label v-if="grant.onArmourSlot" class="ml-auto flex items-center gap-1 opacity-70">
+            <input
+              type="checkbox"
+              :checked="grant.covered"
+              @change="setCovered(grant.label, ($event.target as HTMLInputElement).checked)"
+            />
+            covered by armour
+          </label>
         </li>
       </ul>
     </section>

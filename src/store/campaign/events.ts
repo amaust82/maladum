@@ -114,5 +114,19 @@ export type CampaignEvent =
   /** Punched out on paying for an Inn, filled back in on camping in the wilderness (p.86). */
   | { t: 'SECURE_STORAGE_SET'; partyId: Id; unlocked: boolean }
   | { t: 'CAMP_NOTES_SET'; partyId: Id; notes: string }
+  /** Inventory and armour slots (design §3; rulebook p.6, p.14, p.30, p.32). */
+  | { t: 'ITEM_REMOVED'; advId: Id; item: ItemRef }
+  /**
+   * Move an item into an armour slot. Armour's rules "only apply when placed in these
+   * slots" (p.6), so where an item sits is a real distinction, not presentation.
+   */
+  | { t: 'ARMOUR_EQUIPPED'; advId: Id; item: ItemRef }
+  | { t: 'ARMOUR_REMOVED'; advId: Id; item: ItemRef }
+  /**
+   * Record that armour is covering a Skill or ability printed in an armour slot (p.32:
+   * "putting armour on may reduce the level of a certain Skill"). The player decides
+   * which side to cover, so this can only be recorded, never derived.
+   */
+  | { t: 'GRANT_COVERED_SET'; advId: Id; grant: string; covered: boolean }
 
 export type CampaignEventType = CampaignEvent['t']

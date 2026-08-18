@@ -697,7 +697,9 @@ from a bought item's.
 | Value | Rule | Source (Deluxe) |
 |---|---|---|
 | `rank` | number of XP rows with ≥1 filled space | p.80 |
-| Skill level cap | may only mark Class-board skills up to current rank; char-board spaces are exempt and stack | p.80 |
+| Skill level cap | may only mark Class-board skills up to current rank; char-board spaces are exempt and stack. **Usable level is capped at 3 however it was reached**, and armour covering a slot-printed skill reduces it | p.80, p.32 |
+| Carrying capacity | **not a number** — "the character cannot carry more than the tray can hold". Token size is inventory space; capacity is physical, so the app tallies and never enforces | p.7, p.14 |
+| Armour slots | punched out of the character board; armour's rules apply only while in a slot, and punching out covers whatever is printed there | p.6, p.30, p.32 |
 | Spell level cap | may only learn spells of level ≤ rank | p.80 |
 | XP gain eligibility | rows 1–2: survive + escape. rows 3–4: survive + party completed primary objective. row 5: special feats only | p.80 |
 | Level-up bonus | row 1: +1 to one of H/M/S · row 2: +1 to one · row 3: +1 to any two · rows 4–5: +1 to any two stats — capped by the board's potential spaces | p.81 |

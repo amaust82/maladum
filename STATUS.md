@@ -15,7 +15,7 @@ genuine exception — a formatting sweep, a revert — with `git commit --no-ver
 
 **Phase 0 is complete; Phase 1 is under way.** Campaign management, the party builder
 and the Rules reference are in. `npm run build` is clean and `npm test` is green:
-**394 tests across 26 files**.
+**405 tests across 26 files**.
 
 **Board transcription is DONE.** All 45 boards — 25 Class, 20 Adventurer — are transcribed
 from the physical components, with **zero `_placeholder` flags anywhere in the dataset**.
@@ -409,6 +409,38 @@ full-suite run. Widening the window would have hidden it; the helper now **polls
 condition** with a timeout, which removes the whole flake class. `BaseCamp.test.ts` uses
 the same approach.
 
+### Inventory and armour slots (done) — plus a bug this found
+
+The character sheet now records what an Adventurer carries and wears, which was the last
+part of a dashboard the app didn't hold. Reading the rules for it turned up **a
+correctness bug in the sheet already shipped**, and a rule nobody had modelled.
+
+**Bug: skills have a hard ceiling of 3.** p.32 (Duplicate Skills): *"All Skills have a
+maximum level of 3."* The sheet was showing character + class marks with no cap, so a
+board marked to 5 read as level 5. Now `marksTotal` keeps what's on the board and `level`
+is the usable value, capped — the marks are real, the excess just does nothing in play.
+
+**Armour can cover a board grant.** Armour slots are punched out of the character board
+(p.6), so anything printed there is covered when armour goes in — p.32: *"putting armour on
+may reduce the level of a certain Skill available to a character, even if they also had it
+on their Class board."* **14 of the 20 boards have a skill or ability printed on an armour
+slot**, which the transcription already captured as `armorSlot: true`, so this is a real
+trade-off at the table. The sheet lets the player tick a grant as covered — only they can
+see which side they covered (p.30: "the player may choose which side of the armour slot to
+swap out") — and a covered skill's character-board marks stop counting toward its level
+while the marks themselves stay recorded.
+
+**Carrying capacity is reported, never enforced.** p.7: *"There is an actual, physical
+limit — the character cannot carry more than the tray can hold!"* It's a spatial packing
+problem in a plastic tray, not a number, so inventing a capacity would be wrong. The sheet
+tallies token sizes and shows them. Related gap: **only the 68 crafted items carry a
+transcribed `size`; the 273-item core price list does not**, so unsized items are counted
+separately rather than treated as weightless.
+
+Armour moves between inventory and slot rather than being copied (p.30: armour is picked
+up into the inventory, then donned), and the slot count comes from the board — every
+transcribed board has 2.
+
 ### Known soft spots (be aware, not blocking)
 
 - **Unresolved `[icon: …]` markers** in spell/skill/ability text — a double-digit count,
@@ -522,7 +554,10 @@ that wasn't in the source and wasn't invented. Crafted stubs have `name`/`type`/
 Content gaps:
 
 1. **`xpRows`** — Experience row layout per Adventurer board, the last thing blocking a
-   derived rank. See "Content gap found" above.
+   derived rank. Deferred by Adam (2026-08-19): typing the rank in is fine for now.
+2. **Item `size`** — the 273-item core price list has none, so carried-space totals only
+   count the 68 crafted items. Capacity isn't enforced either way (it's a physical tray),
+   so this only affects the tally's completeness.
 2. **Expansion ownership** — boards carry an `expansion` tag, but nothing lets a player say
    which expansions they own, so all bundled content loads for everyone. Low priority
    (Adam, 2026-08-19).
@@ -546,17 +581,13 @@ Open implementation decisions (genuine calls, not oversights):
 
 Phase 1 continues (design.md §4), ordered by the between-sessions framing:
 
-1. **Inventory and armour slots on the character sheet** — the last part of a dashboard the
-   app doesn't record, so the "reconstruct a wiped board" bar isn't fully met yet. Needs
-   item size accounting against the board's `armourSlots`; the 273-item price list and the
-   Base Camp storage model are both ready to borrow from.
-2. **Campaign Phase wizard** (Escape → Advancement → Market → Rest) — the after-game loop
+1. **Campaign Phase wizard** (Escape → Advancement → Market → Rest) — the after-game loop
    that mutates everything now recorded. The rules engine has every calculation, Advancement
    is largely the character sheet plus a spend-XP flow, and Rest already has its Inn cost
    and Secure Storage behaviour in `rules/baseCamp.ts`.
-3. **A readable/printable party sheet** — the restore path when the app is the only
+2. **A readable/printable party sheet** — the restore path when the app is the only
    surviving copy.
-4. **Quest log** (Log tab) — quest history, outcomes, Renown and Guilders gained. The
+3. **Quest log** (Log tab) — quest history, outcomes, Renown and Guilders gained. The
    `QuestRecord` shape is already in design §3.
 
 Two smaller things left deliberately undone, so they don't get mistaken for oversights:
