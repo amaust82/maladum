@@ -13,6 +13,8 @@ import { adventurerReadiness, classReadiness, type Readiness } from '../content/
 import type { AdventurerDef, ClassDef } from '../content/schema'
 import {
   defaultStartingXp,
+  stashRemainder,
+  summarizeCost,
   validateParty,
   type DraftMember,
   type PartyDraft,
@@ -132,6 +134,18 @@ export function partyCreationEvents(
   draft: PartyDraft,
 ): CampaignEvent[] {
   const events: CampaignEvent[] = [{ t: 'PARTY_ADDED', partyId, name: draft.name }]
+
+  // "Any of your budget left unused is added to the Stash on your Base Camp board"
+  // (p.68). Only when it's actually knowable — an unknown board cost makes the
+  // remainder unknowable, and a Stash that's quietly wrong is worse than none.
+  const opening = stashRemainder(
+    summarizeCost(draft.members, draft.equipmentSpend ?? 0),
+    draft.budget,
+  )
+  if (opening !== null && opening > 0) {
+    events.push({ t: 'STASH_SET', partyId, amount: opening, reason: 'Unspent starting budget' })
+  }
+
   for (const m of draft.members) {
     const character = library.adventurers.get(m.characterId)
     const startingXp = startingXpOf(character)

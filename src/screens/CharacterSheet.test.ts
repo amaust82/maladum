@@ -47,16 +47,20 @@ const adventurer = (campaigns: ReturnType<typeof useCampaignStore>) =>
   campaigns.parties[0].adventurers[0]
 
 /**
- * Let a fire-and-forget commit finish. The sheet's handlers don't await — they're DOM
- * events — and the write goes through IndexedDB, which settles on a macrotask, so
- * `flushPromises` alone returns too early.
+ * Wait for a fire-and-forget commit to land.
+ *
+ * The sheet's handlers don't await — they're DOM event handlers — and the write goes
+ * through IndexedDB, which settles on a macrotask. A fixed number of ticks is a race:
+ * it passed locally and failed once under a loaded full-suite run. Polling the condition
+ * removes the whole flake class rather than making the window bigger.
  */
-async function settle() {
-  for (let i = 0; i < 3; i += 1) {
+async function settleUntil(done: () => boolean, what: string) {
+  for (let i = 0; i < 100; i += 1) {
     await flushPromises()
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    if (done()) return
+    await new Promise((resolve) => setTimeout(resolve, 1))
   }
-  await flushPromises()
+  throw new Error(`Timed out waiting for: ${what}`)
 }
 
 beforeEach(() => {
@@ -91,7 +95,7 @@ describe('CharacterSheet', () => {
     const classInput = inputs[0]
     await classInput.setValue('2')
     await classInput.trigger('change')
-    await settle()
+    await settleUntil(() => adventurer(campaigns).skillMarks.Acrobatics !== undefined, 'skill mark')
     expect(adventurer(campaigns).skillMarks.Acrobatics).toEqual({ character: 0, class: 2 })
   })
 
@@ -105,10 +109,13 @@ describe('CharacterSheet', () => {
     const [charInput, classInput] = row.findAll('input')
     await charInput.setValue('1')
     await charInput.trigger('change')
-    await settle()
+    await settleUntil(
+      () => adventurer(campaigns).skillMarks.Reflexes?.character === 1,
+      'character-board mark',
+    )
     await classInput.setValue('2')
     await classInput.trigger('change')
-    await settle()
+    await settleUntil(() => adventurer(campaigns).skillMarks.Reflexes?.class === 2, 'Class mark')
     expect(adventurer(campaigns).skillMarks.Reflexes).toEqual({ character: 1, class: 2 })
   })
 
@@ -117,7 +124,7 @@ describe('CharacterSheet', () => {
     const wrapper = mountSheet(id)
     const select = wrapper.find('select')
     await select.setValue('Healing')
-    await settle()
+    await settleUntil(() => adventurer(campaigns).spells.length > 0, 'learned spell')
     expect(adventurer(campaigns).spells).toEqual(['Healing'])
     // Board grants stay out of stored state — they're derived from the packs.
     expect(adventurer(campaigns).spells).not.toContain('Scramble')
@@ -127,10 +134,10 @@ describe('CharacterSheet', () => {
     const { campaigns, id } = await openCampaignWithAdventurer()
     const wrapper = mountSheet(id)
     await wrapper.find('select').setValue('Healing')
-    await settle()
+    await settleUntil(() => adventurer(campaigns).spells.length > 0, 'learned spell')
     const remove = wrapper.findAll('button').find((b) => b.text() === 'Remove')!
     await remove.trigger('click')
-    await settle()
+    await settleUntil(() => adventurer(campaigns).spells.length === 0, 'spell removed')
     expect(adventurer(campaigns).spells).toEqual([])
   })
 
@@ -143,7 +150,7 @@ describe('CharacterSheet', () => {
       .find('input')
     await healthInput.setValue('2')
     await healthInput.trigger('change')
-    await settle()
+    await settleUntil(() => adventurer(campaigns).statIncreases.health !== undefined, 'stat increase')
     expect(adventurer(campaigns).statIncreases.health).toBe(2)
   })
 
@@ -155,7 +162,7 @@ describe('CharacterSheet', () => {
     expect(rankInput.attributes('disabled')).toBeUndefined()
     await rankInput.setValue('3')
     await rankInput.trigger('change')
-    await settle()
+    await settleUntil(() => adventurer(campaigns).rank !== null, 'rank')
     expect(adventurer(campaigns).rank).toBe(3)
   })
 

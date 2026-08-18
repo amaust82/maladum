@@ -221,3 +221,40 @@ describe('validateDraft against the physical board inventory', () => {
     expect(result.issues.some((i) => i.kind === 'boards-unavailable')).toBe(false)
   })
 })
+
+describe('unspent starting budget becomes the opening Stash (p.68)', () => {
+  const { library } = loadBundledPacks()
+  const member = () =>
+    draftMemberFrom(library, { id: 'a1', characterId: 'syrio', classId: 'barbarian' })
+
+  it('opens the Base Camp Stash with what the party did not spend', () => {
+    // Syrio 64 + Barbarian 7 + 50 equipment = 121, from a 350 budget.
+    const events = partyCreationEvents(library, 'p1', {
+      name: 'P',
+      members: [member()],
+      budget: 350,
+      equipmentSpend: 50,
+    })
+    expect(events).toContainEqual({
+      t: 'STASH_SET',
+      partyId: 'p1',
+      amount: 229,
+      reason: 'Unspent starting budget',
+    })
+  })
+
+  it('sets no Stash when no budget was agreed — there is no remainder to know', () => {
+    const events = partyCreationEvents(library, 'p1', { name: 'P', members: [member()] })
+    expect(events.some((e) => e.t === 'STASH_SET')).toBe(false)
+  })
+
+  it('sets no Stash when a board cost is unknown, rather than a wrong figure', () => {
+    const unknown = { ...member(), characterCost: null }
+    const events = partyCreationEvents(library, 'p1', {
+      name: 'P',
+      members: [unknown],
+      budget: 350,
+    })
+    expect(events.some((e) => e.t === 'STASH_SET')).toBe(false)
+  })
+})

@@ -42,6 +42,17 @@ export interface AdventurerState {
   rank: number | null
 }
 
+/** An item set aside on the Base Camp board rather than carried (p.69, p.86). */
+export interface StoredItem {
+  item: ItemRef
+  /**
+   * In the punch-out Secure Storage space rather than open storage. Not derivable —
+   * it's where the player physically put the token — so unlike a board grant it has
+   * to be stored. Secure Storage exists only while paying for an Inn (p.86).
+   */
+  secure: boolean
+}
+
 export interface PartyState {
   id: Id
   name: string
@@ -50,6 +61,12 @@ export interface PartyState {
   /** Guilders. */
   stash: number
   adventurers: AdventurerState[]
+  /** Equipment left at Base Camp between games. */
+  storage: StoredItem[]
+  /** True while the Secure Storage punch-out is open — i.e. the party paid for an Inn. */
+  secureStorageUnlocked: boolean
+  /** Campaign notes: objective bonuses earned, injuries costing a game, whatever else. */
+  notes: string
 }
 
 export interface CampaignState {
@@ -134,7 +151,16 @@ export function campaignReducer(state: CampaignState, event: CampaignEvent): Cam
         ...state,
         parties: [
           ...state.parties,
-          { id: event.partyId, name: event.name, renown: 0, stash: 0, adventurers: [] },
+          {
+            id: event.partyId,
+            name: event.name,
+            renown: 0,
+            stash: 0,
+            adventurers: [],
+            storage: [],
+            secureStorageUnlocked: false,
+            notes: '',
+          },
         ],
       }
 
@@ -175,6 +201,42 @@ export function campaignReducer(state: CampaignState, event: CampaignEvent): Cam
 
     case 'STASH_CHANGED':
       return updateParty(state, event.partyId, (p) => ({ ...p, stash: p.stash + event.amount }))
+
+    case 'STASH_SET':
+      return updateParty(state, event.partyId, (p) => ({ ...p, stash: Math.max(0, event.amount) }))
+
+    case 'RENOWN_SET':
+      return updateParty(state, event.partyId, (p) => ({
+        ...p,
+        renown: clampRenown(event.amount),
+      }))
+
+    case 'ITEM_STORED':
+      return updateParty(state, event.partyId, (p) => ({
+        ...p,
+        storage: [...p.storage, { item: event.item, secure: event.secure }],
+      }))
+
+    case 'ITEM_UNSTORED':
+      return updateParty(state, event.partyId, (p) => {
+        // Remove one matching entry, not every copy — a party can store two Daggers.
+        const index = p.storage.findIndex(
+          (s) =>
+            s.item.itemId === event.item.itemId &&
+            s.item.instanceId === event.item.instanceId,
+        )
+        if (index === -1) return p
+        return { ...p, storage: [...p.storage.slice(0, index), ...p.storage.slice(index + 1)] }
+      })
+
+    case 'SECURE_STORAGE_SET':
+      return updateParty(state, event.partyId, (p) => ({
+        ...p,
+        secureStorageUnlocked: event.unlocked,
+      }))
+
+    case 'CAMP_NOTES_SET':
+      return updateParty(state, event.partyId, (p) => ({ ...p, notes: event.notes }))
 
     case 'XP_GAINED':
       return updateAdventurer(state, event.advId, (a) => ({

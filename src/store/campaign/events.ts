@@ -95,5 +95,24 @@ export type CampaignEvent =
   | { t: 'STAT_INCREASE_SET'; advId: Id; stat: LevellableStat; increase: number }
   /** Rank typed in directly, for boards whose Experience row layout isn't transcribed. */
   | { t: 'RANK_SET'; advId: Id; rank: number | null }
+  /**
+   * Base Camp board (design §5, Camp tab; rulebook p.69, p.72, p.86).
+   *
+   * `*_SET` for the same reason the character sheet uses them: every value here is
+   * dry-wipe and the app's job is to hold what the board said, which a player may need
+   * to type in wholesale after a wipe. The `*_CHANGED` deltas stay for the campaign
+   * phases, where "gained 3 Renown for an objective" is the truthful description.
+   */
+  | { t: 'STASH_SET'; partyId: Id; amount: number; reason?: string }
+  | { t: 'RENOWN_SET'; partyId: Id; amount: number; reason?: string }
+  /**
+   * Move an item into Base Camp storage. `secure` marks the punch-out Secure Storage
+   * space, which only exists while the party is paying for an Inn (p.86).
+   */
+  | { t: 'ITEM_STORED'; partyId: Id; item: ItemRef; secure: boolean }
+  | { t: 'ITEM_UNSTORED'; partyId: Id; item: ItemRef }
+  /** Punched out on paying for an Inn, filled back in on camping in the wilderness (p.86). */
+  | { t: 'SECURE_STORAGE_SET'; partyId: Id; unlocked: boolean }
+  | { t: 'CAMP_NOTES_SET'; partyId: Id; notes: string }
 
 export type CampaignEventType = CampaignEvent['t']

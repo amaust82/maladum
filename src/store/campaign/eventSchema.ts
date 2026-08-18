@@ -102,6 +102,31 @@ export const CampaignEventSchema = z.discriminatedUnion('t', [
     increase: z.number(),
   }),
   z.object({ t: z.literal('RANK_SET'), advId: z.string(), rank: z.number().nullable() }),
+  z.object({
+    t: z.literal('STASH_SET'),
+    partyId: z.string(),
+    amount: z.number(),
+    reason: z.string().optional(),
+  }),
+  z.object({
+    t: z.literal('RENOWN_SET'),
+    partyId: z.string(),
+    amount: z.number(),
+    reason: z.string().optional(),
+  }),
+  z.object({
+    t: z.literal('ITEM_STORED'),
+    partyId: z.string(),
+    item: ItemRef,
+    secure: z.boolean(),
+  }),
+  z.object({ t: z.literal('ITEM_UNSTORED'), partyId: z.string(), item: ItemRef }),
+  z.object({
+    t: z.literal('SECURE_STORAGE_SET'),
+    partyId: z.string(),
+    unlocked: z.boolean(),
+  }),
+  z.object({ t: z.literal('CAMP_NOTES_SET'), partyId: z.string(), notes: z.string() }),
 ])
 
 // Compile-time guarantee that the schema output stays assignable to the TS union.

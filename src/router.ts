@@ -1,6 +1,6 @@
 /**
- * Routes (design.md §5). The Home picker, the Party tab and the Rules reference
- * exist; the remaining three tabs land with their phases and are stubbed in
+ * Routes (design.md §5). Home, Party (roster + builder + character sheet), Camp and the
+ * Rules reference exist; Play and Log land with their phases and are stubbed in
  * `CampaignShell`.
  *
  * Hash history, because the PWA is served as static files and deep links have to
@@ -31,6 +31,12 @@ const routes: RouteRecordRaw[] = [
         path: 'party/new',
         name: 'party-new',
         component: () => import('./screens/PartyBuilder.vue'),
+        props: true,
+      },
+      {
+        path: 'camp',
+        name: 'camp',
+        component: () => import('./screens/BaseCamp.vue'),
         props: true,
       },
       {

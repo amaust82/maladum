@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * The open-campaign frame: header, content-compatibility banner, and the bottom
- * tab bar from design.md §5. Three of the five tabs are placeholders until their
+ * tab bar from design.md §5. Two of the five tabs are placeholders until their
  * phases land — they are shown disabled rather than hidden so the shape of the
  * finished app is visible.
  */
@@ -20,7 +20,7 @@ watch(() => props.campaignId, load)
 
 const tabs = [
   { label: 'Party', to: 'party', enabled: true },
-  { label: 'Camp', to: 'camp', enabled: false },
+  { label: 'Camp', to: 'camp', enabled: true },
   { label: 'Play', to: 'play', enabled: false },
   { label: 'Log', to: 'log', enabled: false },
   { label: 'Rules', to: 'rules', enabled: true },

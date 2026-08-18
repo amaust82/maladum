@@ -15,7 +15,7 @@ genuine exception — a formatting sweep, a revert — with `git commit --no-ver
 
 **Phase 0 is complete; Phase 1 is under way.** Campaign management, the party builder
 and the Rules reference are in. `npm run build` is clean and `npm test` is green:
-**368 tests across 24 files**.
+**394 tests across 26 files**.
 
 **Board transcription is DONE.** All 45 boards — 25 Class, 20 Adventurer — are transcribed
 from the physical components, with **zero `_placeholder` flags anywhere in the dataset**.
@@ -53,13 +53,14 @@ first, then "Next actions" at the bottom.
 | Content pack manifest recorded in saves + compatibility report | done | `src/content/manifest.ts` |
 | Party builder — boards, default XP fill, Guilder validation | done | `src/rules/partyBuilder.ts`, `src/services/partyService.ts`, `src/screens/PartyBuilder.vue` |
 | Incomplete-content model (how the app surfaces unverified data) | done | `src/content/readiness.ts`, `src/components/ReadinessBadge.vue` |
-| Routing + tab shell (Party + Rules live, other three stubbed) | done | `src/router.ts`, `src/screens/CampaignShell.vue` |
+| Routing + tab shell (Party, Camp and Rules live; Play and Log stubbed) | done | `src/router.ts`, `src/screens/CampaignShell.vue` |
 | Rules reference — searchable traits/skills/spells/equipment | done | `src/content/reference.ts`, `src/screens/RulesReference.vue` |
 | Physical Class board availability (warning) | done | `src/rules/boardAvailability.ts` |
 | Character sheet | done | `src/rules/characterSheet.ts`, `src/screens/CharacterSheet.vue` |
 | Companions & Apprentices | not started | — |
 | Campaign Phase wizard (Escape → Advancement → Market → Rest) | not started | — |
-| Base Camp, Side Quest tracker, Quest log, Pouch ledger | not started | — |
+| Base Camp (Camp tab) | done | `src/rules/baseCamp.ts`, `src/screens/BaseCamp.vue` |
+| Side Quest tracker, Quest log, Pouch ledger | not started | — |
 
 ## The content pack got real (schemaVersion 2)
 
@@ -376,6 +377,38 @@ load-bearing derived value the app can't compute. `AdventurerDef.xpRows` is defi
 waiting; until it's filled the sheet asks the player to read rank off the board and says
 why. It's ~20 boards × a handful of numbers.
 
+### Base Camp (done)
+
+The Camp tab records the whole Base Camp board — Stash, the Renown track, Storage and
+campaign notes — because every one of them is dry-wipe and lost in a wipe. Same bar as the
+character sheet: each value is directly settable, not only reachable through a phase.
+
+- **Renown is the physical 0–12 track**, clicked rather than typed. That's the shape the
+  player is copying from, and it clamps by construction (p.72: "cannot exceed 12 or drop
+  below zero").
+- **Secure Storage is modelled as the punch-out it is** (p.86). It exists only while the
+  party pays for an Inn; storing securely is disabled otherwise. When the space is filled
+  back in, anything left in it is flagged **stranded**, because the rules say it "must be
+  added to an Adventurer's inventory, sold, or discarded" — a real way to lose track of
+  items that the app can cheaply catch. `secure` is stored per item, since where a token
+  physically sits is a player choice and not derivable.
+- **The Inn price is computed** from party size (2 Guilders per Adventurer, p.86).
+- **Storage capacity is deliberately not enforced.** The board's space count is layout, not
+  a number the rules state — same category as armour slots. Not invented.
+
+**The opening Stash finally has a home.** The party builder computed unspent budget and had
+nowhere to put it; party creation now emits `STASH_SET` with the remainder (p.68: "any of
+your budget left unused is added to the Stash"). It stays silent when no budget was agreed
+or a board cost is unknown, rather than opening a campaign on a wrong figure.
+
+### A flaky test, fixed properly
+
+The character-sheet screen tests wait for a fire-and-forget commit to reach IndexedDB.
+That was a fixed number of ticks, which passed locally and failed once under a loaded
+full-suite run. Widening the window would have hidden it; the helper now **polls the
+condition** with a timeout, which removes the whole flake class. `BaseCamp.test.ts` uses
+the same approach.
+
 ### Known soft spots (be aware, not blocking)
 
 - **Unresolved `[icon: …]` markers** in spell/skill/ability text — a double-digit count,
@@ -511,28 +544,25 @@ Open implementation decisions (genuine calls, not oversights):
 
 ## Next actions
 
-Phase 1 continues (design.md §4). Reordered around the between-sessions framing above:
+Phase 1 continues (design.md §4), ordered by the between-sessions framing:
 
-1. **Base Camp (Camp tab)** — Stash, Renown track, Storage, campaign notes. All four are
-   dry-wipe and all four are lost when a board is wiped, so they belong in the durable
-   record for the same reason the character sheet does. Small, and it has a hook waiting:
-   the party builder already computes an opening Stash from unspent budget with nowhere to
-   put it.
-2. **Inventory and armour slots on the character sheet** — the one part of a dashboard the
-   sheet doesn't yet record, so the "reconstruct a wiped board" bar isn't fully met.
-   Needs item size accounting against the board's `armourSlots`, and the 273-item price
-   list is ready for it.
-3. **Campaign Phase wizard** (Escape → Advancement → Market → Rest) — the after-game loop
-   that mutates everything above. The rules engine has every calculation; this is the
-   four-step flow over the top. Advancement is largely the character sheet with a
-   "spend XP" flow, so it gets cheaper now rather than more expensive.
-4. **A readable/printable party sheet** — promoted by the insurance framing: it's the
-   restore path when the app is the only surviving copy.
+1. **Inventory and armour slots on the character sheet** — the last part of a dashboard the
+   app doesn't record, so the "reconstruct a wiped board" bar isn't fully met yet. Needs
+   item size accounting against the board's `armourSlots`; the 273-item price list and the
+   Base Camp storage model are both ready to borrow from.
+2. **Campaign Phase wizard** (Escape → Advancement → Market → Rest) — the after-game loop
+   that mutates everything now recorded. The rules engine has every calculation, Advancement
+   is largely the character sheet plus a spend-XP flow, and Rest already has its Inn cost
+   and Secure Storage behaviour in `rules/baseCamp.ts`.
+3. **A readable/printable party sheet** — the restore path when the app is the only
+   surviving copy.
+4. **Quest log** (Log tab) — quest history, outcomes, Renown and Guilders gained. The
+   `QuestRecord` shape is already in design §3.
 
 Two smaller things left deliberately undone, so they don't get mistaken for oversights:
 
-- The Camp / Play / Log tabs render disabled in `CampaignShell.vue`. That's on purpose —
-  the finished shape is visible without pretending the screens exist.
+- The Play and Log tabs render disabled in `CampaignShell.vue`. That's on purpose — the
+  finished shape is visible without pretending the screens exist.
 - `campaignService.commit()` re-reads the whole log to refresh the picker row. Correct and
   cheap at campaign scale; if it ever isn't, the snapshotting in `eventStore.ts` is the
   answer, not a hand-maintained cache.
