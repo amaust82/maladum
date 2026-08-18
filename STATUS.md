@@ -15,7 +15,7 @@ genuine exception — a formatting sweep, a revert — with `git commit --no-ver
 
 **Phase 0 is complete; Phase 1 is under way.** Campaign management, the party builder
 and the Rules reference are in. `npm run build` is clean and `npm test` is green:
-**300 tests across 21 files**.
+**324 tests across 22 files**.
 
 **Board transcription is DONE.** All 45 boards — 25 Class, 20 Adventurer — are transcribed
 from the physical components, with **zero `_placeholder` flags anywhere in the dataset**.
@@ -55,6 +55,7 @@ first, then "Next actions" at the bottom.
 | Incomplete-content model (how the app surfaces unverified data) | done | `src/content/readiness.ts`, `src/components/ReadinessBadge.vue` |
 | Routing + tab shell (Party + Rules live, other three stubbed) | done | `src/router.ts`, `src/screens/CampaignShell.vue` |
 | Rules reference — searchable traits/skills/spells/equipment | done | `src/content/reference.ts`, `src/screens/RulesReference.vue` |
+| Physical Class board availability (warning) | done | `src/rules/boardAvailability.ts` |
 | Character sheet | not started | — |
 | Companions & Apprentices | not started | — |
 | Campaign Phase wizard (Escape → Advancement → Market → Rest) | not started | — |
@@ -257,13 +258,27 @@ boards and slot counts vary 6–10, so there's no orphan and no arithmetic to ex
 Irreducible without a second independent source. A green suite is not proof the wheels are
 complete.
 
-### Known but unmodelled: physical board availability
+### Physical board availability — enforced (as a warning)
 
-Class boards are double-sided — 25 classes on 24 boards, so `boardCopies`/`pairedWith`
-cap what a party can actually field (Sellsword is on 5 boards, Assassin on 2; you can't
-take Assassin and Guardian off the same board). **Recorded and integrity-checked, not
-enforced** — Adam's call, 2026-08-19. It's a matching problem rather than a per-class
-count, so it deserves its own change rather than a naive filter in the party builder.
+Class boards are double-sided: 25 classes across 24 boards, so a party's Class picks have
+to be simultaneously seatable. `src/rules/boardAvailability.ts` derives the inventory from
+`pairedWith` and checks it; the party builder shows "Class boards won't stretch: …".
+
+**It's a matching problem, not a per-class count**, and that distinction is the whole
+reason it's its own module. Assassin and Guardian share a board, so a naive count rejects
+the pair — but Assassin is also paired with Curator, so the pair *is* legal (Assassin takes
+the Curator board). A count-based check cries wolf on a party you can actually build.
+Solved with Kuhn's algorithm; party sizes are ≤4 so cost is irrelevant, correctness isn't.
+
+**Warning, not a block**, and deliberately so: design.md §2.4 says transcribed data drives
+display and convenience, never permission. The inventory came off cardboard — if it's
+wrong, blocking would make the app wrong about a party sitting on the table. Everything
+ambiguous resolves *toward* availability: asymmetric pairings round the board count up, and
+a class with no board data is skipped rather than assumed unavailable. A false "you can't
+do that" is the worse failure.
+
+Say the word if you'd rather it hard-block; it's a one-line severity change plus the tests
+that assert it doesn't.
 
 ### Known soft spots (be aware, not blocking)
 
@@ -378,7 +393,8 @@ that wasn't in the source and wasn't invented. Crafted stubs have `name`/`type`/
 Content gaps:
 
 1. **Expansion ownership** — boards carry an `expansion` tag, but nothing lets a player say
-   which expansions they own, so all bundled content loads for everyone.
+   which expansions they own, so all bundled content loads for everyone. Low priority
+   (Adam, 2026-08-19).
 2. **Board data is complete**, so nothing else is outstanding on that front. What remains
    unverified is the *fan-sourced* half of the dataset (item prices, hire costs from the
    calculator spreadsheet) — worth a spot-check against physical tokens, unchanged.

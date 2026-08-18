@@ -517,21 +517,29 @@ from where the pipeline puts it.
 Ownership filtering itself is not built yet — every bundled pack still loads for everyone.
 The tag is what makes it a small change when it is.
 
-#### Physical board inventory — a real constraint, deliberately not yet modelled
+#### Physical board inventory — enforced as a warning
 
 Class boards are **double-sided**: 25 classes live on 24 physical boards. `boardCopies`
 records how many boards a class appears on and `pairedWith` names the class on the reverse
 of each, one entry per copy. Sellsword is on 5 boards, Ranger on 3, most on 1–2.
 
-This encodes a constraint the app does not currently enforce: **a party's class picks must
-be physically satisfiable.** Two Adventurers can't both take Assassin and Guardian off the
-same board, and no party can field more copies of a class than exist. It's a small matching
-problem, not a filter — which is exactly why it isn't bolted onto the party builder as a
-naive per-class count.
+This encodes a real constraint: **a party's Class picks must be simultaneously seatable.**
+No party can field more copies of a class than exist, and two Adventurers can't both take
+Assassin and Guardian off the same board.
 
-Status: **recorded and integrity-checked, not enforced** (`src/content/integrity.test.ts`
-asserts the inventory closes — 48 sides, 24 distinct pairings). Noted here so the
-constraint isn't rediscovered from scratch when someone wonders what `pairedWith` is for.
+It is **a matching problem, not a per-class count**, and the distinction is not academic.
+Assassin and Guardian share a board, so a naive count flags them — but Assassin is *also*
+paired with Curator, so the pair is seatable by putting Assassin on the Curator board. The
+naive check produces a false alarm on a legal party. `rules/boardAvailability.ts` builds
+the inventory from `pairedWith` and solves the assignment with Kuhn's algorithm.
+
+**It reports a warning, never a block** — the same rule as everywhere else here:
+transcribed data drives display and convenience, never permission. The inventory is
+transcribed from cardboard, and if it were wrong, refusing to save would make the app wrong
+about a party physically sitting on the table. For the same reason, ambiguous data resolves
+*toward* availability: an asymmetric pairing rounds the board count up, and a class with no
+board data is excluded from the check rather than assumed unavailable. A false "you can't
+do that" is a worse failure here than a missed warning.
 
 ---
 

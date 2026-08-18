@@ -18,6 +18,7 @@ import {
   type PartyDraft,
   type PartyValidation,
 } from '../rules/partyBuilder'
+import { buildBoardInventory, checkBoardAvailability } from '../rules/boardAvailability'
 import type { CampaignEvent } from '../store/campaign/events'
 
 /** A character board as the picker needs it: the definition plus how much to trust it. */
@@ -78,8 +79,42 @@ export function draftMemberFrom(
 const startingXpOf = (character: AdventurerDef | undefined): number | null =>
   character ? defaultStartingXp(character.stats) : null
 
-export function validateDraft(draft: PartyDraft): PartyValidation {
-  return validateParty(draft)
+/**
+ * Validate a draft, optionally also against the physical Class board inventory.
+ *
+ * The board check needs the content library, which the pure rules layer has no business
+ * knowing about — so it's composed here rather than pushed into `validateParty`. Omitting
+ * the library simply skips that check; it never fabricates a pass.
+ */
+export function validateDraft(draft: PartyDraft, library?: ContentLibrary): PartyValidation {
+  const validation = validateParty(draft)
+  if (!library) return validation
+
+  const availability = checkBoardAvailability(
+    buildBoardInventory(library.classes.values()),
+    draft.members.map((m) => m.classId),
+  )
+  if (availability.ok) return validation
+
+  const nameOf = (classId: string) => library.classes.get(classId)?.name ?? classId
+
+  // Warning-only, so `ok` is untouched: see the `boards-unavailable` doc comment.
+  return {
+    ...validation,
+    issues: [
+      ...validation.issues,
+      {
+        severity: 'warning',
+        kind: 'boards-unavailable',
+        overSubscribed: availability.overSubscribed.map((o) => ({
+          name: nameOf(o.classId),
+          picked: o.picked,
+          copies: o.copies,
+        })),
+        conflicting: availability.conflicting.map(nameOf),
+      },
+    ],
+  }
 }
 
 /**

@@ -72,6 +72,18 @@ export type PartyIssue =
   | { severity: 'warning'; kind: 'budget-unverifiable'; known: number; budget: number; unknown: string[] }
   /** This member's cost is incomplete — surfaced per-member so the UI can badge the card. */
   | { severity: 'warning'; kind: 'incomplete-cost'; memberId: string; fields: string[] }
+  /**
+   * The chosen Classes can't all be seated on the physical double-sided boards at once
+   * (design.md §2.4). A **warning**, not an error: the inventory is transcribed data, and
+   * transcribed data must never deny a party the player has physically built.
+   */
+  | {
+      severity: 'warning'
+      kind: 'boards-unavailable'
+      /** Class display names, not ids — this issue exists to be read by a player. */
+      overSubscribed: { name: string; picked: number; copies: number }[]
+      conflicting: string[]
+    }
 
 export interface PartyValidation {
   /** No errors. Warnings do not block — an honest gap isn't an illegal party. */
@@ -181,5 +193,15 @@ export function describePartyIssue(issue: PartyIssue): string {
       return `At least ${issue.known} of ${issue.budget} Guilders — ${issue.unknown.length} cost(s) unknown, so this can't be checked`
     case 'incomplete-cost':
       return `Unknown ${issue.fields.join(' and ')} — this Adventurer's cost isn't in the content pack`
+    case 'boards-unavailable': {
+      const over = issue.overSubscribed.map(
+        (o) =>
+          `${o.picked} × ${o.name}, but ${o.name} is printed on ${o.copies} board${o.copies === 1 ? '' : 's'}`,
+      )
+      const clash = issue.conflicting.length
+        ? [`${issue.conflicting.join(', ')} can't all be used at once — they share boards`]
+        : []
+      return `Class boards won't stretch: ${[...over, ...clash].join('; ')}`
+    }
   }
 }

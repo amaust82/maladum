@@ -7,6 +7,7 @@ import {
   partyCreationEvents,
   validateDraft,
 } from './partyService'
+import { describePartyIssue } from '../rules/partyBuilder'
 import { projectCampaign } from './campaignService'
 import type { CampaignEvent } from '../store/campaign/events'
 
@@ -171,5 +172,50 @@ describe('validateDraft against real content gaps', () => {
       exact: false,
     })
     expect(result.issues.map((i) => i.kind)).toEqual(['incomplete-cost', 'budget-unverifiable'])
+  })
+})
+
+describe('validateDraft against the physical board inventory', () => {
+  const { library } = loadBundledPacks()
+  const member = (id: string, classId: string) =>
+    draftMemberFrom(library, { id, characterId: 'syrio', classId })
+
+  it('skips the board check entirely when no library is supplied', () => {
+    const members = [member('a1', 'mentor'), member('a2', 'mentor')]
+    const issues = validateDraft({ name: 'P', members }).issues
+    expect(issues.some((i) => i.kind === 'boards-unavailable')).toBe(false)
+  })
+
+  it('warns, in class names, when a party asks for more copies than exist', () => {
+    const members = [member('a1', 'mentor'), member('a2', 'mentor')]
+    const result = validateDraft({ name: 'P', members }, library)
+    const issue = result.issues.find((i) => i.kind === 'boards-unavailable')
+    expect(issue).toBeDefined()
+    expect(describePartyIssue(issue!)).toContain('Mentor')
+    expect(describePartyIssue(issue!)).not.toContain('mentor,')
+  })
+
+  it('warns rather than blocking — transcribed data must not deny a real party', () => {
+    // design.md §2.4: the board inventory is transcribed, so if it were wrong, refusing
+    // to save would make the app wrong about a party sitting on the table.
+    const members = [member('a1', 'mentor'), member('a2', 'mentor')]
+    const result = validateDraft({ name: 'P', members }, library)
+    expect(result.issues.find((i) => i.kind === 'boards-unavailable')!.severity).toBe('warning')
+    // Two Adventurers on the same character board is a separate, real error; use
+    // distinct boards so the only complaint left is the class one.
+    const distinct = [
+      draftMemberFrom(library, { id: 'a1', characterId: 'syrio', classId: 'mentor' }),
+      draftMemberFrom(library, { id: 'a2', characterId: 'ariah', classId: 'mentor' }),
+    ]
+    expect(validateDraft({ name: 'P', members: distinct }, library).ok).toBe(true)
+  })
+
+  it('stays quiet for a party that fits', () => {
+    const members = [
+      draftMemberFrom(library, { id: 'a1', characterId: 'syrio', classId: 'barbarian' }),
+      draftMemberFrom(library, { id: 'a2', characterId: 'ariah', classId: 'druid' }),
+    ]
+    const result = validateDraft({ name: 'P', members }, library)
+    expect(result.issues.some((i) => i.kind === 'boards-unavailable')).toBe(false)
   })
 })

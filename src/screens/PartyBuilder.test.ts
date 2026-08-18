@@ -78,6 +78,31 @@ describe('PartyBuilder against the seed content', () => {
     expect(wrapper.text()).toContain('Choose a Class board')
   })
 
+  it('warns when the chosen Classes will not fit on the physical boards', async () => {
+    const wrapper = mountBuilder()
+    // Two Adventurers, both Mentor — Mentor is printed on exactly one board.
+    await wrapper.findAll('button').find((b) => b.text().startsWith('Add Adventurer'))!.trigger('click')
+    const selects = wrapper.findAll('select')
+    await selects[0].setValue('syrio')
+    await selects[1].setValue('mentor')
+    await selects[2].setValue('ariah')
+    await selects[3].setValue('mentor')
+    expect(wrapper.text()).toContain("Class boards won't stretch")
+    expect(wrapper.text()).toContain('Mentor')
+  })
+
+  it('still lets the party be saved — a board warning never blocks', async () => {
+    const wrapper = mountBuilder()
+    await wrapper.findAll('button').find((b) => b.text().startsWith('Add Adventurer'))!.trigger('click')
+    const selects = wrapper.findAll('select')
+    await selects[0].setValue('syrio')
+    await selects[1].setValue('mentor')
+    await selects[2].setValue('ariah')
+    await selects[3].setValue('mentor')
+    const save = wrapper.findAll('button').find((b) => b.text() === 'Create party')!
+    expect(save.attributes('disabled')).toBeUndefined()
+  })
+
   it('enables saving once the draft is legal', async () => {
     const wrapper = mountBuilder()
     await wrapper.findAll('select')[1].setValue('barbarian')

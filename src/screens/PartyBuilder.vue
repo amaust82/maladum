@@ -57,7 +57,7 @@ const draft = computed(() => ({
   members: members.value,
   budget: budget.value,
 }))
-const validation = computed(() => validateDraft(draft.value))
+const validation = computed(() => validateDraft(draft.value, content.library))
 
 /** Per-row warnings, so a gap is shown on the card it belongs to as well as in the summary. */
 const rowIssues = (id: string) =>
