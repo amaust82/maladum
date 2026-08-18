@@ -21,7 +21,7 @@ genuine exception — a formatting sweep, a revert — with `git commit --no-ver
 
 **Phase 0 is complete; Phase 1 is under way.** Campaign management, the party builder
 and the Rules reference are in. `npm run build` is clean and `npm test` is green:
-**457 tests across 30 files**.
+**473 tests across 32 files**.
 
 **Board transcription is DONE.** All 45 boards — 25 Class, 20 Adventurer — are transcribed
 from the physical components, with **zero `_placeholder` flags anywhere in the dataset**.
@@ -523,6 +523,26 @@ One store change to note: `useCampaignStore` now publishes `log`. The event stor
 never re-evaluate — the log is republished explicitly on open and commit, and a test
 covers exactly that.
 
+### Party sheet export (done) — the restore path
+
+The Party tab exports every board *as it stands right now* as Markdown, alongside the
+Base Camp board and the quests played. Where the Log tab's export answers "how did we get
+here", this answers "what do the boards say", which is the one you need while rebuilding
+a wiped dashboard.
+
+Two properties matter more than prettiness, and are tested as such:
+
+- **Completeness over brevity.** Skill marks print per board rather than as a total — the
+  split is what the rules depend on (p.80) and the one thing you cannot re-derive from a
+  sum. Armour-covered skills and marks capped at the level-3 ceiling are both called out,
+  since in those cases the level differs from the marks.
+- **Gaps survive to paper.** An unrecorded rank prints "not recorded", never 1;
+  untranscribed statistics say so rather than printing zeroes. The honest-gap rule doesn't
+  stop at the screen edge.
+
+Stranded Secure Storage is flagged in the export too — it's the easiest thing on the Base
+Camp board to lose track of between sessions (p.86).
+
 ### Known soft spots (be aware, not blocking)
 
 - **Unresolved `[icon: …]` markers** in spell/skill/ability text — a double-digit count,
@@ -668,7 +688,7 @@ live. What's left is either polish or Phase 2.
    covers a full loop end to end, and one session will surface more than another read of
    the rulebook. Everything below is speculative until that happens.
 2. **Companions & Apprentices** (design §3) — modelled in the domain, no screen, and
-   content is names + costs only.
+   content is names + costs only. The likeliest next build if a session shows they matter.
 3. **Side Quest tracker and Pouch ledger** — the last two Phase 1 items from design §4,
    both blocked on content that doesn't exist yet (no Side Quest or quest seed data).
 4. **Phase 2 in-game helpers** — quest setup, Dread band lookup, Renown spending. Lower
