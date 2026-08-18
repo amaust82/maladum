@@ -1,5 +1,8 @@
+@import 'tailwindcss';
+
+/* Dark theme is the default (design.md §1, principle #4: thumb-first, dark by default). */
 :root {
-  color-scheme: light dark;
+  color-scheme: dark;
   font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
   background: #0f1115;
   color: #e8e6e1;
