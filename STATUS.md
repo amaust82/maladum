@@ -5,6 +5,15 @@ project back up, then `docs/design.md` for the actual design (it stays the sourc
 truth). Keep the Status and Next-actions sections current as work lands — they're what
 makes a dropped session cheap to resume.
 
+**Which site am I on?** A badge in the top-right marks any deploy that isn't production
+(`src/components/EnvironmentBadge.vue`). It matters because IndexedDB is **scoped per
+origin**: staging and prod hold entirely separate databases, and a campaign recorded on
+the wrong one never appears on the other without a manual export/import. The badge is
+baked in at build time from each Pages project's `VITE_APP_ENV`, and **fails loud** — an
+unset variable shows "VITE_APP_ENV unset" rather than hiding, because `vite build` sets
+`MODE=production` for staging too and falling back to it would go quiet on exactly the
+site that needs flagging.
+
 **Branches:** `staging` is the working branch and auto-deploys to
 https://stage-maladum.bgbutler.com; `main` is production
 (https://maladum.bgbutler.com). Work lands on `staging` first and is merged to `main`
@@ -21,7 +30,7 @@ genuine exception — a formatting sweep, a revert — with `git commit --no-ver
 
 **Phase 0 is complete; Phase 1 is under way.** Campaign management, the party builder
 and the Rules reference are in. `npm run build` is clean and `npm test` is green:
-**473 tests across 32 files**.
+**479 tests across 33 files**.
 
 **Board transcription is DONE.** All 45 boards — 25 Class, 20 Adventurer — are transcribed
 from the physical components, with **zero `_placeholder` flags anywhere in the dataset**.
