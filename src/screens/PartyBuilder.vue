@@ -14,7 +14,12 @@ import { useCampaignStore } from '../stores/campaigns'
 import { useContentStore } from '../stores/content'
 import ReadinessBadge from '../components/ReadinessBadge.vue'
 import { draftMemberFrom, partyCreationEvents, validateDraft } from '../services/partyService'
-import { describePartyIssue, MAX_PARTY_SIZE } from '../rules/partyBuilder'
+import {
+  describePartyIssue,
+  MAX_QUEST_ROSTER,
+  RECOMMENDED_EQUIPMENT_ALLOWANCE,
+  RECOMMENDED_PARTY_BUDGET,
+} from '../rules/partyBuilder'
 
 const props = defineProps<{ campaignId: string }>()
 
@@ -31,13 +36,13 @@ interface Row {
 
 const partyName = ref('The Party')
 const budget = ref<number | null>(null)
+const equipmentSpend = ref<number | null>(null)
 const rows = reactive<Row[]>([])
 const saving = ref(false)
 const error = ref<string | null>(null)
 
 let nextRow = 0
 function addRow() {
-  if (rows.length >= MAX_PARTY_SIZE) return
   nextRow += 1
   rows.push({
     id: `a${nextRow}`,
@@ -56,6 +61,7 @@ const draft = computed(() => ({
   name: partyName.value.trim() || 'The Party',
   members: members.value,
   budget: budget.value,
+  equipmentSpend: equipmentSpend.value,
 }))
 const validation = computed(() => validateDraft(draft.value, content.library))
 
@@ -102,14 +108,28 @@ addRow()
         />
       </label>
       <label class="text-xs opacity-70">
-        Starting Guilders (optional)
+        Agreed budget in Guilders (optional)
         <input
           v-model.number="budget"
           type="number"
           min="0"
-          placeholder="leave blank to skip the check"
+          :placeholder="`blank to skip · rulebook suggests ${RECOMMENDED_PARTY_BUDGET}`"
           class="mt-1 w-full rounded border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-neutral-100"
         />
+      </label>
+      <label class="text-xs opacity-70 sm:col-span-2">
+        Spent on starting equipment
+        <input
+          v-model.number="equipmentSpend"
+          type="number"
+          min="0"
+          :placeholder="`comes out of the same budget · rulebook suggests about ${RECOMMENDED_EQUIPMENT_ALLOWANCE}`"
+          class="mt-1 w-full rounded border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-neutral-100"
+        />
+        <span class="mt-1 block opacity-60">
+          Equipment is bought from the same purse as the boards (p.68). At rank 1 nothing
+          costing more than 10 Guilders can be bought.
+        </span>
       </label>
     </div>
 
@@ -203,14 +223,20 @@ addRow()
 
     <button
       class="mt-3 rounded border border-neutral-700 px-3 py-1.5 text-sm disabled:opacity-40"
-      :disabled="rows.length >= MAX_PARTY_SIZE"
       @click="addRow"
     >
-      Add Adventurer ({{ rows.length }}/{{ MAX_PARTY_SIZE }})
+      Add Adventurer<template v-if="rows.length > MAX_QUEST_ROSTER"> ({{ rows.length }}, {{ MAX_QUEST_ROSTER }} per quest)</template>
     </button>
 
     <section class="mt-6 rounded border border-neutral-800 bg-neutral-900/40 p-3">
       <p class="text-sm">Party cost: <strong>{{ costLabel }}</strong></p>
+      <p v-if="validation.cost.equipment" class="mt-0.5 text-xs opacity-60">
+        {{ validation.cost.boards }} on boards + {{ validation.cost.equipment }} on equipment
+      </p>
+      <p v-if="validation.stash !== null" class="mt-1 text-xs">
+        Left over: <strong>{{ validation.stash }} Guilders</strong>
+        <span class="opacity-60"> — this becomes your opening Stash on the Base Camp board</span>
+      </p>
       <ul class="mt-2 space-y-0.5 text-xs">
         <li
           v-for="issue in generalIssues"

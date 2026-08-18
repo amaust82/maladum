@@ -572,7 +572,8 @@ interface Party {
 
 // [Deluxe] p.61-63 — pets, summons, hired specialists. No dashboard; Health
 // is tracked like an NPC's (pool, not pegs). Not left in play / not revivable
-// once defeated. Doesn't count toward the 4-Adventurer party limit.
+// once defeated. Doesn't count toward the 4-Adventurer QUEST ROSTER (p.68 —
+// party size itself is unlimited; the 4 is how many go on any one quest).
 interface Companion {
   id: Id;
   companionId: string;          // → content pack
@@ -697,6 +698,8 @@ from a bought item's.
 | Spell level cap | may only learn spells of level ≤ rank | p.80 |
 | XP gain eligibility | rows 1–2: survive + escape. rows 3–4: survive + party completed primary objective. row 5: special feats only | p.80 |
 | Level-up bonus | row 1: +1 to one of H/M/S · row 2: +1 to one · row 3: +1 to any two · rows 4–5: +1 to any two stats — capped by the board's potential spaces | p.81 |
+| Starting budget | Agreed by the players, covering character + Class boards **and starting equipment** from one purse. No fixed figure in the rules: ~350 recommended, of which ~50 for equipment. Unused budget becomes the opening Stash. | p.68 |
+| Quest roster | Up to **4** Adventurers per quest. **Party size itself is unlimited** — "a party can contain any number of Adventurers". | p.68, p.20 |
 | Party value | Σ (character cost + class cost + buy price of carried equipment) + 10 per rank beyond the first, across **all** parties. Crafted items count at **double sell price**, not buy price. | p.72, p.85 |
 | Novice/Veteran cards | lookup table on party value (0–300 → 5/0 … 2251+ → 0/10) | p.72 |
 | Upkeep | Adventurers: 1 Guilder per rank, +1 if they took part in the most recent quest; newly hired this phase are exempt. Companions: flat 1 (2 if upgrade slot punched). | p.83 |

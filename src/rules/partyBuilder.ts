@@ -16,13 +16,25 @@
  */
 
 /**
- * Maximum Adventurers in one party.
+ * Adventurers that may go on any one quest — NOT a limit on party size.
  *
- * Citation gap: design.md §3 states the 4-Adventurer party limit (it's the reason
- * Companions are called out as not counting toward it), but I haven't verified the
- * rulebook page for it, so none is cited here rather than inventing one.
+ * The citation gap previously noted here is resolved, and it resolved against what
+ * this module used to enforce. Rulebook p.68: *"A party can contain any number of
+ * Adventurers. However, unless stated otherwise you may only take up to four of them
+ * into battle for each quest."* Setup on p.20 says the same from the other side —
+ * "choose up to four Adventurers from their party to take part in the quest".
+ *
+ * So a 5-Adventurer party is legal and normal; picking a roster is a per-quest
+ * decision, not a party-creation one. Exceeding four here is worth *mentioning*, never
+ * blocking.
  */
-export const MAX_PARTY_SIZE = 4
+export const MAX_QUEST_ROSTER = 4
+
+/** Recommended starting budget for boards *and* starting equipment (p.68). */
+export const RECOMMENDED_PARTY_BUDGET = 350
+
+/** Of that budget, the amount p.68 suggests holding back for starting equipment. */
+export const RECOMMENDED_EQUIPMENT_ALLOWANCE = 50
 
 export interface DraftMember {
   /** Draft-local id, unique within the draft. */
@@ -42,16 +54,31 @@ export interface PartyDraft {
   name: string
   members: DraftMember[]
   /**
-   * Starting Guilders to validate against, if the player supplied one.
-   * `null`/omitted = don't validate a budget. The app does not assume a starting
-   * purse — that number isn't transcribed from the rulebook yet.
+   * Agreed starting budget in Guilders. `null`/omitted = don't check a budget.
+   *
+   * There is no fixed value in the rules: p.68 says players "agree on a maximum
+   * budget in advance" and *recommends* around 350 (see `RECOMMENDED_PARTY_BUDGET`).
+   * So this stays player input, with the recommendation offered rather than assumed.
    */
   budget?: number | null
+  /**
+   * Guilders spent on starting equipment.
+   *
+   * This is **inside** the same budget as the boards, not on top of it — p.68: the
+   * agreed budget "will be spent on these Adventurers *and on their starting
+   * equipment*", with around 50 of it suggested for equipment. Getting this wrong
+   * understates what a party costs, which is the whole point of the check.
+   */
+  equipmentSpend?: number | null
 }
 
 export interface CostSummary {
-  /** Guilders accounted for by boards whose cost is known. */
+  /** Guilders accounted for — board costs that are known, plus starting equipment. */
   known: number
+  /** The board half of `known`, so the UI can show what equipment is leaving room for. */
+  boards: number
+  /** Guilders spent on starting equipment (p.68 — part of the same budget). */
+  equipment: number
   /**
    * Boards whose cost the content pack doesn't supply, as `"<memberId>:<field>"`.
    * While this is non-empty, `known` is a lower bound, not the answer.
@@ -63,7 +90,8 @@ export interface CostSummary {
 
 export type PartyIssue =
   | { severity: 'error'; kind: 'party-empty' }
-  | { severity: 'error'; kind: 'party-too-large'; size: number; max: number }
+  /** More Adventurers than can go on one quest. Legal to own — a roster note, not an error. */
+  | { severity: 'warning'; kind: 'over-quest-roster'; size: number; max: number }
   | { severity: 'error'; kind: 'class-not-chosen'; memberId: string }
   /** Two members share one physical board — impossible at the table, not a rules clause. */
   | { severity: 'error'; kind: 'duplicate-character-board'; characterId: string }
@@ -90,22 +118,47 @@ export interface PartyValidation {
   ok: boolean
   issues: PartyIssue[]
   cost: CostSummary
+  /** Unspent budget, which becomes the party's opening Stash (p.68). `null` if unknowable. */
+  stash: number | null
 }
 
-/** Sum the known board costs, tracking which ones the content couldn't supply. */
-export function summarizeCost(members: DraftMember[]): CostSummary {
-  let known = 0
+/**
+ * Sum what the party costs against the agreed budget: known board costs plus starting
+ * equipment (p.68 — both come out of the same purse), tracking which board costs the
+ * content couldn't supply.
+ */
+export function summarizeCost(members: DraftMember[], equipmentSpend = 0): CostSummary {
+  let boards = 0
   const unknown: string[] = []
   for (const m of members) {
     if (m.characterCost === null) unknown.push(`${m.id}:characterCost`)
-    else known += m.characterCost
+    else boards += m.characterCost
     // A member with no class chosen has no class cost to be missing — that's a
     // separate error, not a content gap.
     if (m.classId === '') continue
     if (m.classCost === null) unknown.push(`${m.id}:classCost`)
-    else known += m.classCost
+    else boards += m.classCost
   }
-  return { known, unknown, exact: unknown.length === 0 }
+  const equipment = Math.max(0, equipmentSpend)
+  return {
+    known: boards + equipment,
+    boards,
+    equipment,
+    unknown,
+    exact: unknown.length === 0,
+  }
+}
+
+/**
+ * Guilders left over once the party is paid for. Rulebook p.68: *"Any of your budget
+ * left unused is added to the Stash on your Base Camp board."*
+ *
+ * `null` when the budget is unset or some board cost is unknown — an unknown cost makes
+ * the remainder unknowable, and a Stash figure that's quietly wrong is worse than none.
+ */
+export function stashRemainder(cost: CostSummary, budget: number | null | undefined): number | null {
+  if (budget === null || budget === undefined || !cost.exact) return null
+  return Math.max(0, budget - cost.known)
 }
 
 /** XP spaces a fresh Adventurer starts with — the board's default fill (design §4 Phase 1). */
@@ -118,17 +171,17 @@ export function defaultStartingXp(
 /** Validate a draft party. Errors block saving; warnings are shown and allowed. */
 export function validateParty(draft: PartyDraft): PartyValidation {
   const issues: PartyIssue[] = []
-  const cost = summarizeCost(draft.members)
+  const cost = summarizeCost(draft.members, draft.equipmentSpend ?? 0)
 
   if (draft.members.length === 0) {
     issues.push({ severity: 'error', kind: 'party-empty' })
   }
-  if (draft.members.length > MAX_PARTY_SIZE) {
+  if (draft.members.length > MAX_QUEST_ROSTER) {
     issues.push({
-      severity: 'error',
-      kind: 'party-too-large',
+      severity: 'warning',
+      kind: 'over-quest-roster',
       size: draft.members.length,
-      max: MAX_PARTY_SIZE,
+      max: MAX_QUEST_ROSTER,
     })
   }
 
@@ -173,7 +226,12 @@ export function validateParty(draft: PartyDraft): PartyValidation {
     }
   }
 
-  return { ok: !issues.some((i) => i.severity === 'error'), issues, cost }
+  return {
+    ok: !issues.some((i) => i.severity === 'error'),
+    issues,
+    cost,
+    stash: stashRemainder(cost, budget),
+  }
 }
 
 /** Human-readable one-liner for a validation issue. */
@@ -181,14 +239,14 @@ export function describePartyIssue(issue: PartyIssue): string {
   switch (issue.kind) {
     case 'party-empty':
       return 'A party needs at least one Adventurer'
-    case 'party-too-large':
-      return `${issue.size} Adventurers — a party holds at most ${issue.max}`
+    case 'over-quest-roster':
+      return `${issue.size} Adventurers — legal to keep, but only ${issue.max} can go on any one quest`
     case 'class-not-chosen':
       return 'Choose a Class board for this Adventurer'
     case 'duplicate-character-board':
       return `Two Adventurers are using the "${issue.characterId}" board — you only have one`
     case 'over-budget':
-      return `Costs ${issue.cost} Guilders, budget is ${issue.budget}`
+      return `Costs ${issue.cost} Guilders including starting equipment, budget is ${issue.budget}`
     case 'budget-unverifiable':
       return `At least ${issue.known} of ${issue.budget} Guilders — ${issue.unknown.length} cost(s) unknown, so this can't be checked`
     case 'incomplete-cost':

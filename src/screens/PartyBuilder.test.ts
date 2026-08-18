@@ -103,6 +103,40 @@ describe('PartyBuilder against the seed content', () => {
     expect(save.attributes('disabled')).toBeUndefined()
   })
 
+  it('counts starting equipment against the same budget as the boards', async () => {
+    const wrapper = mountBuilder()
+    const [character, klass] = wrapper.findAll('select')
+    await character.setValue('syrio')   // 64
+    await klass.setValue('barbarian')   //  7
+    const [budget, equipment] = wrapper.findAll('input[type="number"]')
+    await budget.setValue(100)
+    await equipment.setValue(50)
+    // 64 + 7 + 50 = 121, over the 100 budget. Counting boards alone would call it fine.
+    expect(wrapper.text()).toContain('121 Guilders')
+    expect(wrapper.text()).toContain('budget is 100')
+  })
+
+  it('shows the unspent budget as the opening Stash', async () => {
+    const wrapper = mountBuilder()
+    const [character, klass] = wrapper.findAll('select')
+    await character.setValue('syrio')
+    await klass.setValue('barbarian')
+    const [budget, equipment] = wrapper.findAll('input[type="number"]')
+    await budget.setValue(350)
+    await equipment.setValue(50)
+    expect(wrapper.text()).toContain('229 Guilders')
+    expect(wrapper.text()).toContain('opening Stash')
+  })
+
+  it('lets a party grow past four, noting the per-quest roster instead of blocking', async () => {
+    const wrapper = mountBuilder()
+    const add = () =>
+      wrapper.findAll('button').find((b) => b.text().startsWith('Add Adventurer'))!.trigger('click')
+    for (let i = 0; i < 4; i += 1) await add()
+    expect(wrapper.findAll('select').length / 2).toBeGreaterThan(4)
+    expect(wrapper.text()).toContain('only 4 can go on any one quest')
+  })
+
   it('enables saving once the draft is legal', async () => {
     const wrapper = mountBuilder()
     await wrapper.findAll('select')[1].setValue('barbarian')

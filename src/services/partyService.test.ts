@@ -168,6 +168,8 @@ describe('validateDraft against real content gaps', () => {
     expect(result.ok).toBe(true)
     expect(result.cost).toEqual({
       known: 0,
+      boards: 0,
+      equipment: 0,
       unknown: ['a1:characterCost', 'a1:classCost'],
       exact: false,
     })

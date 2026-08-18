@@ -15,7 +15,7 @@ genuine exception — a formatting sweep, a revert — with `git commit --no-ver
 
 **Phase 0 is complete; Phase 1 is under way.** Campaign management, the party builder
 and the Rules reference are in. `npm run build` is clean and `npm test` is green:
-**324 tests across 22 files**.
+**338 tests across 22 files**.
 
 **Board transcription is DONE.** All 45 boards — 25 Class, 20 Adventurer — are transcribed
 from the physical components, with **zero `_placeholder` flags anywhere in the dataset**.
@@ -280,6 +280,38 @@ do that" is the worse failure.
 Say the word if you'd rather it hard-block; it's a one-line severity change plus the tests
 that assert it doesn't.
 
+### Party budget and roster — resolved from the rulebook (p.68)
+
+Both of the open questions this file carried about party creation are answered, and **one
+of them resolved against what the code was doing.**
+
+**The budget covers starting equipment, not just boards** (p.68): *"All players taking part
+should agree on a maximum budget in advance that will be spent on these Adventurers **and
+on their starting equipment**."* The builder was checking board costs alone, which
+understates what a party costs — the exact failure the budget check exists to catch. The
+draft now carries `equipmentSpend`, and it comes out of the same purse.
+
+- **No fixed starting figure exists.** p.68 says players agree a budget and *recommends*
+  around 350, with about 50 of it for equipment. Those are `RECOMMENDED_PARTY_BUDGET` /
+  `RECOMMENDED_EQUIPMENT_ALLOWANCE`, offered as placeholder text — never assumed.
+- **Unused budget becomes the opening Stash** (p.68), shown on the summary. It reports
+  `null` rather than a number when any board cost is unknown, on the usual rule.
+- **At rank 1 nothing over 10 Guilders is purchasable.** Party creation says the Market
+  Phase restrictions "all apply" (p.68 → p.82), and the valuable-item ceiling is 10 × rank
+  with items ≤10 unrestricted. `rules/market.ts` already had this correct
+  (`canPurchase`); the builder now states it. It'll bind properly once equipment is picked
+  item-by-item rather than entered as a total.
+
+**`MAX_PARTY_SIZE = 4` was wrong** — a real bug in shipped code, flagged in its own doc
+comment as an unverified citation, and the citation turned out to contradict it. p.68:
+*"A party can contain any number of Adventurers. However, unless stated otherwise you may
+only take up to four of them into battle for each quest."* p.20 agrees from the setup side.
+
+So four is a **quest roster** limit, not a party limit, and the builder was refusing legal
+parties. It's now `MAX_QUEST_ROSTER`, the fifth Adventurer is allowed, and going over four
+is a warning that names why. Choosing who actually goes on a quest belongs to the Play tab,
+not party creation.
+
 ### Known soft spots (be aware, not blocking)
 
 - **Unresolved `[icon: …]` markers** in spell/skill/ability text — a double-digit count,
@@ -408,12 +440,8 @@ Open implementation decisions (genuine calls, not oversights):
   tokens alongside equipment tokens (same physical container) or separately (cleaner data
   model)? See the rules note at the bottom of this file for what physically goes in the
   pouch. Still undecided.
-- **Starting Guilders for a new party** — not transcribed from the rulebook, so the party
-  builder takes a budget as optional player input and skips the check when it's blank
-  rather than assuming a purse. Fill this in when the number is verified.
-- **The 4-Adventurer party limit has no page citation yet.** `MAX_PARTY_SIZE` in
-  `src/rules/partyBuilder.ts` is enforced on design §3's say-so; the rulebook page is
-  unverified and deliberately not invented in the doc comment.
+- ~~Starting Guilders for a new party~~ and ~~the 4-Adventurer party limit citation~~ —
+  both **resolved against the rulebook, 2026-08-19**. See "Party budget and roster" above.
 
 ## Next actions
 
