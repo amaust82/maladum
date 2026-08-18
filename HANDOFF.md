@@ -1,17 +1,51 @@
-# Handoff to CLI session — Maladum Campaign Companion
+# Project status & handoff — Maladum Campaign Companion
 
-**Purpose of this file:** a self-contained brief for starting implementation. Read
-`docs/design.md` first (it's the actual design source of truth); this file just points
-at the concrete next actions and the seed data dropped alongside it.
+**Purpose of this file:** the living "where are we" doc. Read this first when picking the
+project back up, then `docs/design.md` for the actual design (it stays the source of
+truth). Keep the Status and Next-actions sections current as work lands — they're what
+makes a dropped session cheap to resume.
 
-## Status
+## Status — updated 2026-08-17
 
-Design is done. Four rounds of revision are recorded as numbered notes at the top of
-`docs/design.md` — framework, physical-vs-digital boundaries, and the four open
-questions in §7 are all resolved. Nothing here should require another design
-conversation; if something in the seed data or schema doesn't fit while you're building
-it, that's expected (see "What's NOT done" below) — fix it in code/data as you go rather
-than stopping to ask.
+**Phase 0 (Foundation) is complete.** The app builds, and `npm test` is green:
+**151 tests across 12 files**. Working tree is committed; `docs/design.md` remains the
+design source of truth and hasn't changed since implementation started.
+
+This section is kept current as work lands, so a lost session costs nothing — read it
+first, then "Next actions" at the bottom.
+
+### Phase 0 checklist (design.md §4)
+
+| Item | State | Where |
+| --- | --- | --- |
+| Vite + Vue 3 + TS + Tailwind scaffold, PWA manifest, dark theme | done | `vite.config.ts`, `src/App.vue` |
+| Content pack schema + Zod validators | done | `src/content/schema.ts` |
+| Core pack loader (merge, integrity check, manifest) | done | `src/content/loader.ts` |
+| Event store, projection engine, snapshotting, undo stack | done | `src/store/` |
+| Dexie schema + export/import to a single JSON file | done | `src/db/` |
+| Rules engine + tests for every derived value | done | `src/rules/` (difficulty, upkeep, advancement, market, crafting, escape) |
+
+### Loader notes (newest work)
+
+`src/content/loader.ts` never throws. `loadPacks(raws)` / `loadBundledPacks()` return
+`{ library, issues }`, so one broken pack doesn't take the app down — it lands in `issues`
+and the good packs still load. Details worth knowing before you build on it:
+
+- **Merge order is deterministic**: `core` first, then expansions alphabetically. Later
+  packs override earlier ids (last wins) and each override is recorded as a `duplicate-id`
+  *warning*, not an error.
+- **Issue severities matter.** `errorsOnly(issues)` is the blocking set; overrides are
+  warnings by design. `describeIssue()` gives a one-line human-readable form.
+- **Cross-pack references resolve after merge** — an expansion recipe legitimately spends
+  a resource defined in `core`, so integrity checking can't be per-pack.
+- **`library.provenance`** maps `"<entity>:<id>"` → winning pack id, and `library.packs` is
+  the manifest a save file records (design §2.4: "a save file records which pack versions
+  it was created against"). The event store does **not** record it yet — wiring that in is
+  a Phase 1 task, listed below.
+- **`SUPPORTED_SCHEMA_VERSION = 1`.** Packs above it are refused with an error rather than
+  parsed optimistically.
+- Packs are bundled at build time via `import.meta.glob`, so loading is synchronous and
+  works offline — no fetch.
 
 ## What's in this drop
 
@@ -33,7 +67,7 @@ not just by eye.
 This pack has two very different kinds of content in it, and they're marked so you can
 tell them apart at a glance:
 
-- **`craftingResources` (14 entries) — real, verified data**, transcribed from the
+- **`craftingResources` (15 entries) — real, verified data**, transcribed from the
   "Resource Info" sheet of `Maladum Crafting Sheet Template V4.xlsx` (the fan spreadsheet
   in your `.scratch/resources` folder). Names, symbols, rarity, buy cost.
 - **`adventurers[0]` (Syrio) — partially real.** Only the `stats` block (Health/Skill/
@@ -75,41 +109,49 @@ the test the design doc recommends in §9: confirm a fourth content pack can dro
 zero code changes. Treat it as a schema test fixture more than "real" content — delete it
 without a second thought if it's more confusing than useful to have sitting there.
 
-## What's NOT done (start here)
+## What's NOT done
 
-1. **The schema itself doesn't exist yet.** These are hand-written JSON files shaped to
-   match `docs/design.md` §2.4 and §3.1 — there's no Zod schema validating them, and I
-   haven't cross-checked every field name against those sections with a fine-tooth comb.
-   Writing the Zod schema and running it against these four files is a good first task —
-   it'll surface any mismatches immediately, on real data, before any UI exists to hide
-   them.
-2. **`rules/` (the pure functions engine) doesn't exist.** Per design doc §9's build
-   order, this comes first, before the schema even, and doesn't depend on content packs
-   being finished — the derived-values table in §3 has every formula you need
-   (difficulty calc, XP/rank, upkeep, escape roll modifiers, crafting fee) with page
-   citations back to the Deluxe rulebook if you need to double-check one.
-3. **Item fields are thin.** The crafted-item stubs have `name`, `type`, `size`,
-   `sellPrice` — nothing about combat stats (attack dice, damage type) since that wasn't
-   in the spreadsheet. Fine for proving crafting bookkeeping works; not fine as real
-   playable item data yet.
-4. **Everything else in the roadmap** (Companions, Side Quests, quests, spells, the NPC
-   AI decision tree data) has zero seed content. Not started, not blocking — Phase 1 per
-   §4 doesn't need any of it to begin.
+Content gaps (unchanged since the original drop — none of them block Phase 1 starting):
 
-## Recommended first few sessions
+1. **Real Adventurer and Class data.** `core.json` still carries only Syrio's verified
+   stat block; everything else on him is `null`, and `adventurers[1]`/`classes[0]` are
+   structural placeholders flagged `"_placeholder": true`. Getting real data in means
+   photographing the physical boards or using Battle Systems' Character Creator
+   (rulebook p.94) — the PDF's graphical boards don't text-extract reliably. The party
+   builder can be built against the placeholders and will surface exactly which fields
+   the real data has to fill.
+2. **Item fields are thin.** Crafted-item stubs have `name`, `type`, `size`, `sellPrice`
+   — no combat stats (attack dice, damage type), which weren't in the spreadsheet source.
+   Fine for crafting bookkeeping; not yet real playable item data.
+3. **Companions, Side Quests, quests, spells, NPC AI decision-tree data** have zero seed
+   content. Phase 1 per §4 doesn't need any of it to begin.
 
-Straight from `docs/design.md` §9, now with real files to point at:
+Open implementation decisions (genuine calls, not oversights):
 
-1. Scaffold the Vue 3 + TypeScript + Vite project per §2.1.
-2. Write the Zod schemas for the content-pack shape (§2.4 + §3.1) and validate the four
-   `content/*.json` files against them. Fix whichever side (schema or data) is wrong.
-3. Build `rules/` as pure functions with Vitest coverage, starting with `difficulty.ts`
-   and `upkeep.ts` — they're the simplest (pure arithmetic, no state) and the derived-
-   values table in §3 gives you the exact formulas and Deluxe page citations.
-4. Build the event store (§2.3) and Dexie persistence layer (§2.4-adjacent, "Persistence
-   caveat" in §2.1).
-5. Only then start on Phase 1 screens (§4) — party builder first, since it's the thing
-   every other screen depends on having real data to show.
+- **`PouchState` and crafting resources** — does the pouch ledger track crafting resource
+  tokens alongside equipment tokens (same physical container) or separately (cleaner data
+  model)? See the rules note at the bottom of this file for what physically goes in the
+  pouch. Still undecided.
+- **Pack manifest in save files** — `library.packs` exists but nothing writes it into a
+  campaign's persisted state yet. Decide where it hangs off the event store / Dexie record
+  when campaign creation gets built.
+
+## Next actions
+
+Phase 0 is done, so the next session starts on **Phase 1 (design.md §4)**, in this order:
+
+1. **Campaign management** — create/list/duplicate/delete campaigns on top of the existing
+   event store and Dexie layer, wiring `library.packs` into each campaign record as it's
+   created (see the open decision above). Export/import already exists in `src/db/`.
+2. **Party builder** — first real screen, because everything else depends on it having
+   data to show. Validates against Guilders, auto-fills default XP spaces. It will run
+   into the placeholder Adventurer/Class data above; that's the expected forcing function
+   for deciding how the app handles incomplete content.
+3. **Character sheet**, then the **Campaign Phase wizard** (Escape → Advancement → Market
+   → Rest) — the rules engine already has every calculation these need.
+
+`src/App.vue` is still the scaffold placeholder; it now shows loaded-content counts and
+any loader errors as a smoke check, and Phase 1 replaces it with real screens.
 
 ## One rules question that came up along the way (not blocking, just FYI)
 
