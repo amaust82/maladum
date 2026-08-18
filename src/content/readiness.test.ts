@@ -24,7 +24,12 @@ const klass = (over: Partial<ClassDef> = {}): ClassDef =>
 
 describe('adventurerReadiness', () => {
   it('grades a fully transcribed board as ready', () => {
-    expect(adventurerReadiness(adventurer())).toEqual({ grade: 'ready', missing: [], verified: undefined })
+    expect(adventurerReadiness(adventurer())).toEqual({
+      grade: 'ready',
+      missing: [],
+      unverified: [],
+      verified: undefined,
+    })
   })
 
   it('grades a board with unknown fields as partial and names them', () => {
@@ -51,11 +56,21 @@ describe('adventurerReadiness', () => {
   })
 
   it('does not treat a field-level _placeholder list as a whole-entity placeholder', () => {
-    // core.json marks Syrio with `_placeholder: [...field names]` — an array, not `true`.
+    // core.json marks every board with `_placeholder: [...field names]` — an array, not `true`.
     const r = adventurerReadiness(
       adventurer({ cost: null, _placeholder: ['cost'] } as Partial<AdventurerDef>),
     )
     expect(r.grade).toBe('partial')
+  })
+
+  it('holds back a board whose untranscribed fields the app does not itself need', () => {
+    // Every required field is present, but the pack says the stat block is unknown:
+    // that is not "ready", and calling it ready would hide a real gap.
+    const r = adventurerReadiness(
+      adventurer({ stats: null, _placeholder: ['stats'] } as Partial<AdventurerDef>),
+    )
+    expect(r).toMatchObject({ grade: 'partial', missing: [], unverified: ['stats'] })
+    expect(describeReadiness(r)).toContain('stats')
   })
 })
 
@@ -69,23 +84,35 @@ describe('classReadiness', () => {
 describe('the bundled core pack', () => {
   const { library } = loadBundledPacks()
 
-  it("classifies Syrio as partial — his stat block is real, his cost isn't", () => {
+  it("classifies Syrio as partial — his stat block and cost are real, his species isn't", () => {
     const syrio = library.adventurers.get('syrio')
     expect(syrio).toBeDefined()
     const r = adventurerReadiness(syrio!)
     expect(r.grade).toBe('partial')
-    expect(r.missing).toContain('cost')
+    expect(r.missing).toContain('species')
+    expect(r.missing).not.toContain('cost')
     expect(r.verified).toMatch(/Deluxe rulebook/)
   })
 
-  it('classifies the flagged stand-ins as placeholders', () => {
-    expect(adventurerReadiness(library.adventurers.get('_placeholder-adventurer-2')!).grade).toBe(
-      'placeholder',
+  it('grades every Adventurer partial — real names and costs, untranscribed boards', () => {
+    const grades = new Set(
+      [...library.adventurers.values()].map((a) => adventurerReadiness(a).grade),
     )
-    expect(classReadiness(library.classes.get('_placeholder-class-1')!).grade).toBe('placeholder')
+    expect(grades).toEqual(new Set(['partial']))
   })
 
-  it('has no fully ready Adventurer yet — the content gap is real, not hidden', () => {
+  it('grades every Class partial — the skill wheel mapping is the outstanding gap', () => {
+    // Class name + cost are transcribed, so nothing is a whole-entity placeholder
+    // any more; what's missing is which skills/spell schools each board grants.
+    for (const klass of library.classes.values()) {
+      const r = classReadiness(klass)
+      expect(r.grade).toBe('partial')
+      expect(r.missing).toEqual([])
+      expect(r.unverified).toContain('skills')
+    }
+  })
+
+  it('has no fully ready board yet — the content gap is real, not hidden', () => {
     const ready = [...library.adventurers.values()].filter(
       (a) => adventurerReadiness(a).grade === 'ready',
     )
@@ -106,9 +133,9 @@ describe('isSelectable', () => {
 describe('describeReadiness', () => {
   it('produces a distinct one-liner per grade', () => {
     const lines = [
-      describeReadiness({ grade: 'ready', missing: [] }),
-      describeReadiness({ grade: 'partial', missing: ['cost'] }),
-      describeReadiness({ grade: 'placeholder', missing: [] }),
+      describeReadiness({ grade: 'ready', missing: [], unverified: [] }),
+      describeReadiness({ grade: 'partial', missing: ['cost'], unverified: [] }),
+      describeReadiness({ grade: 'placeholder', missing: [], unverified: [] }),
     ]
     expect(new Set(lines).size).toBe(3)
     expect(lines[1]).toContain('cost')

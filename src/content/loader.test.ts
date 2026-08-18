@@ -66,7 +66,8 @@ describe('loadBundledPacks (the real content/*.json)', () => {
   it('produces a manifest a save file can record', () => {
     for (const entry of library.packs) {
       expect(entry.name).toBeTruthy()
-      expect(entry.schemaVersion).toBe(SUPPORTED_SCHEMA_VERSION)
+      // Mixed versions are the normal case: core is v2, the crafting packs v1.
+      expect(entry.schemaVersion).toBeLessThanOrEqual(SUPPORTED_SCHEMA_VERSION)
     }
   })
 })
@@ -178,5 +179,44 @@ describe('bad content is reported, not thrown', () => {
     expect(missing).toHaveLength(2)
     expect(missing.join(' ')).toContain('unobtanium')
     expect(missing.join(' ')).toContain('mystery')
+  })
+})
+
+describe('the v2 reference entities', () => {
+  const { library } = loadBundledPacks()
+
+  it('keys id-less rulebook sections by name so item notes and boards can resolve them', () => {
+    expect(library.abilities.get('Sharp')?.text).toBeTruthy()
+    expect(library.skills.get('Agility Skills')?.skills.length).toBeGreaterThan(0)
+    expect(library.spells.get('Elemental')?.levels).toHaveLength(5)
+    expect(library.itemLore.get('Potions')?.text).toBeTruthy()
+  })
+
+  it('indexes companions and the difficulty table off the core pack', () => {
+    expect(library.companions.size).toBe(10)
+    expect(library.difficultyTable).toHaveLength(12)
+    expect(library.provenance.get('difficultyTable:*')).toBe('core')
+  })
+
+  it('records provenance for a name-keyed entity the same way as an id-keyed one', () => {
+    expect(library.provenance.get('abilities:Sharp')).toBe('core')
+    expect(library.provenance.get('adventurers:syrio')).toBe('core')
+  })
+
+  it('reports a name collision between packs as an override warning, not silence', () => {
+    const { issues } = loadPacks({
+      core: { id: 'core', name: 'Core', schemaVersion: 2, abilities: [{ name: 'Sharp', text: 'a' }] },
+      later: { id: 'later', name: 'Later', schemaVersion: 2, abilities: [{ name: 'Sharp', text: 'b' }] },
+    })
+    const override = issues.find((i) => i.kind === 'duplicate-id')
+    expect(override).toMatchObject({ severity: 'warning', entity: 'abilities', id: 'Sharp' })
+  })
+
+  it('refuses a pack from a future schema version rather than parsing it optimistically', () => {
+    const { issues, library: lib } = loadPacks({
+      core: { id: 'core', name: 'Core', schemaVersion: SUPPORTED_SCHEMA_VERSION + 1 },
+    })
+    expect(issues.map((i) => i.kind)).toContain('unsupported-schema-version')
+    expect(lib.packs).toEqual([])
   })
 })

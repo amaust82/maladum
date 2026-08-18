@@ -28,7 +28,7 @@ const roster = computed(() =>
         className: klass?.name ?? a.classId,
         characterReadiness: character ? adventurerReadiness(character) : null,
         classReadiness: klass ? classReadiness(klass) : null,
-        maxXp: character?.stats.xp.max ?? null,
+        maxXp: character?.stats?.xp.max ?? null,
       }
     }),
   })),

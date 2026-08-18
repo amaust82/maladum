@@ -12,6 +12,13 @@
  *   - **placeholder** — the whole entity is a structural stand-in, flagged in the
  *     data with `"_placeholder": true`. Valid shape, fake content.
  *
+ * `_placeholder` carries two different meanings in the packs and they must not be
+ * conflated: `true` means the whole entity is fake, while an **array of field
+ * names** means the entity is real but those particular fields aren't transcribed
+ * (every board in core v2 is the latter — real name and Guilder cost off the
+ * calculator spreadsheet, `null` stat block until someone photographs the board).
+ * A field-level list therefore grades `partial`, never `placeholder`.
+ *
  * Why classify here instead of at each call site: the honest-gap rule from
  * CLAUDE.md only holds if "we don't know this" is a first-class value that
  * propagates. This module turns the packs' hand-authored `_placeholder` /
@@ -29,6 +36,8 @@ export interface Readiness {
   grade: ReadinessGrade
   /** Field names the app needs but the pack doesn't supply, in declaration order. */
   missing: string[]
+  /** Fields the pack flags as untranscribed, whether or not the app needs them. */
+  unverified: string[]
   /** Provenance note from the pack's `_verified` annotation, if any. */
   verified?: string
 }
@@ -38,9 +47,19 @@ const ADVENTURER_REQUIRED = ['species', 'cost', 'armourSlots'] as const
 /** Fields the party builder needs from a class board. */
 const CLASS_REQUIRED = ['name', 'cost'] as const
 
-/** True when the pack itself flags the whole entity as a structural stand-in. */
+/** True when the pack itself flags the WHOLE entity as a structural stand-in. */
 function isFlaggedPlaceholder(def: object): boolean {
   return (def as { _placeholder?: unknown })._placeholder === true
+}
+
+/**
+ * Field names the pack flags as untranscribed. These aren't necessarily fields
+ * the app needs (`missing`), but they're the honest answer to "is this board
+ * fully known?", so they hold a board back from `ready`.
+ */
+function unverifiedFields(def: object): string[] {
+  const flag = (def as { _placeholder?: unknown })._placeholder
+  return Array.isArray(flag) ? flag.filter((f): f is string => typeof f === 'string') : []
 }
 
 function verifiedNote(def: object): string | undefined {
@@ -58,10 +77,12 @@ function grade(def: object, required: readonly string[]): Readiness {
   const verified = verifiedNote(def)
   if (isFlaggedPlaceholder(def)) {
     // A flagged placeholder's fields aren't worth enumerating — nothing on it is real.
-    return { grade: 'placeholder', missing: [...required], verified }
+    return { grade: 'placeholder', missing: [...required], unverified: [], verified }
   }
   const missing = missingFields(def, required)
-  return { grade: missing.length === 0 ? 'ready' : 'partial', missing, verified }
+  const unverified = unverifiedFields(def)
+  const complete = missing.length === 0 && unverified.length === 0
+  return { grade: complete ? 'ready' : 'partial', missing, unverified, verified }
 }
 
 export function adventurerReadiness(def: AdventurerDef): Readiness {
@@ -82,8 +103,12 @@ export function describeReadiness(readiness: Readiness): string {
   switch (readiness.grade) {
     case 'ready':
       return 'Complete'
-    case 'partial':
-      return `Unverified: ${readiness.missing.join(', ')}`
+    case 'partial': {
+      // Prefer the fields the app actually needs; fall back to the pack's own
+      // untranscribed list so a board that's merely incomplete still says why.
+      const fields = readiness.missing.length ? readiness.missing : readiness.unverified
+      return `Unverified: ${fields.join(', ')}`
+    }
     case 'placeholder':
       return 'Placeholder — not real game data'
   }

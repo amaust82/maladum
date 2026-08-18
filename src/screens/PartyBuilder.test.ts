@@ -9,8 +9,9 @@ import { useContentStore } from '../stores/content'
 
 /**
  * The readiness model only earns its keep if it reaches the screen, so this
- * mounts the real builder against the real bundled seed content — where the only
- * Adventurer with a verified stat block still has no transcribed Guilder cost.
+ * mounts the real builder against the real bundled seed content — 20 Adventurer
+ * and 25 Class boards whose names and Guilder costs are transcribed but whose
+ * stat blocks and skill wheels mostly aren't.
  */
 
 const router = createRouter({
@@ -29,30 +30,38 @@ beforeEach(() => {
 })
 
 describe('PartyBuilder against the seed content', () => {
-  it('hides placeholder boards by default and says how many it hid', () => {
+  it('offers every transcribed board — nothing in core v2 is a hidden stand-in', () => {
     const wrapper = mountBuilder()
     const options = wrapper.findAll('option').map((o) => o.text())
     expect(options).toContain('Syrio')
-    expect(options.some((o) => o.includes('PLACEHOLDER'))).toBe(false)
-    expect(wrapper.text()).toContain('hidden')
-  })
-
-  it('offers the placeholder boards once the player opts in', async () => {
-    const wrapper = mountBuilder()
-    useContentStore().showPlaceholders = true
-    await wrapper.vm.$nextTick()
-    expect(wrapper.findAll('option').some((o) => o.text().includes('PLACEHOLDER'))).toBe(true)
+    expect(options).toContain('Assassin')
+    expect(useContentStore().hiddenCount).toBe(0)
+    // With nothing hidden, the opt-in toggle isn't shown at all.
+    expect(wrapper.find('input[type="checkbox"]').exists()).toBe(false)
   })
 
   it('badges a partially-transcribed board instead of presenting it as complete', () => {
     const wrapper = mountBuilder()
+    // Ariah's name and cost are real; her stat block and armour slots are not.
     expect(wrapper.text()).toContain('Unverified')
-    expect(wrapper.text()).toContain('cost')
+    expect(wrapper.text()).toContain('armourSlots')
   })
 
-  it('reports the cost as a lower bound while a board cost is unknown', () => {
-    // Syrio's cost is null in core.json, so the total must never read as an exact figure.
-    expect(mountBuilder().text()).toContain('at least 0 Guilders')
+  it('names the Class board gap on the card, since the skill wheel is untranscribed', async () => {
+    const wrapper = mountBuilder()
+    await wrapper.findAll('select')[1].setValue('barbarian')
+    expect(wrapper.text()).toContain('skills')
+  })
+
+  it('totals a real Guilder cost exactly once both boards are chosen', async () => {
+    const wrapper = mountBuilder()
+    const [character, klass] = wrapper.findAll('select')
+    await character.setValue('syrio')
+    await klass.setValue('barbarian')
+    // Syrio 64 + Barbarian 7, both off the calculator spreadsheet — an exact
+    // figure, so it must NOT be hedged as a lower bound.
+    expect(wrapper.text()).toContain('71 Guilders')
+    expect(wrapper.text()).not.toContain('at least')
   })
 
   it('blocks saving until a Class board is chosen', async () => {
@@ -60,5 +69,12 @@ describe('PartyBuilder against the seed content', () => {
     const save = wrapper.findAll('button').find((b) => b.text() === 'Create party')!
     expect(save.attributes('disabled')).toBeDefined()
     expect(wrapper.text()).toContain('Choose a Class board')
+  })
+
+  it('enables saving once the draft is legal', async () => {
+    const wrapper = mountBuilder()
+    await wrapper.findAll('select')[1].setValue('barbarian')
+    const save = wrapper.findAll('button').find((b) => b.text() === 'Create party')!
+    expect(save.attributes('disabled')).toBeUndefined()
   })
 })

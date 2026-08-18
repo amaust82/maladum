@@ -6,6 +6,7 @@ import {
   difficultyFor,
   type AdventurerValueInput,
 } from './difficulty'
+import { loadBundledPacks } from '../content/loader'
 
 describe('itemPartyValue', () => {
   it('bought/found items count at buy price', () => {
@@ -104,5 +105,38 @@ describe('difficultyFor', () => {
     ]
     // total 630 → band 601-700 → 1 novice / 2 veteran
     expect(difficultyFor(advs)).toEqual({ value: 630, novice: 1, veteran: 2 })
+  })
+})
+
+describe('the transcribed table vs. the content pack (independent sources)', () => {
+  /**
+   * `DIFFICULTY_TABLE` in difficulty.ts was transcribed from the rulebook prose;
+   * `core.json.difficultyTable` came from a fan calculator spreadsheet. Two
+   * independent transcriptions of the same p.72 table should agree band for band
+   * — and if they ever stop agreeing, one of them has been miskeyed, which is
+   * exactly the failure this test exists to catch.
+   */
+  const { library } = loadBundledPacks()
+
+  it('agrees with the pack on every band boundary, on both sides of it', () => {
+    expect(library.difficultyTable.length).toBeGreaterThan(0)
+    for (const band of library.difficultyTable) {
+      const expected = { novice: band.novice, veteran: band.veteran }
+      expect(difficultyCards(band.min), `band ${band.band} lower bound`).toEqual(expected)
+      if (band.max !== null) {
+        expect(difficultyCards(band.max), `band ${band.band} upper bound`).toEqual(expected)
+      } else {
+        expect(difficultyCards(band.min + 100_000), `band ${band.band} open end`).toEqual(expected)
+      }
+    }
+  })
+
+  it('has no gap between bands where the two sources disagree on the cutover', () => {
+    for (const band of library.difficultyTable) {
+      if (band.max === null) continue
+      const next = library.difficultyTable.find((b) => b.band === band.band + 1)
+      if (!next) continue
+      expect(difficultyCards(band.max)).not.toEqual(difficultyCards(next.min))
+    }
   })
 })

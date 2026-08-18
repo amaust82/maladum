@@ -11,14 +11,16 @@ clone with `git config core.hooksPath .githooks` (also listed in `README.md`); b
 genuine exception — a formatting sweep, a revert — with `git commit --no-verify`.
 `CLAUDE.md` states the same rule for agent sessions.
 
-## Status — updated 2026-08-18
+## Status — updated 2026-08-18 (second session)
 
-**Phase 0 is complete; Phase 1 is under way** — campaign management and the party builder
-are in, and the app now has real screens instead of the scaffold. `npm run build` is clean
-and `npm test` is green: **232 tests across 18 files**.
+**Phase 0 is complete; Phase 1 is under way.** Campaign management, the party builder
+and the Rules reference are in. `npm run build` is clean and `npm test` is green:
+**278 tests across 20 files**.
 
-`docs/design.md` was amended this session (§2.4 and the `Campaign` interface in §3) to
-record where the content pack manifest attaches — see "Resolved this session" below.
+The headline change this session is content, not code: `core.json` was replaced with a
+**substantially real dataset** (schemaVersion 2), and the schema/loader/readiness layers
+were extended to carry it. See "The content pack got real" below — most of the caveats
+that used to live in this file are no longer true.
 
 This section is kept current as work lands, so a lost session costs nothing — read it
 first, then "Next actions" at the bottom.
@@ -28,7 +30,7 @@ first, then "Next actions" at the bottom.
 | Item | State | Where |
 | --- | --- | --- |
 | Vite + Vue 3 + TS + Tailwind scaffold, PWA manifest, dark theme | done | `vite.config.ts`, `src/App.vue` |
-| Content pack schema + Zod validators | done | `src/content/schema.ts` |
+| Content pack schema + Zod validators | done (v2) | `src/content/schema.ts` |
 | Core pack loader (merge, integrity check, manifest) | done | `src/content/loader.ts` |
 | Event store, projection engine, snapshotting, undo stack | done | `src/store/` |
 | Dexie schema + export/import to a single JSON file | done | `src/db/` |
@@ -42,13 +44,126 @@ first, then "Next actions" at the bottom.
 | Content pack manifest recorded in saves + compatibility report | done | `src/content/manifest.ts` |
 | Party builder — boards, default XP fill, Guilder validation | done | `src/rules/partyBuilder.ts`, `src/services/partyService.ts`, `src/screens/PartyBuilder.vue` |
 | Incomplete-content model (how the app surfaces unverified data) | done | `src/content/readiness.ts`, `src/components/ReadinessBadge.vue` |
-| Routing + tab shell (Party live, other four stubbed) | done | `src/router.ts`, `src/screens/CampaignShell.vue` |
+| Routing + tab shell (Party + Rules live, other three stubbed) | done | `src/router.ts`, `src/screens/CampaignShell.vue` |
+| Rules reference — searchable traits/skills/spells/equipment | done | `src/content/reference.ts`, `src/screens/RulesReference.vue` |
 | Character sheet | not started | — |
 | Companions & Apprentices | not started | — |
 | Campaign Phase wizard (Escape → Advancement → Market → Rest) | not started | — |
 | Base Camp, Side Quest tracker, Quest log, Pouch ledger | not started | — |
 
-### Resolved this session
+## The content pack got real (schemaVersion 2)
+
+`content/core.json` went from a schema proof to a mostly-real dataset, merged from three
+sources: the Deluxe rulebook's Reference sections (transcribed from **rendered page
+images** — the text extractor mangles those multi-column tables; rendering them at 200dpi
+and reading the images does not), a fan-made calculator spreadsheet
+(`Maladum_calculator_v0.4.4.xlsx`), and the rulebook's own worked example.
+
+| Key | Count | Confidence |
+| --- | --- | --- |
+| `craftingResources` | 15 | Real — crafting spreadsheet |
+| `adventurers` | 20 | **Name + cost real for all 20.** Stat block real for Syrio only. Species, innate abilities, armour slots: untranscribed everywhere |
+| `classes` | 25 | **Name + cost real.** Skills, innate ability, spell schools: untranscribed (see the one real gap, below) |
+| `companions` | 10 | Name + cost real; the four named ones cross-check against the rulebook's Companions section |
+| `items` | 273 | Real — name, rank, rarity, buy/sell cost, type, and a `notes` shorthand that names real traits |
+| `spells` | 4 schools × levels 1–5 | Real — rulebook pp.132–139 |
+| `skills` | 10 categories, 43 skills | Real — rulebook pp.140–150 |
+| `abilities` | 75 | Real — the icon/trait glossary, pp.150–155. The central definition for every trait `items[].notes` and skill/spell text refers to |
+| `itemLore` | 15 | Real — the separate "Item Notes" appendix, p.156 |
+| `difficultyTable` | 12 bands | Real — and it **independently confirms** `rules/difficulty.ts`, see below |
+
+### What that changed in the code
+
+- **`schemaVersion` 1 → 2** (`SUPPORTED_SCHEMA_VERSION` in `loader.ts`). v2 adds five
+  top-level arrays (`companions`, `skills`, `abilities`, `itemLore`, `difficultyTable`)
+  and reshapes `spells` from a flat list into the rulebook's own school → level → spell
+  nesting. **The three crafting expansions are still v1 and load unchanged** — every new
+  array defaults to empty, which is the compatibility story the design doc asked for.
+- **Some reference entities have no ids** and never will: spell schools, skill categories,
+  the glossary and the Item Notes appendix are keyed by `name` in the loader
+  (`NamedEntityKind`), because `name` is also how everything else refers to them (an
+  item's `notes` says "Sharp"; a Class board names its school). Overrides and provenance
+  work identically for them.
+- **Prices can be variable.** The price list genuinely contains `4D6`, `X` and `*`
+  alongside numbers and blanks, so `ItemDef` prices are `number | string | null` and
+  arithmetic goes through `numericPrice()`/`buyPriceOf()`/`sellPriceOf()`, which return
+  `null` — never 0 — for anything that isn't a fixed figure. A screen that wants to *show*
+  the price reads the raw field. This is the same honest-gap rule as everywhere else: an
+  unknown price must not become a free item in the market.
+- **`_placeholder` now means two different things** and `readiness.ts` distinguishes them:
+  `true` = the whole entity is fake (nothing in core v2 is, any more); an **array of field
+  names** = the entity is real but those fields are untranscribed. A field list grades
+  `partial`, never `placeholder`, and holds a board back from `ready` even when the app
+  doesn't itself need the missing field — `Readiness.unverified` carries them.
+- **A board's stat block can be `null`**, so `defaultStartingXp()` returns `number | null`
+  and `partyCreationEvents` **omits** `startingXp` rather than sending 0. Sending 0 would
+  be a claim about the board; omitting it leaves the projection's own default, which is a
+  claim about the save.
+- **`rules/difficulty.ts` is now cross-validated against the pack.** Its table was
+  transcribed from rulebook prose; `core.json.difficultyTable` came from the spreadsheet.
+  Two independent transcriptions of p.72, and they agree on every band boundary — the test
+  in `difficulty.test.ts` asserts both sides of every cutover, so if either is ever
+  miskeyed it fails loudly instead of drifting.
+
+### The party builder is a real screen now
+
+With 20 Adventurers and 25 Classes carrying real Guilder costs, the builder no longer
+needs the placeholder opt-in to complete a party, and the toggle hides itself when there's
+nothing to hide. Two consequences worth knowing:
+
+- **Every board still grades `partial`** — the names and costs are real, the stat blocks
+  and skill wheels aren't — so every card names the fields its board is missing. Nothing
+  in the seed content grades `ready`, and the tests assert that rather than papering over
+  it.
+- **The Class dropdown starts unset on purpose.** Pairing a Class board with an Adventurer
+  is a real decision at the table; pre-selecting the alphabetically-first Class would
+  quietly make it for the player.
+
+### The Rules tab (new)
+
+`src/content/reference.ts` flattens all six reference sections into one searchable index
+(`buildReferenceIndex`), and `RulesReference.vue` is presentation over it. The parts that
+carry weight beyond "it searches":
+
+- **`[icon: …]` markers render as visibly-unresolved chips, never as prose.** Those are
+  the transcription's honest "couldn't identify this glyph" notes; letting them read as
+  rules text would launder a gap into an answer. The screen also states how many entries
+  still contain one, so the gap is countable rather than lurking.
+- **Trait cross-links are resolved, not guessed.** An item note saying "Sharp, Ammo"
+  becomes a button to the glossary entry — but only for names `library.abilities` actually
+  defines. Matching is whole-word and case-sensitive, so "a sharpened stick" doesn't link.
+- Search ANDs its terms (an OR search over a 273-item price list returns most of the book
+  for any two-word query) and ranks title > group/subtitle > body, stable within a score.
+
+### The one real content gap left: Class → skill/spell mapping
+
+Which of the 43 skills a Class board grants, which school(s) a Magus draws from, which
+innate abilities Syrio starts with. **This is not in the PDF** — it was checked page by
+page: the Adventurer Dashboards page shows one example board to label the layout, and the
+Adventurers/Classes sections (pp.114–129) are lore and portrait art only. The other 19
+Adventurer boards and 24 Class boards exist only as physical cardboard. Paths, if picked
+up later (decided with Adam 2026-08-18: **skipped for now**): photograph the 45 boards and
+transcribe from photos; check for a Battle Systems digital companion tool; check a fan
+wiki, with the same fan-source caveat as the spreadsheet.
+
+Not blocking: party bookkeeping doesn't need to validate which skills a Class *should*
+have — it records what's on the physical board in front of the player.
+
+### Known soft spots (be aware, not blocking)
+
+- **Unresolved `[icon: …]` markers** in spell/skill/ability text — a double-digit count,
+  concentrated in a recurring "free-action" vs "spell-action" glyph pair that's worth
+  resolving first since it affects the most entries. The Rules tab counts them for you.
+- **`items[].notes` is compressed shorthand**, not full rules text (`"Combat (2,3,2),
+  Re-Roll"`). A good hint for a future structured `combatStats`, not the final shape.
+- Everything except the three rulebook Reference sections is **fan-sourced** (the
+  calculator and crafting spreadsheets). Good enough to build and test against; spot-check
+  against physical components before treating buy/sell costs as gospel.
+- **Icon art** (the actual glyph images) is extractable from the PDF — each icon is its own
+  raster object — but needs per-icon soft-mask compositing for clean transparency.
+  Deferred (Adam's call, 2026-08-18); the UI uses text labels.
+
+### Resolved earlier (design decisions that still hold)
 
 **1. Where the pack manifest attaches to a save (was an open decision).**
 The authoritative copy lives **inside the event log**, on `CAMPAIGN_CREATED`, and a later
@@ -87,10 +202,11 @@ annotations, and that grade drives the UI:
   reads "at least 120 Guilders · 1 unknown cost" rather than a total that looks exact. A
   budget that can't be checked produces a warning, never a green tick.
 
-A consequence worth knowing: with the current seed content the only Class board is a
-flagged placeholder, so **a party cannot be completed without opting into placeholders**.
-That's the honest state of the data, and the builder says so in as many words rather than
-letting you build a party out of fiction by accident.
+Core v2 superseded the consequence this section originally recorded — a party used to be
+uncompletable without opting into placeholder boards, because the only Class was fake.
+Every board now has a real name and cost, so nothing is hidden and the opt-in doesn't
+appear. The grading model itself is unchanged and still load-bearing: see "`_placeholder`
+now means two different things" above for how a field-level list feeds it.
 
 ### Loader notes
 
@@ -113,85 +229,44 @@ and the good packs still load. Details worth knowing before you build on it:
 - Packs are bundled at build time via `import.meta.glob`, so loading is synchronous and
   works offline — no fetch.
 
-## What's in this drop
+## Content packs
 
 ```
 content/
-├── core.json                  # schema-proving seed pack — see caveats below
-├── of-ale-and-adventure.json  # 56 crafting recipes + crafted-item stubs
-├── the-forbidden-creed.json   # 2 crafting recipes + crafted-item stubs
-└── oblivions-maw.json         # 10 crafting recipes + crafted-item stubs (bonus — not owned yet, see below)
+├── core.json                  # schemaVersion 2 — see "The content pack got real" above
+├── of-ale-and-adventure.json  # 56 crafting recipes + crafted-item stubs (v1)
+├── the-forbidden-creed.json   # 2 crafting recipes + crafted-item stubs (v1)
+└── oblivions-maw.json         # 10 crafting recipes + crafted-item stubs (v1, not owned)
 ```
 
-All four files are valid JSON and internally consistent — every `recipes[].itemId`
-resolves to an `items[].id` in the same pack, and every `recipes[].resources` key
-resolves to a `craftingResources[].id` in `core.json`. I checked this programmatically,
-not just by eye.
+Referential integrity is checked programmatically, not by eye: every `recipes[].itemId`
+resolves to an `items[].id` in its own pack, every `recipes[].resources` key resolves to a
+`craftingResources[].id` in `core.json`, and every id-keyed array is duplicate-free. A few
+real duplicate item *names* in the source (Fungus is both a resource and a Restoratives
+item; Chakri is both a weapon and armour; Studded Leather Armour has two rank tiers) are
+disambiguated by `id` suffix while `name` stays exactly as sourced.
 
-### `core.json` — read the caveats before trusting anything in it
-
-This pack has two very different kinds of content in it, and they're marked so you can
-tell them apart at a glance:
-
-- **`craftingResources` (15 entries) — real, verified data**, transcribed from the
-  "Resource Info" sheet of `Maladum Crafting Sheet Template V4.xlsx` (the fan spreadsheet
-  in your `.scratch/resources` folder). Names, symbols, rarity, buy cost.
-- **`adventurers[0]` (Syrio) — partially real.** Only the `stats` block (Health/Skill/
-  Magic/Actions/XP defaults and maxes) is transcribed from the Deluxe rulebook's own
-  worked example in the Adventurer Dashboards section, and I'm confident in those five
-  numbers specifically. Everything else on Syrio — species, cost, class, innate
-  abilities, armour slots — is `null` and listed in `_placeholder`, because I don't have
-  reliable source text for those and didn't want to guess at numbers that look
-  authoritative but aren't.
-- **Everything else in `core.json`** (`adventurers[1]`, `classes[0]`) is a **structural
-  placeholder** — valid shape, fake content, clearly flagged with `"_placeholder": true`
-  and a name that says so. It exists only to prove the schema has room for a second
-  Adventurer and a Class without changing shape.
-
-**Why I didn't transcribe more:** the character/Class boards are graphical layouts in the
-PDF — running them through a text extractor produces jumbled, unreliable text (I hit this
-on page 1 and didn't trust it enough to repeat for stat blocks). Getting real Adventurer
-and Class data in means either photographing your physical boards and reading off them
-directly, or using Battle Systems' own digital Character Creator (mentioned in the
-rulebook, p.94) as a source. I didn't want to fabricate plausible-looking Guilder costs
-and skill trees and have them quietly become "canon" in your data — better to ship an
-honest gap than a wrong number that looks right.
+`oblivions-maw.json` is for an expansion nobody owns yet — it's the design doc §9 test
+that a fourth pack drops in with zero code changes. Treat it as a fixture; deleting it
+costs nothing.
 
 ### The three expansion packs — high confidence, narrow scope
 
-These came from a real data source (your crafting spreadsheet), mechanically converted,
-not reconstructed from OCR — so confidence is much higher than `core.json`'s placeholder
-content. Each item's `source` field says exactly that and flags it for a verification
-pass against physical tokens before you'd call it final, since it's fan-transcribed, not
-official Battle Systems data.
-
-Scope is narrow on purpose: **crafting recipes and crafted-item stubs only** — no
-Adventurers, Classes, or quests for any of the three expansions. That wasn't in the
-source data, so it wasn't invented.
-
-**`oblivions-maw.json` exists even though you don't own the expansion yet** — the
-spreadsheet had the data, so generating it was nearly free, and it happens to be exactly
-the test the design doc recommends in §9: confirm a fourth content pack can drop in with
-zero code changes. Treat it as a schema test fixture more than "real" content — delete it
-without a second thought if it's more confusing than useful to have sitting there.
+Mechanically converted from the crafting spreadsheet, not reconstructed from OCR. Scope is
+crafting recipes and crafted-item stubs only — no Adventurers, Classes or quests, because
+that wasn't in the source and wasn't invented. Crafted stubs have `name`/`type`/`size`/
+`sellPrice` and no combat stats: fine for crafting bookkeeping, not yet playable item data.
 
 ## What's NOT done
 
-Content gaps (unchanged since the original drop — none of them block Phase 1 starting):
+Content gaps:
 
-1. **Real Adventurer and Class data.** `core.json` still carries only Syrio's verified
-   stat block; everything else on him is `null`, and `adventurers[1]`/`classes[0]` are
-   structural placeholders flagged `"_placeholder": true`. Getting real data in means
-   photographing the physical boards or using Battle Systems' Character Creator
-   (rulebook p.94) — the PDF's graphical boards don't text-extract reliably. The party
-   builder is built and names exactly which fields the real data has to fill: run it and
-   read the amber badges. Until a real Class board is transcribed, completing a party
-   requires ticking "show placeholder boards".
-2. **Item fields are thin.** Crafted-item stubs have `name`, `type`, `size`, `sellPrice`
-   — no combat stats (attack dice, damage type), which weren't in the spreadsheet source.
-   Fine for crafting bookkeeping; not yet real playable item data.
-3. **Companions, Side Quests, quests, spells, NPC AI decision-tree data** have zero seed
-   content. Phase 1 per §4 doesn't need any of it to begin.
+1. **Class → skill/spell/ability mapping** — the one real gap, see above.
+2. **Adventurer stat blocks** — 19 of 20 boards carry a real name and cost with a `null`
+   stat block. Same fix as (1): photograph the physical boards.
+3. **Adversaries, quests and Side Quests have zero seed content** (`adversaries: []`,
+   `quests: []`). Not blocking Phase 1.
+4. **Companion abilities** — names and costs only; the ability text is on the boards.
 
 Open implementation decisions (genuine calls, not oversights):
 
@@ -213,19 +288,24 @@ Phase 1 continues (design.md §4), in this order:
 1. **Character sheet** — stats as the physical wax-seal rows (filled vs. potential), XP
    track grid with the level-up reward inline, Class skill tree greyed above the rank cap,
    spell list, inventory with size accounting, armour slots. `src/rules/advancement.ts`
-   already computes rank, caps and level-up eligibility; this screen is presentation over
-   numbers that are already tested. It will need the projection extended beyond
-   `xpFilled`/`inventory` — grow `CampaignState.AdventurerState` and the event union
-   together, as `src/store/campaign/events.ts` says.
+   already computes rank, caps and level-up eligibility, and the Rules tab's reference
+   index (`content/reference.ts`) is the source for the skill/spell text it displays. It
+   needs the projection extended beyond `xpFilled`/`inventory` — grow
+   `CampaignState.AdventurerState` and the event union together, as
+   `src/store/campaign/events.ts` says. Note the sheet will hit the untranscribed stat
+   blocks head-on: 19 of 20 boards have `stats: null`, so it needs a way for the player to
+   type their own board's numbers in — which is arguably the right answer anyway, and
+   would close the content gap from the app instead of from a photo session.
 2. **Base Camp (Camp tab)** — Stash, Renown track, storage, notes. Small, and it unblocks
-   the Market step of the wizard.
+   the Market step of the wizard. The 273-item price list is real now, so a Market screen
+   has something to sell.
 3. **Campaign Phase wizard** (Escape → Advancement → Market → Rest) — the rules engine has
    every calculation; this is the four-step flow over the top.
 
 Two smaller things left deliberately undone, so they don't get mistaken for oversights:
 
-- The Camp / Play / Log / Rules tabs render disabled in `CampaignShell.vue`. That's on
-  purpose — the finished shape is visible without pretending the screens exist.
+- The Camp / Play / Log tabs render disabled in `CampaignShell.vue`. That's on purpose —
+  the finished shape is visible without pretending the screens exist.
 - `campaignService.commit()` re-reads the whole log to refresh the picker row. Correct and
   cheap at campaign scale; if it ever isn't, the snapshotting in `eventStore.ts` is the
   answer, not a hand-maintained cache.

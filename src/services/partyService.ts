@@ -74,6 +74,10 @@ export function draftMemberFrom(
   }
 }
 
+/** A character board's default XP fill, or `null` when its stat block is untranscribed. */
+const startingXpOf = (character: AdventurerDef | undefined): number | null =>
+  character ? defaultStartingXp(character.stats) : null
+
 export function validateDraft(draft: PartyDraft): PartyValidation {
   return validateParty(draft)
 }
@@ -82,9 +86,10 @@ export function validateDraft(draft: PartyDraft): PartyValidation {
  * Turn a validated draft into the events that create the party (design §2.3 — the
  * log is the source of truth, so party creation is events, not a state write).
  *
- * Starting XP comes from the character board's default fill; a board we don't have
- * gets 0 and, being a content gap, is already flagged by the readiness model rather
- * than silently guessed at here.
+ * Starting XP comes from the character board's default fill. A board whose stat
+ * block isn't transcribed has no default fill to read, so the event omits the
+ * field entirely rather than asserting 0 — the gap is already flagged by the
+ * readiness model and doesn't need inventing here.
  */
 export function partyCreationEvents(
   library: ContentLibrary,
@@ -94,6 +99,7 @@ export function partyCreationEvents(
   const events: CampaignEvent[] = [{ t: 'PARTY_ADDED', partyId, name: draft.name }]
   for (const m of draft.members) {
     const character = library.adventurers.get(m.characterId)
+    const startingXp = startingXpOf(character)
     events.push({
       t: 'ADVENTURER_ADDED',
       partyId,
@@ -101,7 +107,9 @@ export function partyCreationEvents(
       characterId: m.characterId,
       classId: m.classId,
       displayName: m.displayName,
-      startingXp: character ? defaultStartingXp(character.stats) : 0,
+      // An untranscribed board has no default XP fill; the field is omitted rather
+      // than sent as 0, so the projection's own default is what shows up.
+      ...(startingXp === null ? {} : { startingXp }),
     })
   }
   return events

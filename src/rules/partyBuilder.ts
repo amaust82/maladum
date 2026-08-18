@@ -97,8 +97,10 @@ export function summarizeCost(members: DraftMember[]): CostSummary {
 }
 
 /** XP spaces a fresh Adventurer starts with — the board's default fill (design §4 Phase 1). */
-export function defaultStartingXp(stats: { xp: { default: number } }): number {
-  return stats.xp.default
+export function defaultStartingXp(
+  stats: { xp: { default: number } } | null | undefined,
+): number | null {
+  return stats ? stats.xp.default : null
 }
 
 /** Validate a draft party. Errors block saving; warnings are shown and allowed. */

@@ -42,7 +42,10 @@ function addRow() {
   rows.push({
     id: `a${nextRow}`,
     characterId: content.adventurers[0]?.id ?? '',
-    classId: content.classes[0]?.id ?? '',
+    // Deliberately unset: pairing a Class board with an Adventurer is a real
+    // decision at the table, and pre-picking the alphabetically-first Class
+    // would quietly make it for the player.
+    classId: '',
     displayName: '',
   })
 }
@@ -111,7 +114,7 @@ addRow()
     </div>
 
     <div class="mb-5 rounded border border-neutral-800 bg-neutral-900/40 p-3 text-xs">
-      <label class="flex items-center gap-2">
+      <label v-if="content.hiddenCount || content.showPlaceholders" class="flex items-center gap-2">
         <input v-model="content.showPlaceholders" type="checkbox" />
         <span>
           Show placeholder boards
@@ -121,15 +124,17 @@ addRow()
           </span>
         </span>
       </label>
-      <p v-if="!content.adventurers.length" class="mt-2 text-amber-300">
-        No usable Adventurer boards are installed. The seed pack only carries Syrio's verified
-        stat block and flagged placeholders — transcribe real boards, or tick the box above to
-        build against stand-ins.
+      <p v-if="!content.adventurers.length" class="text-amber-300">
+        No usable Adventurer boards are installed — check the content packs under Rules.
       </p>
-      <p v-if="!content.classes.length" class="mt-2 text-amber-300">
+      <p v-else-if="!content.classes.length" class="text-amber-300">
         No usable Class boards are installed, so a party can't be completed yet: every Adventurer
-        needs one. The seed pack's only Class is a flagged placeholder — transcribe a real Class
-        board, or tick the box above to build against the stand-in.
+        needs one.
+      </p>
+      <p v-else class="opacity-70">
+        {{ content.adventurers.length }} Adventurer and {{ content.classes.length }} Class boards
+        are installed. Names and Guilder costs are transcribed; stat blocks and skill wheels
+        mostly aren't — each card says which fields its board is still missing.
       </p>
     </div>
 

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * The open-campaign frame: header, content-compatibility banner, and the bottom
- * tab bar from design.md §5. Four of the five tabs are placeholders until their
+ * tab bar from design.md §5. Three of the five tabs are placeholders until their
  * phases land — they are shown disabled rather than hidden so the shape of the
  * finished app is visible.
  */
@@ -23,7 +23,7 @@ const tabs = [
   { label: 'Camp', to: 'camp', enabled: false },
   { label: 'Play', to: 'play', enabled: false },
   { label: 'Log', to: 'log', enabled: false },
-  { label: 'Rules', to: 'rules', enabled: false },
+  { label: 'Rules', to: 'rules', enabled: true },
 ]
 
 const isActive = (to: string) => route.path.startsWith(`/c/${props.campaignId}/${to}`)

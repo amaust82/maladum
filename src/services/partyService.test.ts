@@ -147,10 +147,14 @@ describe('partyCreationEvents', () => {
     ])
   })
 
-  it('uses 0 starting XP for an unknown board — the gap is flagged, not invented', () => {
+  it('omits starting XP for a board it has no stat block for, rather than asserting 0', () => {
+    // An unknown board has no default XP fill to read. Sending `startingXp: 0`
+    // would be a claim about the board; omitting it leaves the projection's own
+    // default to stand in, which is a claim about the save instead.
     const members = [draftMemberFrom(library, { id: 'a1', characterId: 'ghost', classId: 'mage' })]
     const [, added] = partyCreationEvents(library, 'p1', { name: 'W', members })
-    expect(added).toMatchObject({ startingXp: 0 })
+    expect(added).not.toHaveProperty('startingXp')
+    expect(added).toMatchObject({ characterId: 'ghost' })
   })
 })
 

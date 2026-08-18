@@ -14,10 +14,29 @@
  */
 
 import type { PackRef } from './manifest'
-import { ContentPack, type AdventurerDef, type ClassDef, type CraftingResourceDef, type ItemDef, type RecipeDef } from './schema'
+import {
+  ContentPack,
+  type AbilityDef,
+  type AdventurerDef,
+  type ClassDef,
+  type CompanionDef,
+  type CraftingResourceDef,
+  type DifficultyBandDef,
+  type ItemDef,
+  type ItemLoreDef,
+  type RecipeDef,
+  type SkillCategoryDef,
+  type SpellSchoolDef,
+} from './schema'
 
-/** Schema version this build understands. Packs above this are refused. */
-export const SUPPORTED_SCHEMA_VERSION = 1
+/**
+ * Schema version this build understands. Packs above this are refused.
+ *
+ * v2 added `companions`/`skills`/`abilities`/`itemLore`/`difficultyTable` and
+ * reshaped `spells` into school→level nesting. v1 packs (the three crafting
+ * expansions) still load unchanged — every v2 array defaults to empty.
+ */
+export const SUPPORTED_SCHEMA_VERSION = 2
 
 /** The core pack's id — always merged first so expansions layer on top. */
 const CORE_PACK_ID = 'core'
@@ -36,11 +55,20 @@ export type EntityKind =
   | 'craftingResources'
   | 'adventurers'
   | 'classes'
+  | 'companions'
   | 'items'
-  | 'spells'
   | 'adversaries'
   | 'quests'
   | 'recipes'
+  | NamedEntityKind
+
+/**
+ * Reference entities the rulebook publishes without ids — spell schools, skill
+ * categories, the icon glossary, the Item Notes appendix. They are keyed by
+ * `name` instead, which is also how everything else in the data refers to them
+ * (an item's `notes` says "Sharp", a class board names its school).
+ */
+export type NamedEntityKind = 'spells' | 'skills' | 'abilities' | 'itemLore'
 
 export interface ContentLibrary {
   /** Packs that merged successfully, in merge order — the manifest a save records (§2.4). */
@@ -48,12 +76,26 @@ export interface ContentLibrary {
   craftingResources: Map<string, CraftingResourceDef>
   adventurers: Map<string, AdventurerDef>
   classes: Map<string, ClassDef>
+  companions: Map<string, CompanionDef>
   items: Map<string, ItemDef>
-  spells: Map<string, unknown>
   adversaries: Map<string, unknown>
   quests: Map<string, unknown>
   /** Recipes keyed by the item they craft (design §3.1: one recipe per item). */
   recipes: Map<string, RecipeDef>
+  /** Keyed by school name — see `NamedEntityKind`. */
+  spells: Map<string, SpellSchoolDef>
+  /** Keyed by category name ("Agility Skills"). */
+  skills: Map<string, SkillCategoryDef>
+  /** The icon/trait glossary, keyed by trait name ("Sharp", "Cleave"). */
+  abilities: Map<string, AbilityDef>
+  /** The Item Notes appendix, keyed by entry name. */
+  itemLore: Map<string, ItemLoreDef>
+  /**
+   * Quest-difficulty bands, last pack to supply a non-empty table wins. Empty
+   * when no loaded pack ships one — `rules/difficulty.ts` carries its own
+   * transcription and does not depend on this.
+   */
+  difficultyTable: DifficultyBandDef[]
   /** `"<entity>:<id>"` → id of the pack the winning definition came from. */
   provenance: Map<string, string>
 }
@@ -63,15 +105,19 @@ export interface LoadResult {
   issues: LoadIssue[]
 }
 
-const ENTITY_KINDS: EntityKind[] = [
+/** Entities merged by `id`. `recipes` is keyed by `itemId` and handled separately. */
+const ID_ENTITY_KINDS: EntityKind[] = [
   'craftingResources',
   'adventurers',
   'classes',
+  'companions',
   'items',
-  'spells',
   'adversaries',
   'quests',
 ]
+
+/** Entities merged by `name` — see `NamedEntityKind`. */
+const NAMED_ENTITY_KINDS: NamedEntityKind[] = ['spells', 'skills', 'abilities', 'itemLore']
 
 function emptyLibrary(): ContentLibrary {
   return {
@@ -79,11 +125,16 @@ function emptyLibrary(): ContentLibrary {
     craftingResources: new Map(),
     adventurers: new Map(),
     classes: new Map(),
+    companions: new Map(),
     items: new Map(),
-    spells: new Map(),
     adversaries: new Map(),
     quests: new Map(),
     recipes: new Map(),
+    spells: new Map(),
+    skills: new Map(),
+    abilities: new Map(),
+    itemLore: new Map(),
+    difficultyTable: [],
     provenance: new Map(),
   }
 }
@@ -156,10 +207,10 @@ export function loadPacks(raws: Record<string, unknown>): LoadResult {
       schemaVersion: pack.schemaVersion,
     })
 
-    for (const entity of ENTITY_KINDS) {
+    const merge = (entity: EntityKind, defs: unknown[], keyOf: (def: unknown) => string) => {
       const index = library[entity] as Map<string, unknown>
-      for (const def of pack[entity]) {
-        const id = (def as { id: string }).id
+      for (const def of defs) {
+        const id = keyOf(def)
         const key = `${entity}:${id}`
         const previousPackId = library.provenance.get(key)
         if (previousPackId !== undefined) {
@@ -175,6 +226,20 @@ export function loadPacks(raws: Record<string, unknown>): LoadResult {
         index.set(id, def)
         library.provenance.set(key, pack.id)
       }
+    }
+
+    for (const entity of ID_ENTITY_KINDS) {
+      merge(entity, pack[entity], (def) => (def as { id: string }).id)
+    }
+    for (const entity of NAMED_ENTITY_KINDS) {
+      merge(entity, pack[entity], (def) => (def as { name: string }).name)
+    }
+
+    // Not merged per-row: the table is one indivisible transcription, so a pack
+    // that ships one replaces it wholesale rather than interleaving bands.
+    if (pack.difficultyTable.length > 0) {
+      library.difficultyTable = pack.difficultyTable
+      library.provenance.set('difficultyTable:*', pack.id)
     }
 
     for (const recipe of pack.recipes) {
