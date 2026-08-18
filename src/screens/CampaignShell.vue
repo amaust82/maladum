@@ -1,8 +1,7 @@
 <script setup lang="ts">
 /**
  * The open-campaign frame: header, content-compatibility banner, and the bottom
- * tab bar from design.md §5. Only the Log tab is still a placeholder — they are shown disabled rather than hidden so the shape of the
- * finished app is visible.
+ * tab bar from design.md §5. All five tabs are live.
  */
 import { onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
@@ -21,7 +20,7 @@ const tabs = [
   { label: 'Party', to: 'party', enabled: true },
   { label: 'Camp', to: 'camp', enabled: true },
   { label: 'Play', to: 'play', enabled: true },
-  { label: 'Log', to: 'log', enabled: false },
+  { label: 'Log', to: 'log', enabled: true },
   { label: 'Rules', to: 'rules', enabled: true },
 ]
 

@@ -31,6 +31,8 @@ export const useCampaignStore = defineStore('campaigns', () => {
 
   /** Non-reactive by design: the event store mutates internally and we re-read it. */
   const eventStore = shallowRef<EventStore<CampaignState, CampaignEvent> | null>(null)
+  /** The open campaign's committed event log, oldest first — the Log tab's source. */
+  const log = ref<CampaignEvent[]>([])
   const state = ref<CampaignState>(emptyCampaign())
   const manifestIssues = ref<ManifestIssue[]>([])
   const activeId = ref<string | null>(null)
@@ -78,12 +80,14 @@ export const useCampaignStore = defineStore('campaigns', () => {
     eventStore.value = opened.store
     manifestIssues.value = opened.manifestIssues
     state.value = opened.store.state
+    log.value = opened.store.getEvents()
     activeId.value = id
   }
 
   function close(): void {
     eventStore.value = null
     state.value = emptyCampaign()
+    log.value = []
     manifestIssues.value = []
     activeId.value = null
   }
@@ -94,6 +98,10 @@ export const useCampaignStore = defineStore('campaigns', () => {
     state.value = await service.commit(activeId.value, events)
     // Keep the in-memory store (and its undo stack) in step with what was persisted.
     for (const event of events) eventStore.value?.append(event)
+    // `eventStore` is a shallowRef and `append` mutates it in place, so the log is
+    // republished explicitly rather than read through a computed that would never
+    // re-evaluate. The Log tab renders from this.
+    log.value = eventStore.value?.getEvents() ?? []
     await refresh()
   }
 
@@ -123,6 +131,7 @@ export const useCampaignStore = defineStore('campaigns', () => {
     activeId,
     manifestIssues,
     compatible,
+    log,
     refresh,
     create,
     duplicate,

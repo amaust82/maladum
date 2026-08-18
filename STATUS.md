@@ -5,6 +5,12 @@ project back up, then `docs/design.md` for the actual design (it stays the sourc
 truth). Keep the Status and Next-actions sections current as work lands — they're what
 makes a dropped session cheap to resume.
 
+**Branches:** `staging` is the working branch and auto-deploys to
+https://stage-maladum.bgbutler.com; `main` is production
+(https://maladum.bgbutler.com). Work lands on `staging` first and is merged to `main`
+when it's been looked at. Both are push-to-deploy — see the Cloudflare Pages notes in
+`docs/` and the deploy memory.
+
 **Keeping it current is enforced**, not remembered: `.githooks/pre-commit` rejects a
 commit that touches `src/` or `content/` without also touching this file. Arm it once per
 clone with `git config core.hooksPath .githooks` (also listed in `README.md`); bypass a
@@ -15,7 +21,7 @@ genuine exception — a formatting sweep, a revert — with `git commit --no-ver
 
 **Phase 0 is complete; Phase 1 is under way.** Campaign management, the party builder
 and the Rules reference are in. `npm run build` is clean and `npm test` is green:
-**437 tests across 28 files**.
+**457 tests across 30 files**.
 
 **Board transcription is DONE.** All 45 boards — 25 Class, 20 Adventurer — are transcribed
 from the physical components, with **zero `_placeholder` flags anywhere in the dataset**.
@@ -53,14 +59,15 @@ first, then "Next actions" at the bottom.
 | Content pack manifest recorded in saves + compatibility report | done | `src/content/manifest.ts` |
 | Party builder — boards, default XP fill, Guilder validation | done | `src/rules/partyBuilder.ts`, `src/services/partyService.ts`, `src/screens/PartyBuilder.vue` |
 | Incomplete-content model (how the app surfaces unverified data) | done | `src/content/readiness.ts`, `src/components/ReadinessBadge.vue` |
-| Routing + tab shell (only Log still stubbed) | done | `src/router.ts`, `src/screens/CampaignShell.vue` |
+| Routing + tab shell — all five tabs live | done | `src/router.ts`, `src/screens/CampaignShell.vue` |
 | Rules reference — searchable traits/skills/spells/equipment | done | `src/content/reference.ts`, `src/screens/RulesReference.vue` |
 | Physical Class board availability (warning) | done | `src/rules/boardAvailability.ts` |
 | Character sheet | done | `src/rules/characterSheet.ts`, `src/screens/CharacterSheet.vue` |
 | Companions & Apprentices | not started | — |
 | Campaign Phase wizard (Escape → Advancement → Market → Rest) | done | `src/rules/campaignPhase.ts`, `src/screens/CampaignPhase.vue` |
 | Base Camp (Camp tab) | done | `src/rules/baseCamp.ts`, `src/screens/BaseCamp.vue` |
-| Side Quest tracker, Quest log, Pouch ledger | not started | — |
+| Quest log (Log tab) — chronicle + Markdown export | done | `src/rules/chronicle.ts`, `src/screens/CampaignLog.vue` |
+| Side Quest tracker, Pouch ledger | not started | — |
 
 ## The content pack got real (schemaVersion 2)
 
@@ -484,6 +491,38 @@ it summed character and Class marks with no ceiling. Fixed and tested there too.
 noting the pattern: the rule lives on p.32 under "Duplicate Skills", nowhere near the
 skill rules on p.80, which is presumably why both call sites missed it.
 
+### Campaign log (done) — the Log tab, and the last stubbed tab
+
+A reverse-chronological chronicle generated from the raw event log, filterable by
+Adventurer, exportable as Markdown. **All five tabs are now live.**
+
+This is the screen the event-sourced store was chosen for (design §2.3): "why does Syrio
+have 4 Health?" is answerable by scrolling, and the party's saga falls out of the same data
+the projection is built from, with no second model to keep in step.
+
+Three decisions worth knowing:
+
+- **Names come from the log, not the content packs.** `ADVENTURER_ADDED` carries its own
+  `displayName`, so a campaign whose packs are missing or have moved on still reads
+  properly. Item names take a resolver and fall back to the raw id.
+- **Order is log position, not timestamps.** Only a few events carry an `at` (the per-row
+  insert time isn't loaded back by `loadEvents`), so entries sequence by position — which
+  is chronological by construction — and a date shows only where the event has one. Cheap
+  and honest; changing the repository to keep row timestamps would be the alternative.
+- **Unknown event types are rendered, not dropped.** A future event nobody has written a
+  sentence for still appears, labelled with its type, and a test walks the whole union to
+  catch that before a player would. A log that silently omits things is worse than one
+  that reads awkwardly.
+
+**Markdown export doubles as the plain-text escape hatch** the insurance framing asked
+for: if the app is the only surviving copy of a wiped board, this is what you can paste,
+print or keep somewhere the app isn't.
+
+One store change to note: `useCampaignStore` now publishes `log`. The event store is a
+`shallowRef` and `append` mutates it in place, so a computed reading `getEvents()` would
+never re-evaluate — the log is republished explicitly on open and commit, and a test
+covers exactly that.
+
 ### Known soft spots (be aware, not blocking)
 
 - **Unresolved `[icon: …]` markers** in spell/skill/ability text — a double-digit count,
@@ -622,20 +661,21 @@ Open implementation decisions (genuine calls, not oversights):
 
 ## Next actions
 
-Phase 1 is essentially complete. What's left, ordered by the between-sessions framing:
+**Phase 1 is complete.** Every screen design §4 called for is in, and all five tabs are
+live. What's left is either polish or Phase 2.
 
-1. **Quest log (Log tab)** — the last stubbed tab, and cheap now: `PartyState.quests` is
-   already being written by the wizard, so this is presentation over data that exists.
-2. **A readable/printable party sheet** — the restore path when the app is the only
-   surviving copy. Promoted by the insurance framing.
-3. **Companions & Apprentices** (design §3) — modelled in the domain but with no screen or
-   content beyond names and costs.
-4. **Side Quest tracker and Pouch ledger** — the remaining Phase 1 items from design §4.
+1. **Play a real campaign with it.** Genuinely the highest-value next step — the app now
+   covers a full loop end to end, and one session will surface more than another read of
+   the rulebook. Everything below is speculative until that happens.
+2. **Companions & Apprentices** (design §3) — modelled in the domain, no screen, and
+   content is names + costs only.
+3. **Side Quest tracker and Pouch ledger** — the last two Phase 1 items from design §4,
+   both blocked on content that doesn't exist yet (no Side Quest or quest seed data).
+4. **Phase 2 in-game helpers** — quest setup, Dread band lookup, Renown spending. Lower
+   priority under the between-sessions framing (Adam, 2026-08-19).
 
-Two smaller things left deliberately undone, so they don't get mistaken for oversights:
+One smaller thing left deliberately undone, so it isn't mistaken for an oversight:
 
-- The Log tab renders disabled in `CampaignShell.vue`. That's on purpose — the finished
-  shape is visible without pretending the screen exists.
 - `campaignService.commit()` re-reads the whole log to refresh the picker row. Correct and
   cheap at campaign scale; if it ever isn't, the snapshotting in `eventStore.ts` is the
   answer, not a hand-maintained cache.

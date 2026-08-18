@@ -1,7 +1,6 @@
 /**
- * Routes (design.md §5). Home, Party (roster + builder + character sheet), Camp and the
- * Rules reference exist; Play and Log land with their phases and are stubbed in
- * `CampaignShell`.
+ * Routes (design.md §5). All five tabs exist: Party (roster + builder + character
+ * sheet), Play (the after-game wizard), Camp, Log and the Rules reference.
  *
  * Hash history, because the PWA is served as static files and deep links have to
  * survive a hard refresh with no server rewrite rules.
@@ -49,6 +48,12 @@ const routes: RouteRecordRaw[] = [
         path: 'adventurer/:advId',
         name: 'character-sheet',
         component: () => import('./screens/CharacterSheet.vue'),
+        props: true,
+      },
+      {
+        path: 'log',
+        name: 'log',
+        component: () => import('./screens/CampaignLog.vue'),
         props: true,
       },
       {
