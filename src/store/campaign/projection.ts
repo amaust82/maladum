@@ -7,7 +7,15 @@
  */
 
 import type { PackRef } from '../../content/manifest'
-import type { CampaignEvent, Id, ItemRef } from './events'
+import type { CampaignEvent, Id, ItemRef, LevellableStat } from './events'
+
+/** Marks against one skill, kept per board because the two are capped differently (p.80). */
+export interface SkillMarks {
+  /** Character-board marks — exempt from the rank cap and stacking on top of `class`. */
+  character: number
+  /** Class-board marks — may not exceed the Adventurer's rank. */
+  class: number
+}
 
 export interface AdventurerState {
   id: Id
@@ -16,6 +24,22 @@ export interface AdventurerState {
   displayName: string
   xpFilled: number
   inventory: ItemRef[]
+  /** Skill name → marks per board. Absent key means no marks on either board. */
+  skillMarks: Record<string, SkillMarks>
+  /**
+   * Spells marked on the spell track. Board-granted spells are deliberately NOT here —
+   * they're a function of the character and Class boards, so storing them would
+   * duplicate the content pack and could drift from it. The sheet merges the two.
+   */
+  spells: string[]
+  /** Permanent increases above the board's default fill, from levelling (p.81). */
+  statIncreases: Partial<Record<LevellableStat, number>>
+  /**
+   * Rank as recorded by the player, for boards whose Experience row layout isn't
+   * transcribed. `null` means "derive it" — which currently isn't possible for any
+   * board, see `AdventurerDef.xpRows`.
+   */
+  rank: number | null
 }
 
 export interface PartyState {
@@ -128,6 +152,10 @@ export function campaignReducer(state: CampaignState, event: CampaignEvent): Cam
               displayName: event.displayName,
               xpFilled: event.startingXp ?? 0,
               inventory: [],
+              skillMarks: {},
+              spells: [],
+              statIncreases: {},
+              rank: null,
             },
           ],
         }
@@ -158,6 +186,47 @@ export function campaignReducer(state: CampaignState, event: CampaignEvent): Cam
       return updateAdventurer(state, event.advId, (a) => ({
         ...a,
         inventory: [...a.inventory, event.item],
+      }))
+
+    case 'XP_SET':
+      return updateAdventurer(state, event.advId, (a) => ({
+        ...a,
+        xpFilled: Math.max(0, event.filled),
+      }))
+
+    case 'SKILL_MARKS_SET':
+      return updateAdventurer(state, event.advId, (a) => {
+        const current = a.skillMarks[event.skill] ?? { character: 0, class: 0 }
+        const next = { ...current, [event.source]: Math.max(0, event.marks) }
+        const skillMarks = { ...a.skillMarks, [event.skill]: next }
+        // Drop the key entirely when nothing is marked, so an untouched skill doesn't
+        // linger in the save as a row of zeroes.
+        if (next.character === 0 && next.class === 0) delete skillMarks[event.skill]
+        return { ...a, skillMarks }
+      })
+
+    case 'SPELL_LEARNED':
+      return updateAdventurer(state, event.advId, (a) =>
+        a.spells.includes(event.spell) ? a : { ...a, spells: [...a.spells, event.spell] },
+      )
+
+    case 'SPELL_UNLEARNED':
+      return updateAdventurer(state, event.advId, (a) => ({
+        ...a,
+        spells: a.spells.filter((s) => s !== event.spell),
+      }))
+
+    case 'STAT_INCREASE_SET':
+      return updateAdventurer(state, event.advId, (a) => {
+        const statIncreases = { ...a.statIncreases, [event.stat]: Math.max(0, event.increase) }
+        if (statIncreases[event.stat] === 0) delete statIncreases[event.stat]
+        return { ...a, statIncreases }
+      })
+
+    case 'RANK_SET':
+      return updateAdventurer(state, event.advId, (a) => ({
+        ...a,
+        rank: event.rank === null ? null : Math.max(1, event.rank),
       }))
 
     default: {

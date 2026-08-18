@@ -21,6 +21,16 @@ export interface ItemRef {
 }
 
 export type XpReason = 'survived' | 'escaped' | 'objective' | 'feat' | 'other'
+
+/**
+ * Which board a skill mark sits on. The distinction is load-bearing: Class-board marks
+ * are capped at the character's rank, character-board marks are not and stack on top
+ * (p.80) — so they can never be summed into a single number.
+ */
+export type SkillSource = 'character' | 'class'
+
+/** Statistics that levelling can raise (p.81). Experience is the track, not a target. */
+export type LevellableStat = 'health' | 'skill' | 'magic' | 'actions'
 export type AcquireVia = 'found' | 'bought' | 'reward' | 'crafted'
 
 export type CampaignEvent =
@@ -66,5 +76,24 @@ export type CampaignEvent =
   | { t: 'STASH_CHANGED'; partyId: Id; amount: number; reason?: string }
   | { t: 'XP_GAINED'; advId: Id; amount: number; reason: XpReason }
   | { t: 'ITEM_ACQUIRED'; advId: Id; item: ItemRef; via: AcquireVia }
+  /**
+   * The character sheet's free-edit events (design §5, Character sheet).
+   *
+   * These are `SET`, not deltas, on purpose. The app's job is to be a durable copy of
+   * a dry-wipe board that really does get wiped between sessions, so its primary write
+   * is "here is what the board says", not "here is what changed". A player restoring a
+   * board mid-campaign types the current marks; they can't replay six quests of deltas.
+   * `XP_GAINED` stays for the Advancement Phase, where a delta is the honest description.
+   */
+  | { t: 'XP_SET'; advId: Id; filled: number; note?: string }
+  /** Marks against one skill from one board. Sources stack and are capped separately (p.80). */
+  | { t: 'SKILL_MARKS_SET'; advId: Id; skill: string; source: SkillSource; marks: number }
+  /** Spells the Adventurer has marked on their spell track — board grants are NOT stored. */
+  | { t: 'SPELL_LEARNED'; advId: Id; spell: string }
+  | { t: 'SPELL_UNLEARNED'; advId: Id; spell: string }
+  /** Permanent stat increases from levelling (p.81), above the board's default fill. */
+  | { t: 'STAT_INCREASE_SET'; advId: Id; stat: LevellableStat; increase: number }
+  /** Rank typed in directly, for boards whose Experience row layout isn't transcribed. */
+  | { t: 'RANK_SET'; advId: Id; rank: number | null }
 
 export type CampaignEventType = CampaignEvent['t']

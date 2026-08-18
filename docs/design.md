@@ -610,15 +610,18 @@ interface Adventurer {
   rank: number;                 // derived: rows with ≥1 filled space
   // SkillId is the skill's *name* ("Acrobatics") — the reference sections carry no
   // ids and the Class boards name skills the same way. See §2.4.
+  // Both numbers are stored and MUST NOT be summed into one: Class marks are capped at
+  // rank, character-board marks are exempt and stack on top "even if the total exceeds
+  // your character's rank" (p.80). Only the caps are derivable, not the marks.
   skills:  Record<SkillId, { charBoard: number; classBoard: number }>;
+  // RESOLVED (character sheet, 2026-08-19): `spells` holds ONLY spells the player
+  // marked on the spell track. Board grants — `ClassDef.grantedSpells` and character
+  // `boardGrants` — are a pure function of characterId/classId, so they are derived at
+  // display time, never stored: storing them would duplicate the pack and could drift
+  // from it after a transcription fix. The `source` flag lives in the view model.
+  // Spell names are globally unique across all four schools, so a name is a valid key.
   spells:  SpellId[];
   spellTrackFilled: number;
-  // GAP, input for the character sheet: nothing here represents what the Class board
-  // *grants* — `grantedSpells`, `statBonuses`, `spellSlots` (§2.4). Those are board
-  // facts, so they're read from the content pack rather than stored per-Adventurer;
-  // what's undecided is whether a granted spell also lands in `spells[]` (simpler to
-  // render, but then the log can't tell "granted by the board" from "learned with XP")
-  // or stays derived at display time. Decide when the character sheet needs it.
 
   inventory: ItemRef[];         // size-limited, mirrors the physical tray
   armourSlots: (ItemRef | null)[];

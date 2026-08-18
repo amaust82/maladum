@@ -96,6 +96,17 @@ export const AdventurerDef = z.looseObject({
    * name+cost and a `null` stat block rather than invented numbers.
    */
   stats: StatKeys.nullable().optional(),
+  /**
+   * Spaces in each Experience row, in order — e.g. `[3, 4, 4, 3, 2]` for a 16-space
+   * track. **Rank is the number of rows with at least one space filled** (p.80), so
+   * without this the app cannot derive rank at all; `stats.xp.max` only gives the total.
+   *
+   * Row sizes and row *counts* both vary per board — p.81: "some Adventurers do not have
+   * all five ranks". Not transcribed yet, so it is `undefined` everywhere and the
+   * character sheet asks the player for their rank instead of deriving it. Transcribing
+   * it is ~20 boards × a handful of numbers, and closes the last derived-value gap.
+   */
+  xpRows: z.array(z.number()).nullable().optional(),
   /** Superseded by `boardGrants` entries of type `ability`; see `ClassDef.innateAbility`. */
   innateAbilities: z.array(z.string()).optional(),
   armourSlots: z.number().nullable().optional(),

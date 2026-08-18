@@ -15,7 +15,7 @@ genuine exception — a formatting sweep, a revert — with `git commit --no-ver
 
 **Phase 0 is complete; Phase 1 is under way.** Campaign management, the party builder
 and the Rules reference are in. `npm run build` is clean and `npm test` is green:
-**338 tests across 22 files**.
+**368 tests across 24 files**.
 
 **Board transcription is DONE.** All 45 boards — 25 Class, 20 Adventurer — are transcribed
 from the physical components, with **zero `_placeholder` flags anywhere in the dataset**.
@@ -56,7 +56,7 @@ first, then "Next actions" at the bottom.
 | Routing + tab shell (Party + Rules live, other three stubbed) | done | `src/router.ts`, `src/screens/CampaignShell.vue` |
 | Rules reference — searchable traits/skills/spells/equipment | done | `src/content/reference.ts`, `src/screens/RulesReference.vue` |
 | Physical Class board availability (warning) | done | `src/rules/boardAvailability.ts` |
-| Character sheet | not started | — |
+| Character sheet | done | `src/rules/characterSheet.ts`, `src/screens/CharacterSheet.vue` |
 | Companions & Apprentices | not started | — |
 | Campaign Phase wizard (Escape → Advancement → Market → Rest) | not started | — |
 | Base Camp, Side Quest tracker, Quest log, Pouch ledger | not started | — |
@@ -312,6 +312,70 @@ parties. It's now `MAX_QUEST_ROSTER`, the fifth Adventurer is allowed, and going
 is a warning that names why. Choosing who actually goes on a quest belongs to the Play tab,
 not party creation.
 
+### The app's real job: surviving a wiped board (2026-08-19)
+
+Adam's framing, and it reorders the roadmap: *"Everything can be saved on the boards, but
+the dry erase can wipe off between sessions. So having the app record between is where the
+real value is, not during."*
+
+So the app is **insurance against a wiped dashboard**, not an in-play assistant. That gives
+the character sheet a testable acceptance bar, better than any feature list:
+
+> Could you reconstruct every mark on a wiped dashboard from the app alone?
+
+Consequences already applied:
+
+- **Every mark is directly editable, always** (Adam's call). Restoring a board mid-campaign
+  means typing what was there — you can't replay six quests of deltas. Sheet edits commit
+  `*_SET` events; `XP_GAINED` stays for the Advancement Phase, where a delta is honest.
+- **Getting data out matters more than it did.** Export/import and the log exist, but a
+  readable/printable party sheet is now a first-class feature rather than a nicety — it's
+  the "restore my board" path. Not built.
+- Phase 2's in-play helpers and Phase 3's NPC AI **drop in priority**. Design §4 already
+  cut the live round/peg trackers on this same principle, so nothing in the design
+  contradicts it — only the ordering changes.
+
+### Character sheet (done)
+
+`rules/characterSheet.ts` composes board data + recorded marks into the sheet;
+`screens/CharacterSheet.vue` is presentation, reached from a name on the Party roster.
+
+**Spells and skills are modelled differently, deliberately** — this was the design question
+that opened the work:
+
+- **Spells: store only what the player marked.** A spell reaches an Adventurer three ways —
+  Class board grant, character board grant, or marked on the spell track. The first two are
+  a pure function of `characterId`/`classId`, so storing them would duplicate the pack and
+  could drift from it after a transcription fix. Stored state is a plain `string[]` of
+  chosen names (all 72 spell names are globally unique, so a name *is* the key); the
+  `source` flag is computed at render, not persisted. Two arrays would have the same
+  problem — one of them would be a cache of the pack.
+- **Skills: store both boards separately.** `Record<skillName, { character, class }>`.
+  Neither number is derivable, and they must never be summed: Class marks are capped at
+  rank, character-board marks are exempt and stack on top "even if the total exceeds your
+  character's rank" (p.80). The screen shows two inputs per skill for exactly this reason.
+
+Checks the sheet performs, all warnings rather than blocks: Class marks over rank or over
+the board's printed cap, character marks over the board's cap, a *learned* spell above rank
+(a board-granted one isn't a breach), a stat above its potential, and the
+Experience/marks invariant below.
+
+**The Experience invariant is the useful one for restores.** p.80: earning 1 Experience
+fills one track space *and* buys one Skill or Spell mark. So marks total should equal
+`xpFilled`, and a mismatch is the cheapest way to catch a half-entered restore.
+
+### Content gap found: Experience row layout (`xpRows`)
+
+**Rank is not currently derivable.** p.80 defines rank as "the number of rows with at least
+one space filled", and the transcription captured only `xp.default` and total `xp.max` —
+not the row sizes. p.81 adds that row *counts* vary too: "some Adventurers do not have all
+five ranks".
+
+Rank gates Class-skill caps, spell levels, upkeep and party value, so this is the last
+load-bearing derived value the app can't compute. `AdventurerDef.xpRows` is defined and
+waiting; until it's filled the sheet asks the player to read rank off the board and says
+why. It's ~20 boards × a handful of numbers.
+
 ### Known soft spots (be aware, not blocking)
 
 - **Unresolved `[icon: …]` markers** in spell/skill/ability text — a double-digit count,
@@ -424,7 +488,9 @@ that wasn't in the source and wasn't invented. Crafted stubs have `name`/`type`/
 
 Content gaps:
 
-1. **Expansion ownership** — boards carry an `expansion` tag, but nothing lets a player say
+1. **`xpRows`** — Experience row layout per Adventurer board, the last thing blocking a
+   derived rank. See "Content gap found" above.
+2. **Expansion ownership** — boards carry an `expansion` tag, but nothing lets a player say
    which expansions they own, so all bundled content loads for everyone. Low priority
    (Adam, 2026-08-19).
 2. **Board data is complete**, so nothing else is outstanding on that front. What remains
@@ -445,40 +511,23 @@ Open implementation decisions (genuine calls, not oversights):
 
 ## Next actions
 
-Phase 1 continues (design.md §4), in this order:
+Phase 1 continues (design.md §4). Reordered around the between-sessions framing above:
 
-1. **Character sheet** — stats as the physical wax-seal rows (filled vs. potential), XP
-   track grid with the level-up reward inline, Class skill tree greyed above the rank cap,
-   spell list, inventory with size accounting, armour slots. `src/rules/advancement.ts`
-   already computes rank, caps and level-up eligibility, and the Rules tab's reference
-   index (`content/reference.ts`) is the source for the skill/spell text it displays. It
-   needs the projection extended beyond `xpFilled`/`inventory` — grow
-   `CampaignState.AdventurerState` and the event union together, as
-   `src/store/campaign/events.ts` says.
-
-   **The Class board transcription changes the shape of this task.** The skill tree is now
-   the best-supported part of the screen, not the worst: each board supplies its skill
-   wheel with a real `levelCap` per slot, so "greyed above the rank cap" is a genuine
-   computation against real data rather than a mock. Same for the spell list —
-   `grantedSpells` names actual transcribed spells with full rules text behind them.
-
-   The Adventurer side is now real too: `stats` gives the wax-seal rows their filled and
-   potential marks, and `boardGrants` supplies what the character board itself grants —
-   which **stacks on the Class wheel and is exempt from the rank cap** (p.80), so the two
-   sources have to be rendered as distinct things, not summed into one number. Every board
-   is transcribed, so the sheet can rely on `stats` being present — but it should still
-   read `readiness.ts` rather than assume, since a correction can reopen a gap at any time
-   and the whole point of the grading model is that screens don't hard-code today's state.
-
-   One design decision to settle when this starts (recorded in design.md §3): does a
-   board-granted spell land in the Adventurer's `spells[]`, or stay derived at display
-   time? Storing it is simpler to render but costs the log the ability to distinguish
-   "granted by the board" from "learned with XP".
-2. **Base Camp (Camp tab)** — Stash, Renown track, storage, notes. Small, and it unblocks
-   the Market step of the wizard. The 273-item price list is real now, so a Market screen
-   has something to sell.
-3. **Campaign Phase wizard** (Escape → Advancement → Market → Rest) — the rules engine has
-   every calculation; this is the four-step flow over the top.
+1. **Base Camp (Camp tab)** — Stash, Renown track, Storage, campaign notes. All four are
+   dry-wipe and all four are lost when a board is wiped, so they belong in the durable
+   record for the same reason the character sheet does. Small, and it has a hook waiting:
+   the party builder already computes an opening Stash from unspent budget with nowhere to
+   put it.
+2. **Inventory and armour slots on the character sheet** — the one part of a dashboard the
+   sheet doesn't yet record, so the "reconstruct a wiped board" bar isn't fully met.
+   Needs item size accounting against the board's `armourSlots`, and the 273-item price
+   list is ready for it.
+3. **Campaign Phase wizard** (Escape → Advancement → Market → Rest) — the after-game loop
+   that mutates everything above. The rules engine has every calculation; this is the
+   four-step flow over the top. Advancement is largely the character sheet with a
+   "spend XP" flow, so it gets cheaper now rather than more expensive.
+4. **A readable/printable party sheet** — promoted by the insurance framing: it's the
+   restore path when the app is the only surviving copy.
 
 Two smaller things left deliberately undone, so they don't get mistaken for oversights:
 

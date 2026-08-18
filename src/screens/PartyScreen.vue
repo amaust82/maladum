@@ -1,8 +1,8 @@
 <script setup lang="ts">
 /**
- * Party tab (design.md §5) — for now, the roster the party builder produced.
- * Adventurer cards get their full sheet in the next Phase 1 item; this shows the
- * facts the projection actually holds today rather than mocking up the rest.
+ * Party tab (design.md §5) — the roster the party builder produced. Each name links
+ * through to that Adventurer's character sheet, which is where the durable record of
+ * their board lives.
  */
 import { computed } from 'vue'
 import { useCampaignStore } from '../stores/campaigns'
@@ -62,7 +62,12 @@ const roster = computed(() =>
           class="rounded border border-neutral-800 bg-neutral-900/60 p-3"
         >
           <div class="flex items-baseline justify-between gap-2">
-            <span class="font-medium">{{ m.displayName }}</span>
+            <RouterLink
+              :to="`/c/${campaignId}/adventurer/${m.id}`"
+              class="font-medium hover:underline"
+            >
+              {{ m.displayName }}
+            </RouterLink>
             <span class="text-xs opacity-60">
               XP {{ m.xpFilled }}<template v-if="m.maxXp">/{{ m.maxXp }}</template>
             </span>

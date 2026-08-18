@@ -34,6 +34,12 @@ const routes: RouteRecordRaw[] = [
         props: true,
       },
       {
+        path: 'adventurer/:advId',
+        name: 'character-sheet',
+        component: () => import('./screens/CharacterSheet.vue'),
+        props: true,
+      },
+      {
         path: 'rules',
         name: 'rules',
         component: () => import('./screens/RulesReference.vue'),

@@ -16,6 +16,8 @@ const ItemRef = z.object({
 
 const XpReason = z.enum(['survived', 'escaped', 'objective', 'feat', 'other'])
 const AcquireVia = z.enum(['found', 'bought', 'reward', 'crafted'])
+const SkillSource = z.enum(['character', 'class'])
+const LevellableStat = z.enum(['health', 'skill', 'magic', 'actions'])
 /** Mirrors `PackRef` in content/manifest.ts — the manifest a save records (§2.4). */
 const ContentPackRef = z.object({
   id: z.string(),
@@ -78,6 +80,28 @@ export const CampaignEventSchema = z.discriminatedUnion('t', [
     item: ItemRef,
     via: AcquireVia,
   }),
+  z.object({
+    t: z.literal('XP_SET'),
+    advId: z.string(),
+    filled: z.number(),
+    note: z.string().optional(),
+  }),
+  z.object({
+    t: z.literal('SKILL_MARKS_SET'),
+    advId: z.string(),
+    skill: z.string(),
+    source: SkillSource,
+    marks: z.number(),
+  }),
+  z.object({ t: z.literal('SPELL_LEARNED'), advId: z.string(), spell: z.string() }),
+  z.object({ t: z.literal('SPELL_UNLEARNED'), advId: z.string(), spell: z.string() }),
+  z.object({
+    t: z.literal('STAT_INCREASE_SET'),
+    advId: z.string(),
+    stat: LevellableStat,
+    increase: z.number(),
+  }),
+  z.object({ t: z.literal('RANK_SET'), advId: z.string(), rank: z.number().nullable() }),
 ])
 
 // Compile-time guarantee that the schema output stays assignable to the TS union.
