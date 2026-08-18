@@ -506,7 +506,7 @@ from a bought item's.
 
 ### Phase 0 — Foundation (no user-visible features)
 
-- Vite + React + TS + Tailwind scaffold, PWA manifest, dark theme
+- Vite + Vue 3 + TS + Tailwind scaffold, PWA manifest, dark theme
 - Content pack schema + Zod validators + core pack loader
 - Event store, projection engine, snapshotting, undo stack
 - Dexie schema + export/import to a single JSON file
