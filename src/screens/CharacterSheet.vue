@@ -240,6 +240,13 @@ const sourceLabel: Record<string, string> = {
               />
               <span v-else class="opacity-30">—</span>
               <span v-if="row.characterCap" class="ml-1 opacity-40">/{{ row.characterCap }}</span>
+              <span
+                v-if="row.granted > row.marks.character"
+                class="ml-1 text-amber-300"
+                :title="`The board prints this starting at ${row.granted} — check it isn't stuck at a lower value`"
+              >
+                (board default: {{ row.granted }})
+              </span>
             </td>
             <td>
               <input

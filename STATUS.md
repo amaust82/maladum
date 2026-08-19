@@ -26,11 +26,28 @@ clone with `git config core.hooksPath .githooks` (also listed in `README.md`); b
 genuine exception — a formatting sweep, a revert — with `git commit --no-verify`.
 `CLAUDE.md` states the same rule for agent sessions.
 
-## Status — updated 2026-08-19 (party-owned gear between missions)
+## Status — updated 2026-08-19 (bug: board-default skill marks weren't seeded)
 
 **Phase 0 is complete; Phase 1 is under way.** Campaign management, the party builder
 and the Rules reference are in. `npm run build` is clean and `npm test` is green:
-**496 tests across 35 files**.
+**497 tests across 35 files**.
+
+**Bug found mid-session (Adam, live at the table): 18 of 20 boards print a skill with
+marks already filled in, and new Adventurers started at 0 anyway.** Real examples —
+Grogmar's Quick Recovery starts at 1/2 on the physical board, Artain's Entertainer at
+2/2. The data was already correctly transcribed (`AdventurerDef.boardGrants[].default`)
+and `grantedSkillMarks()` in `src/rules/characterSheet.ts` even computed it — but
+nothing ever seeded it into `skillMarks`, and nothing in the UI showed the gap either.
+27 skill grants across 18 boards were affected.
+
+Fixed two ways: `partyCreationEvents()` (`src/services/partyService.ts`) now emits a
+`SKILL_MARKS_SET` event per board-granted skill at party creation, the same way
+`startingXp` is already seeded — so **new** parties get it right automatically. The
+Character Sheet also now shows "(board default: N)" next to a Character-column count
+that's below what the board grants, so the gap is visible even if content or code
+drifts again later. **Existing campaigns aren't retroactively fixed** — the Character
+mark is directly editable, so correcting an already-created Adventurer is a manual
+type-it-in, same as restoring any other wiped-board value.
 
 **Gear can now move between an Adventurer's inventory and the party as a whole.**
 Adam's call, and explicitly **not a transcribed rule** — the rulebook confirms
@@ -727,6 +744,16 @@ Content gaps:
 3. **Adversaries, quests and Side Quests have zero seed content** (`adversaries: []`,
    `quests: []`). Not blocking Phase 1.
 4. **Companion abilities** — names and costs only; the ability text is on the boards.
+5. **`ClassDef.spellSchools` is untranscribed for every one of the 25 classes** (empty
+   or `undefined` everywhere) — flagged by Adam, 2026-08-19, not yet spot-checked
+   against the rulebook. Two rules ride on it: (a) each Class can only learn from
+   specific spell schools, so the "learn a spell" picker on the Character Sheet
+   currently offers every spell in every school rather than the ones that Class
+   actually has access to; (b) at character creation, a spell up to **level 3 can be
+   learned regardless of rank** — not modelled at all right now (the picker has no
+   level gate of any kind). Earmarked, not built. Once `spellSchools` is transcribed,
+   the picker's candidate list shrinks to the owning Class's schools, which was the
+   point Adam raised — the full cross-school list was never actually necessary.
 
 Open implementation decisions (genuine calls, not oversights):
 

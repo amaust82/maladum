@@ -157,6 +157,50 @@ describe('partyCreationEvents', () => {
     expect(added).not.toHaveProperty('startingXp')
     expect(added).toMatchObject({ characterId: 'ghost' })
   })
+
+  it('seeds character-board skill marks a board prints as already filled', () => {
+    // Real example: Grogmar's board shows Quick Recovery starting at 1/2, not 0/2.
+    // A fresh sheet has to match that printed state, the same way startingXp does.
+    const grantLibrary = loadPacks({
+      'core.json': {
+        id: 'core',
+        name: 'Core',
+        schemaVersion: 1,
+        version: 1,
+        adventurers: [
+          {
+            id: 'grunt',
+            name: 'Grunt',
+            species: null,
+            cost: null,
+            armourSlots: null,
+            stats,
+            boardGrants: [{ type: 'skill', name: 'Quick Recovery', default: 1, max: 2 }],
+          },
+        ],
+        classes: [{ id: 'warrior', name: 'Warrior', cost: 20 }],
+      },
+    }).library
+    const members = [draftMemberFrom(grantLibrary, { id: 'a1', characterId: 'grunt', classId: 'warrior' })]
+    const events = partyCreationEvents(grantLibrary, 'p1', { name: 'W', members })
+    expect(events).toContainEqual({
+      t: 'SKILL_MARKS_SET',
+      advId: 'a1',
+      skill: 'Quick Recovery',
+      source: 'character',
+      marks: 1,
+    })
+
+    const log: CampaignEvent[] = [
+      { t: 'CAMPAIGN_CREATED', id: 'c1', name: 'A', contentPacks: [], createdAt: 1 },
+      ...events,
+    ]
+    const state = projectCampaign(log)
+    expect(state.parties[0].adventurers[0].skillMarks['Quick Recovery']).toEqual({
+      character: 1,
+      class: 0,
+    })
+  })
 })
 
 describe('validateDraft against real content gaps', () => {

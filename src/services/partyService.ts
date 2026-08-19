@@ -160,6 +160,22 @@ export function partyCreationEvents(
       // than sent as 0, so the projection's own default is what shows up.
       ...(startingXp === null ? {} : { startingXp }),
     })
+
+    // Some character boards print a skill with marks already filled in (e.g. Grogmar's
+    // Quick Recovery starts at 1/2). Seed those the same way startingXp is seeded above
+    // — a wiped board's default state, not a player choice — so a fresh sheet matches
+    // the physical board instead of starting every granted skill at 0.
+    for (const grant of character?.boardGrants ?? []) {
+      if (grant.type === 'skill' && grant.name && grant.default) {
+        events.push({
+          t: 'SKILL_MARKS_SET',
+          advId: m.id,
+          skill: grant.name,
+          source: 'character',
+          marks: grant.default,
+        })
+      }
+    }
   }
   return events
 }
