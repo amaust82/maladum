@@ -102,11 +102,17 @@ describe('BaseCamp', () => {
     expect(mountCamp(id).text()).toContain('4 Guilders')
   })
 
+  /** Opens the storage picker via the given button label and picks the named item. */
+  async function pickIntoStorage(wrapper: ReturnType<typeof mountCamp>, buttonLabel: string, itemLabel: string) {
+    await wrapper.findAll('button').find((b) => b.text().includes(buttonLabel))!.trigger('click')
+    await wrapper.find('input[placeholder="Search items…"]').setValue(itemLabel)
+    await wrapper.findAll('button').find((b) => b.text().includes(itemLabel))!.trigger('click')
+  }
+
   it('stores an item and takes it out again', async () => {
     const { campaigns, id } = await openCampaignWithParty()
     const wrapper = mountCamp(id)
-    await wrapper.find('select').setValue('dagger')
-    await wrapper.findAll('button').find((b) => b.text() === 'Store')!.trigger('click')
+    await pickIntoStorage(wrapper, 'Add to storage', 'Dagger')
     await settleUntil(() => party(campaigns).storage.length === 1, 'stored item')
     expect(party(campaigns).storage[0]).toEqual({ item: { itemId: 'dagger' }, secure: false })
 
@@ -117,8 +123,7 @@ describe('BaseCamp', () => {
   it('assigns a stored item to a party member — the party owns gear between missions', async () => {
     const { campaigns, id } = await openCampaignWithParty()
     const wrapper = mountCamp(id)
-    await wrapper.find('select').setValue('dagger')
-    await wrapper.findAll('button').find((b) => b.text() === 'Store')!.trigger('click')
+    await pickIntoStorage(wrapper, 'Add to storage', 'Dagger')
     await settleUntil(() => party(campaigns).storage.length === 1, 'stored item')
 
     const assignSelect = wrapper
@@ -135,8 +140,7 @@ describe('BaseCamp', () => {
   it('refuses Secure Storage until the Inn is paid for', async () => {
     const { id } = await openCampaignWithParty()
     const wrapper = mountCamp(id)
-    await wrapper.find('select').setValue('dagger')
-    const secureButton = wrapper.findAll('button').find((b) => b.text() === 'Store securely')!
+    const secureButton = wrapper.findAll('button').find((b) => b.text().includes('Add to secure storage'))!
     expect(secureButton.attributes('disabled')).toBeDefined()
   })
 
@@ -146,10 +150,9 @@ describe('BaseCamp', () => {
     const box = wrapper.find('input[type="checkbox"]')
     await box.setValue(true)
     await settleUntil(() => party(campaigns).secureStorageUnlocked, 'secure storage')
-    await wrapper.find('select').setValue('dagger')
-    const secureButton = wrapper.findAll('button').find((b) => b.text() === 'Store securely')!
+    const secureButton = wrapper.findAll('button').find((b) => b.text().includes('Add to secure storage'))!
     expect(secureButton.attributes('disabled')).toBeUndefined()
-    await secureButton.trigger('click')
+    await pickIntoStorage(wrapper, 'Add to secure storage', 'Dagger')
     await settleUntil(() => party(campaigns).storage.length === 1, 'securely stored item')
     expect(party(campaigns).storage[0].secure).toBe(true)
   })

@@ -201,6 +201,28 @@ describe('partyCreationEvents', () => {
       class: 0,
     })
   })
+
+  it('puts starting equipment in the party pool, not on any Adventurer', () => {
+    const members = [draftMemberFrom(library, { id: 'a1', characterId: 'syrio', classId: 'mage' })]
+    const events = partyCreationEvents(library, 'p1', {
+      name: 'Wardens',
+      members,
+      startingItems: ['dagger', 'dagger', 'torch'],
+    })
+    expect(events.filter((e) => e.t === 'ITEM_STORED')).toEqual([
+      { t: 'ITEM_STORED', partyId: 'p1', item: { itemId: 'dagger' }, secure: false },
+      { t: 'ITEM_STORED', partyId: 'p1', item: { itemId: 'dagger' }, secure: false },
+      { t: 'ITEM_STORED', partyId: 'p1', item: { itemId: 'torch' }, secure: false },
+    ])
+
+    const log: CampaignEvent[] = [
+      { t: 'CAMPAIGN_CREATED', id: 'c1', name: 'A', contentPacks: [], createdAt: 1 },
+      ...events,
+    ]
+    const state = projectCampaign(log)
+    expect(state.parties[0].storage).toHaveLength(3)
+    expect(state.parties[0].adventurers[0].inventory).toEqual([])
+  })
 })
 
 describe('validateDraft against real content gaps', () => {

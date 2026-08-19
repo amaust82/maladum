@@ -14,6 +14,7 @@
 import { computed, ref, watch } from 'vue'
 import { useCampaignStore } from '../stores/campaigns'
 import { useContentStore } from '../stores/content'
+import ItemPicker from '../components/ItemPicker.vue'
 import { campIssues, innCost, RENOWN_MAX, RENOWN_SPEND_WINDOWS, summarizeStorage } from '../rules/baseCamp'
 
 defineProps<{ campaignId: string }>()
@@ -64,18 +65,18 @@ const saveNotes = (partyId: string) =>
 const unstore = (partyId: string, itemId: string, instanceId?: string) =>
   campaigns.commit([{ t: 'ITEM_UNSTORED', partyId, item: { itemId, instanceId } }])
 
-/** Adding to storage picks from the merged item list — the same 273-row price list. */
-const storePick = ref<Record<string, string>>({})
-function store(partyId: string, secure: boolean) {
-  const itemId = storePick.value[partyId]
-  if (!itemId) return
-  campaigns.commit([{ t: 'ITEM_STORED', partyId, item: { itemId }, secure }])
-  storePick.value[partyId] = ''
+/** Which party the store picker is open for, and whether it's adding to Secure Storage. */
+const storePickerFor = ref<string | null>(null)
+const storePickerSecure = ref(false)
+function openStorePicker(partyId: string, secure: boolean) {
+  storePickerFor.value = partyId
+  storePickerSecure.value = secure
 }
-
-const storableItems = computed(() =>
-  [...content.library.items.values()].sort((a, b) => a.name.localeCompare(b.name)),
-)
+function storePicked(itemId: string) {
+  const partyId = storePickerFor.value
+  if (!partyId) return
+  campaigns.commit([{ t: 'ITEM_STORED', partyId, item: { itemId }, secure: storePickerSecure.value }])
+}
 
 /**
  * Between missions the party owns its gear, not individual Adventurers (a thematic
@@ -229,31 +230,26 @@ const num = (e: Event) => Number((e.target as HTMLInputElement).value)
         <p v-if="!party.storage.length" class="text-xs opacity-50">Nothing stored.</p>
 
         <div class="mt-2 flex flex-wrap gap-2">
-          <select
-            v-model="storePick[party.id]"
-            class="min-w-0 flex-1 rounded border border-neutral-700 bg-neutral-900 px-2 py-1.5 text-xs text-neutral-100"
-          >
-            <option value="">— choose an item —</option>
-            <option v-for="item in storableItems" :key="item.id" :value="item.id">
-              {{ item.name }}
-            </option>
-          </select>
           <button
-            class="rounded border border-neutral-700 px-2 py-1.5 text-xs disabled:opacity-40"
-            :disabled="!storePick[party.id]"
-            @click="store(party.id, false)"
+            class="rounded border border-neutral-700 px-2 py-1.5 text-xs hover:bg-neutral-800"
+            @click="openStorePicker(party.id, false)"
           >
-            Store
+            + Add to storage
           </button>
           <button
-            class="rounded border border-neutral-700 px-2 py-1.5 text-xs disabled:opacity-40"
-            :disabled="!storePick[party.id] || !party.secureStorageUnlocked"
+            class="rounded border border-neutral-700 px-2 py-1.5 text-xs hover:bg-neutral-800 disabled:opacity-40"
+            :disabled="!party.secureStorageUnlocked"
             :title="party.secureStorageUnlocked ? '' : 'Secure Storage is only available while paying for an Inn'"
-            @click="store(party.id, true)"
+            @click="openStorePicker(party.id, true)"
           >
-            Store securely
+            + Add to secure storage
           </button>
         </div>
+        <ItemPicker
+          :open="storePickerFor === party.id"
+          @select="storePicked"
+          @close="storePickerFor = null"
+        />
       </div>
 
       <!-- Notes -->

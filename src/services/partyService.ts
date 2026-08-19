@@ -177,5 +177,12 @@ export function partyCreationEvents(
       }
     }
   }
+
+  // Starting equipment lands in the party's pool, not on any one Adventurer — see
+  // `PartyDraft.startingItems`. Divvying it out to characters is a mission-setup
+  // step, not a party-creation one.
+  for (const itemId of draft.startingItems ?? []) {
+    events.push({ t: 'ITEM_STORED', partyId, item: { itemId }, secure: false })
+  }
   return events
 }

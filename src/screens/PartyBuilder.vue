@@ -13,6 +13,7 @@ import { useRouter } from 'vue-router'
 import { useCampaignStore } from '../stores/campaigns'
 import { useContentStore } from '../stores/content'
 import ReadinessBadge from '../components/ReadinessBadge.vue'
+import ItemPicker from '../components/ItemPicker.vue'
 import { draftMemberFrom, partyCreationEvents, validateDraft } from '../services/partyService'
 import {
   describePartyIssue,
@@ -56,12 +57,23 @@ function addRow() {
 }
 const removeRow = (id: string) => rows.splice(rows.findIndex((r) => r.id === id), 1)
 
+/**
+ * Starting equipment goes to the party pool, not any one Adventurer — divvying it
+ * out is a mission-setup step (Adam, 2026-08-19), so this screen only collects it.
+ */
+const startingItems = ref<string[]>([])
+const itemPickerOpen = ref(false)
+const addStartingItem = (itemId: string) => startingItems.value.push(itemId)
+const removeStartingItem = (index: number) => startingItems.value.splice(index, 1)
+const itemName = (itemId: string) => content.library.items.get(itemId)?.name ?? itemId
+
 const members = computed(() => rows.map((r) => draftMemberFrom(content.library, r)))
 const draft = computed(() => ({
   name: partyName.value.trim() || 'The Party',
   members: members.value,
   budget: budget.value,
   equipmentSpend: equipmentSpend.value,
+  startingItems: startingItems.value,
 }))
 const validation = computed(() => validateDraft(draft.value, content.library))
 
@@ -131,6 +143,29 @@ addRow()
           costing more than 10 Guilders can be bought.
         </span>
       </label>
+      <div class="text-xs opacity-70 sm:col-span-2">
+        Starting equipment
+        <span class="opacity-60">— goes to the party, divvied out at mission setup</span>
+        <ul v-if="startingItems.length" class="mt-1 space-y-1">
+          <li
+            v-for="(itemId, i) in startingItems"
+            :key="i"
+            class="flex items-center gap-2 rounded border border-neutral-800 px-2 py-1"
+          >
+            <span>{{ itemName(itemId) }}</span>
+            <button class="ml-auto text-rose-400 hover:underline" @click="removeStartingItem(i)">
+              Remove
+            </button>
+          </li>
+        </ul>
+        <button
+          class="mt-1 rounded border border-neutral-700 px-3 py-1.5 text-xs hover:bg-neutral-800"
+          @click="itemPickerOpen = true"
+        >
+          + Add item…
+        </button>
+        <ItemPicker :open="itemPickerOpen" @select="addStartingItem" @close="itemPickerOpen = false" />
+      </div>
     </div>
 
     <div class="mb-5 rounded border border-neutral-800 bg-neutral-900/40 p-3 text-xs">

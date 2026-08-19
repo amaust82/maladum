@@ -26,11 +26,29 @@ clone with `git config core.hooksPath .githooks` (also listed in `README.md`); b
 genuine exception — a formatting sweep, a revert — with `git commit --no-verify`.
 `CLAUDE.md` states the same rule for agent sessions.
 
-## Status — updated 2026-08-19 (two follow-on bugs from the skill-marks fix, live at the table)
+## Status — updated 2026-08-19 (starting equipment goes to the party pool)
 
 **Phase 0 is complete; Phase 1 is under way.** Campaign management, the party builder
 and the Rules reference are in. `npm run build` is clean and `npm test` is green:
-**500 tests across 35 files**.
+**501 tests across 35 files**.
+
+**Starting equipment now goes to the party's pool at creation, not to any
+Adventurer.** Adam's call (2026-08-19): the Party Builder's Guilder-only
+`equipmentSpend` field never let you pick actual items, and the only place to add
+items to the party pool was Base Camp, after the fact. Now:
+- Party Builder has a real starting-equipment step — the same `ItemPicker` modal used
+  everywhere else, picks go to `PartyDraft.startingItems`, and `partyCreationEvents()`
+  (`src/services/partyService.ts`) turns each into an `ITEM_STORED` event at the new
+  party's id. Never lands on an Adventurer.
+- Base Camp's Storage section swapped its plain `<select>` for the same `ItemPicker`
+  modal, for both regular and Secure Storage adds — same picker everywhere gear enters
+  the game, one UI to learn instead of two.
+
+**Next in this same push**: hide the Character Sheet's "Add item" entry point. Once
+that's gone, the party pool is the only way a new item enters play — everything starts
+there and gets divvied out to characters at mission setup (still manual, via the
+existing "Assign to…" picker; no dedicated quest-setup screen yet). Not done yet as of
+this paragraph — see the next Status update.
 
 **Seeding board-default skill marks (above) immediately exposed two more real bugs**,
 both found live at the table setting up tonight's party:

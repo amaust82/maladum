@@ -70,6 +70,13 @@ export interface PartyDraft {
    * understates what a party costs, which is the whole point of the check.
    */
   equipmentSpend?: number | null
+  /**
+   * Starting equipment, picked as actual items rather than only a Guilder figure
+   * (`equipmentSpend`). Party-owned from the start, not any one Adventurer's — Adam's
+   * call, 2026-08-19: gear is divvied out to characters at mission setup, not baked
+   * into party creation. Item ids only; multiple entries for multiple copies.
+   */
+  startingItems?: string[]
 }
 
 export interface CostSummary {
