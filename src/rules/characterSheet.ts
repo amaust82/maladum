@@ -157,6 +157,14 @@ export interface SheetInput {
   skillCategories?: Iterable<SkillCategoryDef>
   /** Item definitions, for the carried-size tally. */
   items?: Map<string, ItemDef>
+  /**
+   * True before the party's first quest. At creation, a spell up to level 3 may be
+   * learned regardless of rank (Adam, 2026-08-19 — a rule he knows, not yet found
+   * with a page citation); once play has started, level gates rank as usual. There's
+   * no per-spell "learned at creation" marker, so this is the whole-party proxy:
+   * `party.quests.length === 0`.
+   */
+  atCreation?: boolean
 }
 
 /**
@@ -230,7 +238,7 @@ function spellIndex(schools: Iterable<SpellSchoolDef> | undefined) {
 
 /** Compose the sheet. Missing content degrades to gaps and issues, never to invented numbers. */
 export function buildCharacterSheet(input: SheetInput): CharacterSheet {
-  const { state, character, klass } = input
+  const { state, character, klass, atCreation = false } = input
   const { rank, derived } = rankFor(state, character)
   const issues: SheetIssue[] = []
 
@@ -310,7 +318,13 @@ export function buildCharacterSheet(input: SheetInput): CharacterSheet {
   const addSpell = (name: string, source: SpellSource) => {
     const ref = index.get(name) ?? null
     const level = ref?.level ?? null
-    const overRank = source === 'learned' && rank !== null && level !== null && level > rank
+    const exemptAtCreation = atCreation && level !== null && level <= 3
+    const overRank =
+      source === 'learned' &&
+      rank !== null &&
+      level !== null &&
+      level > rank &&
+      !exemptAtCreation
     if (overRank) {
       issues.push({
         severity: 'warning',
@@ -365,9 +379,16 @@ export function buildCharacterSheet(input: SheetInput): CharacterSheet {
   // Earning 1 Experience buys exactly one Skill or Spell mark (p.80), so the two
   // should agree. A mismatch usually means a mark was recorded without its XP, and
   // it's the cheapest way to catch a half-entered restore.
+  //
+  // A board-granted skill's printed default (`granted`) is free — it isn't bought
+  // with Experience, so it's excluded here the same way board-granted spells already
+  // are (`state.spells` only ever holds player-*learned* spells, never grants).
+  // Only marks ABOVE that default count toward the total.
   const totalMarks =
-    Object.values(state.skillMarks).reduce((n, m) => n + m.character + m.class, 0) +
-    state.spells.length
+    Object.entries(state.skillMarks).reduce((n, [name, m]) => {
+      const boughtCharacter = Math.max(0, m.character - (granted.get(name)?.def ?? 0))
+      return n + boughtCharacter + m.class
+    }, 0) + state.spells.length
   if (totalMarks !== state.xpFilled) {
     issues.push({
       severity: 'warning',

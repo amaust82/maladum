@@ -194,6 +194,42 @@ describe('spells', () => {
     })
     expect(kinds(granted)).not.toContain('spell-over-rank')
   })
+
+  it('exempts a level <=3 spell from the rank check at creation, but not after play starts', () => {
+    // Malacyte Shield is level 2 (real content). At rank 0/1 with no quests played,
+    // it's a legal starting pick; the same spell after the party's first quest is
+    // held to the normal rank check.
+    const atCreation = buildCharacterSheet({
+      state: state({ rank: 0, spells: ['Malacyte Shield'] }),
+      character: character(),
+      klass: klass(),
+      spellSchools: schools,
+      atCreation: true,
+    })
+    expect(kinds(atCreation)).not.toContain('spell-over-rank')
+
+    const afterPlay = buildCharacterSheet({
+      state: state({ rank: 0, spells: ['Malacyte Shield'] }),
+      character: character(),
+      klass: klass(),
+      spellSchools: schools,
+      atCreation: false,
+    })
+    expect(kinds(afterPlay)).toContain('spell-over-rank')
+  })
+
+  it('still flags a level 4-5 spell over rank even at creation', () => {
+    const level5 = [...library.spells.values()]
+      .flatMap((s) => s.levels.filter((l) => l.level === 5).flatMap((l) => l.spells))[0]!.name
+    const s = buildCharacterSheet({
+      state: state({ rank: 0, spells: [level5] }),
+      character: character(),
+      klass: klass(),
+      spellSchools: schools,
+      atCreation: true,
+    })
+    expect(kinds(s)).toContain('spell-over-rank')
+  })
 })
 
 describe('stats', () => {
@@ -225,6 +261,34 @@ describe('the Experience/marks invariant (p.80)', () => {
   it('flags a half-entered restore where marks and Experience disagree', () => {
     const s = sheet({ state: state({ xpFilled: 5, skillMarks: { A: { character: 1, class: 1 } } }) })
     expect(kinds(s)).toContain('marks-exceed-xp')
+  })
+
+  it('excludes a board-granted skill default — it is free, not bought with Experience', () => {
+    // "A" starts at 1/2 by board default (no XP spent); a matching character mark of
+    // 1 shouldn't count toward the invariant at all, only marks above that default.
+    const withGrant = {
+      character: character({ boardGrants: [{ type: 'skill', name: 'A', default: 1, max: 2 }] }),
+      klass: klass(),
+    }
+    const atDefault = buildCharacterSheet({
+      ...withGrant,
+      state: state({ xpFilled: 0, skillMarks: { A: { character: 1, class: 0 } } }),
+    })
+    expect(kinds(atDefault)).not.toContain('marks-exceed-xp')
+
+    // One mark bought on top of the free default costs exactly one Experience.
+    const oneBought = buildCharacterSheet({
+      ...withGrant,
+      state: state({ xpFilled: 1, skillMarks: { A: { character: 2, class: 0 } } }),
+    })
+    expect(kinds(oneBought)).not.toContain('marks-exceed-xp')
+
+    // The free default with no XP spent to justify the extra mark is still a mismatch.
+    const unpaid = buildCharacterSheet({
+      ...withGrant,
+      state: state({ xpFilled: 0, skillMarks: { A: { character: 2, class: 0 } } }),
+    })
+    expect(kinds(unpaid)).toContain('marks-exceed-xp')
   })
 })
 

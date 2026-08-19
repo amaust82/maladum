@@ -50,6 +50,7 @@ const sheet = computed(() => {
     klass: content.library.classes.get(found.adventurer.classId),
     spellSchools: content.library.spells.values(),
     items: content.library.items,
+    atCreation: found.party.quests.length === 0,
   })
 })
 

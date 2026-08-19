@@ -39,6 +39,7 @@ const partySheets = computed(() =>
           klass: content.library.classes.get(a.classId),
           spellSchools: content.library.spells.values(),
           items: content.library.items,
+          atCreation: party.quests.length === 0,
         }),
       ),
       itemName: (id) => content.library.items.get(id)?.name ?? id,

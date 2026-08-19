@@ -26,11 +26,31 @@ clone with `git config core.hooksPath .githooks` (also listed in `README.md`); b
 genuine exception — a formatting sweep, a revert — with `git commit --no-verify`.
 `CLAUDE.md` states the same rule for agent sessions.
 
-## Status — updated 2026-08-19 (bug: board-default skill marks weren't seeded)
+## Status — updated 2026-08-19 (two follow-on bugs from the skill-marks fix, live at the table)
 
 **Phase 0 is complete; Phase 1 is under way.** Campaign management, the party builder
 and the Rules reference are in. `npm run build` is clean and `npm test` is green:
-**497 tests across 35 files**.
+**500 tests across 35 files**.
+
+**Seeding board-default skill marks (above) immediately exposed two more real bugs**,
+both found live at the table setting up tonight's party:
+
+1. **`marks-exceed-xp` (p.80's "1 Experience buys 1 mark" check) didn't know a
+   board-granted default is free.** Once Grogmar's Quick Recovery correctly started
+   at 1/2, the app flagged it as an unpaid mark, because the check summed *all*
+   character-board marks against `xpFilled` with no idea some of them were never
+   bought. Fixed in `buildCharacterSheet` (`src/rules/characterSheet.ts`): only marks
+   *above* a skill's board-granted default count toward the invariant now.
+2. **Spell rank-gating didn't know about the character-creation exception**: "a spell
+   up to level 3 may be learned regardless of rank" (Adam, 2026-08-19 — a rule he
+   knows, not yet found with a page citation). Beren's Raise Dead (level 3) was
+   flagged as illegal at rank 1 during setup, which it isn't. Fixed with a new
+   `atCreation` flag on `SheetInput`, sourced from `party.quests.length === 0` (no
+   quest played yet) — level 4-5 spells still gate on rank even at creation; only
+   1-3 are exempt, and only before play starts. **Open question**: is the exemption
+   really creation-only, or does it hold for any level-≤3 spell regardless of when
+   it's learned? Went with creation-only since that's literally how Adam phrased it,
+   but it's worth confirming against the rulebook when there's time.
 
 **Bug found mid-session (Adam, live at the table): 18 of 20 boards print a skill with
 marks already filled in, and new Adventurers started at 0 anyway.** Real examples —
