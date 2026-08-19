@@ -26,6 +26,7 @@ import { useCampaignStore } from '../stores/campaigns'
 import { useContentStore } from '../stores/content'
 import { buildCharacterSheet } from '../rules/characterSheet'
 import type { LevellableStat, SkillSource } from '../store/campaign/events'
+import ItemPicker from '../components/ItemPicker.vue'
 
 const props = defineProps<{ campaignId: string; advId: string }>()
 
@@ -82,14 +83,9 @@ const setCovered = (grant: string, covered: boolean) =>
   campaigns.commit([{ t: 'GRANT_COVERED_SET', advId: props.advId, grant, covered }])
 
 const itemName = (itemId: string) => content.library.items.get(itemId)?.name ?? itemId
-const allItems = computed(() =>
-  [...content.library.items.values()].sort((a, b) => a.name.localeCompare(b.name)),
-)
-const itemPick = ref('')
-function pickItem() {
-  if (!itemPick.value) return
-  addItem(itemPick.value)
-  itemPick.value = ''
+const itemPickerOpen = ref(false)
+function pickItem(itemId: string) {
+  addItem(itemId)
 }
 
 const learn = (spell: string) =>
@@ -325,22 +321,13 @@ const sourceLabel: Record<string, string> = {
         </li>
       </ul>
       <p v-if="!sheet.inventory.length" class="text-xs opacity-50">Carrying nothing.</p>
-      <div class="mt-2 flex gap-2">
-        <select
-          v-model="itemPick"
-          class="min-w-0 flex-1 rounded border border-neutral-700 bg-neutral-900 px-2 py-1.5 text-xs text-neutral-100"
-        >
-          <option value="">— add an item —</option>
-          <option v-for="item in allItems" :key="item.id" :value="item.id">{{ item.name }}</option>
-        </select>
-        <button
-          class="rounded border border-neutral-700 px-2 py-1.5 text-xs disabled:opacity-40"
-          :disabled="!itemPick"
-          @click="pickItem"
-        >
-          Add
-        </button>
-      </div>
+      <button
+        class="mt-2 rounded border border-neutral-700 px-3 py-1.5 text-xs hover:bg-neutral-800"
+        @click="itemPickerOpen = true"
+      >
+        + Add item…
+      </button>
+      <ItemPicker :open="itemPickerOpen" @select="pickItem" @close="itemPickerOpen = false" />
     </section>
 
     <!-- Armour slots -->

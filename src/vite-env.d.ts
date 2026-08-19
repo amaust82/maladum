@@ -5,6 +5,8 @@ interface ImportMetaEnv {
   readonly VITE_SUPABASE_URL?: string
   /** Supabase anon/public key — safe for client code, RLS is what keeps it safe. */
   readonly VITE_SUPABASE_ANON_KEY?: string
+  /** Set to 'false' to disable the item-picker trait icons (see public/icons/SOURCE.md). */
+  readonly VITE_SHOW_ITEM_ICONS?: string
 }
 
 interface ImportMeta {

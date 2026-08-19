@@ -176,9 +176,9 @@ describe('CharacterSheet', () => {
   it('carries an item, moves it to an armour slot, and takes it off again', async () => {
     const { campaigns, id } = await openCampaignWithAdventurer()
     const wrapper = mountSheet(id)
-    const itemSelect = wrapper.findAll('select').find((sel) => sel.text().includes('add an item'))!
-    await itemSelect.setValue('dagger')
-    await wrapper.findAll('button').find((b) => b.text() === 'Add')!.trigger('click')
+    await wrapper.findAll('button').find((b) => b.text().includes('Add item'))!.trigger('click')
+    await wrapper.find('input[placeholder="Search items…"]').setValue('Dagger')
+    await wrapper.findAll('button').find((b) => b.text().includes('Dagger'))!.trigger('click')
     await settleUntil(() => adventurer(campaigns).inventory.length === 1, 'carried item')
 
     await wrapper.findAll('button').find((b) => b.text() === 'To armour slot')!.trigger('click')

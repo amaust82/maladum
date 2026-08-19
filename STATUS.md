@@ -26,11 +26,21 @@ clone with `git config core.hooksPath .githooks` (also listed in `README.md`); b
 genuine exception — a formatting sweep, a revert — with `git commit --no-verify`.
 `CLAUDE.md` states the same rule for agent sessions.
 
-## Status — updated 2026-08-19 (cross-device sync)
+## Status — updated 2026-08-19 (searchable item picker)
 
 **Phase 0 is complete; Phase 1 is under way.** Campaign management, the party builder
 and the Rules reference are in. `npm run build` is clean and `npm test` is green:
-**488 tests across 34 files**.
+**494 tests across 36 files**.
+
+**Item picker is now a searchable modal with trait icons** (`src/components/ItemPicker.vue`),
+replacing the flat `<select>` on the Character Sheet — search by name/notes, filter by
+type, matching trait pictograms shown per item (`src/content/abilityIcons.ts` maps the
+`abilities` glossary to icon files by name, whole-word matched against each item's
+`notes` shorthand). **The icon set is pulled from a third-party fan project
+(xinix/maladum) and carries a licensing caveat — read `public/icons/SOURCE.md` before
+this app ever goes public.** It has a kill switch either way: `VITE_SHOW_ITEM_ICONS=false`
+as a build env var turns off the UI, or delete `public/icons/` to strip them from what's
+served entirely — the app degrades to text-only search, not broken.
 
 **Cross-device sync landed, opt-in and offline-first.** `docs/design.md` §6's "no
 accounts" line was loosened this session (accounts preferred against, not banned —
@@ -573,9 +583,11 @@ Camp board to lose track of between sessions (p.86).
 - Everything except the three rulebook Reference sections is **fan-sourced** (the
   calculator and crafting spreadsheets). Good enough to build and test against; spot-check
   against physical components before treating buy/sell costs as gospel.
-- **Icon art** (the actual glyph images) is extractable from the PDF — each icon is its own
-  raster object — but needs per-icon soft-mask compositing for clean transparency.
-  Deferred (Adam's call, 2026-08-18); the UI uses text labels.
+- **Icon art**: superseded 2026-08-19 — extracting our own from the PDF is still
+  undone, but the item picker now shows trait pictograms pulled from a third-party fan
+  project instead (see the "searchable item picker" note above and
+  `public/icons/SOURCE.md`). That's a licensing-caveated stand-in, not the resolution
+  of this item; revisit if it ever needs to be Adam's own extraction.
 
 ### Resolved earlier (design decisions that still hold)
 
@@ -716,6 +728,12 @@ live. What's left is either polish or Phase 2.
    both blocked on content that doesn't exist yet (no Side Quest or quest seed data).
 5. **Phase 2 in-game helpers** — quest setup, Dread band lookup, Renown spending. Lower
    priority under the between-sessions framing (Adam, 2026-08-19).
+6. **Before this app is ever public**, resolve the item-picker icon set — strip
+   `public/icons/` or get Battle Systems' sign-off (see `public/icons/SOURCE.md`).
+   A future idea floated the same session (2026-08-19), not started: fork
+   xinix/maladum to add a "return selection" mode and use their app itself as an
+   external item picker, possibly in collaboration with its author — worth
+   revisiting if the icon approach ever needs to go further.
 
 One smaller thing left deliberately undone, so it isn't mistaken for an oversight:
 
