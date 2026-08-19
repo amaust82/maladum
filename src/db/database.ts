@@ -35,15 +35,32 @@ export interface EventRow {
   event: CampaignEvent
 }
 
+/**
+ * Per-campaign, per-device sync bookkeeping (design.md §2.x sync). `pushedCount` is
+ * how many of this campaign's local events (in `loadEvents` order) have already been
+ * upserted to Supabase — everything after it is the local outbox. Local-only table;
+ * never synced itself.
+ */
+export interface SyncStateRow {
+  campaignId: string
+  pushedCount: number
+}
+
 export class MaladumDB extends Dexie {
   campaigns!: Table<CampaignMeta, string>
   events!: Table<EventRow, number>
+  syncState!: Table<SyncStateRow, string>
 
   constructor(name = 'maladum') {
     super(name)
     this.version(1).stores({
       campaigns: 'id, updatedAt',
       events: '++id, campaignId',
+    })
+    this.version(2).stores({
+      campaigns: 'id, updatedAt',
+      events: '++id, campaignId',
+      syncState: 'campaignId',
     })
   }
 }

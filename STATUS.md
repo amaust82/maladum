@@ -26,11 +26,21 @@ clone with `git config core.hooksPath .githooks` (also listed in `README.md`); b
 genuine exception — a formatting sweep, a revert — with `git commit --no-verify`.
 `CLAUDE.md` states the same rule for agent sessions.
 
-## Status — updated 2026-08-19 (board transcription complete)
+## Status — updated 2026-08-19 (cross-device sync)
 
 **Phase 0 is complete; Phase 1 is under way.** Campaign management, the party builder
 and the Rules reference are in. `npm run build` is clean and `npm test` is green:
-**479 tests across 33 files**.
+**488 tests across 34 files**.
+
+**Cross-device sync landed, opt-in and offline-first.** `docs/design.md` §6's "no
+accounts" line was loosened this session (accounts preferred against, not banned —
+needs Adam's sign-off per case) specifically to allow this: a Supabase-backed sync
+layer that pushes/pulls the event log so a campaign started on one device is playable
+on another. It never gates local play — a missing Supabase config or a signed-out
+session makes every sync call a no-op. See `docs/design.md` §2.5 for the architecture
+and the deliberate conflict-handling simplification, and `supabase/schema.sql` for the
+SQL Adam still needs to run by hand against both the `maladum` and `maladum-staging`
+Supabase projects before this does anything in production.
 
 **Board transcription is DONE.** All 45 boards — 25 Class, 20 Adventurer — are transcribed
 from the physical components, with **zero `_placeholder` flags anywhere in the dataset**.
@@ -77,6 +87,7 @@ first, then "Next actions" at the bottom.
 | Base Camp (Camp tab) | done | `src/rules/baseCamp.ts`, `src/screens/BaseCamp.vue` |
 | Quest log (Log tab) — chronicle + Markdown export | done | `src/rules/chronicle.ts`, `src/screens/CampaignLog.vue` |
 | Side Quest tracker, Pouch ledger | not started | — |
+| Cross-device sync (opt-in, offline-first) | done | `src/sync/`, `src/stores/sync.ts`, `src/components/AccountSync.vue`, `supabase/schema.sql` |
 
 ## The content pack got real (schemaVersion 2)
 
@@ -693,14 +704,17 @@ Open implementation decisions (genuine calls, not oversights):
 **Phase 1 is complete.** Every screen design §4 called for is in, and all five tabs are
 live. What's left is either polish or Phase 2.
 
-1. **Play a real campaign with it.** Genuinely the highest-value next step — the app now
+1. **Run `supabase/schema.sql` against both Supabase projects** (`maladum`,
+   `maladum-staging`) — sync code is merged but does nothing until those tables/RLS
+   policies exist. Adam's task, not something to do without access to run it.
+2. **Play a real campaign with it.** Genuinely the highest-value next step — the app now
    covers a full loop end to end, and one session will surface more than another read of
    the rulebook. Everything below is speculative until that happens.
-2. **Companions & Apprentices** (design §3) — modelled in the domain, no screen, and
+3. **Companions & Apprentices** (design §3) — modelled in the domain, no screen, and
    content is names + costs only. The likeliest next build if a session shows they matter.
-3. **Side Quest tracker and Pouch ledger** — the last two Phase 1 items from design §4,
+4. **Side Quest tracker and Pouch ledger** — the last two Phase 1 items from design §4,
    both blocked on content that doesn't exist yet (no Side Quest or quest seed data).
-4. **Phase 2 in-game helpers** — quest setup, Dread band lookup, Renown spending. Lower
+5. **Phase 2 in-game helpers** — quest setup, Dread band lookup, Renown spending. Lower
    priority under the between-sessions framing (Adam, 2026-08-19).
 
 One smaller thing left deliberately undone, so it isn't mistaken for an oversight:

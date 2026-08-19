@@ -543,6 +543,42 @@ do that" is a worse failure here than a missed warning.
 
 ---
 
+### 2.5 Cross-device sync
+
+Approved per the accounts note in §6 — Adam wants to set up a campaign on his laptop
+and continue it on a phone/tablet. Built as a thin, optional layer on top of §2.3's
+event log rather than a redesign: `src/sync/` pushes/pulls `CampaignEvent`s to a
+Supabase Postgres table and never touches how the app behaves when it isn't
+configured or reachable.
+
+**Offline stays the default.** Every local write goes through Dexie exactly as before
+(§2.3–2.4); sync is fire-and-forget on top of that, at two moments: after a local
+commit (push what's new) and on campaign open (flush anything pending, then pull
+whatever another device pushed). A missing `VITE_SUPABASE_URL`/`VITE_SUPABASE_ANON_KEY`
+or a signed-out session makes every sync function a no-op — local play is identical
+either way.
+
+**Schema:** two Postgres tables (`campaigns`, `events`), RLS scoped to `owner =
+auth.uid()` from day one (`supabase/schema.sql`). `events.seq` is an event's
+zero-based position in a campaign's local log at push time; the `(campaign_id, seq)`
+unique constraint makes Postgres the ordering arbiter. A losing push (another device
+got there first) pulls the winner's events in, then re-pushes its own pending ones at
+the new, higher `seq` range — bulk-appended by whichever push wins the race, not
+perfectly interleaved by wall-clock time. That's a deliberate simplification for a
+mostly-additive log on a single-user tool, not a CRDT merge; see the doc comment atop
+`src/sync/syncService.ts`.
+
+**A brand-new device has no local Dexie row for a campaign it's never opened**, so
+`listRemoteCampaigns`/`downloadCampaign` let the picker show "available in the cloud"
+entries and pull one down cold — `pullNew` builds the local read-model from the pulled
+log the same way `campaignService.commit` does, so no local row needs to exist first.
+
+**Multi-user sharing is not built.** Scoping by `auth.uid()` from the start means
+adding it later is a `campaign_members` join table plus an RLS policy change, not a
+rewrite — but nothing here shares a campaign between accounts today.
+
+---
+
 ## 3. Domain model
 
 ```ts
@@ -1059,8 +1095,13 @@ and starts being the reason you'd choose it over a spreadsheet.
 20. **Custom content editor.** A UI for authoring content packs — homebrew Adventurers,
     Classes, and quests. Turns your users into your content team.
 21. **Cross-device sync.** Only if you actually feel the pain. The event log makes it
-    tractable; a simple approach is exporting the log to a file in a synced folder rather
-    than building a server.
+    tractable. Cheapest path is exporting the log to a file in a synced folder — no
+    account needed. If that's too manual, Adam already has a Supabase account and has
+    approved using it here specifically: push new local events to a Postgres table
+    keyed by `campaign_id`/`seq`, pull-on-load replays them into the existing
+    event/projection pipeline, Realtime subscription is optional polish on top. Still
+    needs Adam's go-ahead before starting (see the accounts note in §6's "Explicitly out
+    of scope").
 22. **Voice input.** "Syrio takes two damage." Sounds gimmicky, but during play your
     hands are full of miniatures. Web Speech API makes a limited command grammar cheap
     to try.
@@ -1072,7 +1113,11 @@ and starts being the reason you'd choose it over a spreadsheet.
 - Virtual board, grid, line-of-sight, pathfinding
 - Full rules adjudication (the app suggests; the players decide)
 - Online multiplayer / matchmaking
-- Anything requiring an account
+
+Accounts are **preferred against, not banned**: local-first with no account stays the
+default for everything above, but a feature that's genuinely justified — cross-device
+sync being the concrete case, see §6 #21 — can bring in an account/hosted-backend
+dependency. That tradeoff needs Adam's sign-off each time; it isn't a standing default.
 
 ---
 

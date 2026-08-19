@@ -7,15 +7,31 @@
  * against packs that have since changed says so here, before you open it and
  * start trusting numbers derived from the new data.
  */
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCampaignStore } from '../stores/campaigns'
 import { useContentStore } from '../stores/content'
+import { useSyncStore } from '../stores/sync'
 import { describeManifestIssue } from '../content/manifest'
+import AccountSync from '../components/AccountSync.vue'
 
 const campaigns = useCampaignStore()
 const content = useContentStore()
+const sync = useSyncStore()
 const router = useRouter()
+
+/** Cloud campaigns this account has pushed from another device but not seen here yet. */
+const notYetLocal = computed(() => {
+  const localIds = new Set(campaigns.summaries.map((c) => c.id))
+  return sync.remoteCampaigns.filter((c) => !localIds.has(c.id))
+})
+
+function download(id: string) {
+  return guard(async () => {
+    await sync.download(id)
+    await campaigns.refresh()
+  })
+}
 
 const newName = ref('')
 const busy = ref(false)
@@ -92,9 +108,12 @@ function importFile(event: Event) {
 
 <template>
   <main class="mx-auto max-w-3xl px-4 py-8">
-    <header class="mb-8">
-      <h1 class="text-3xl font-semibold tracking-wide">Maladum</h1>
-      <p class="text-xs uppercase tracking-[0.2em] opacity-60">Campaign Companion</p>
+    <header class="mb-8 flex items-start justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-semibold tracking-wide">Maladum</h1>
+        <p class="text-xs uppercase tracking-[0.2em] opacity-60">Campaign Companion</p>
+      </div>
+      <AccountSync class="shrink-0 text-right" />
     </header>
 
     <ul v-if="content.loadErrors.length" class="mb-6 space-y-1 rounded border border-rose-800 bg-rose-950/50 p-3 text-xs text-rose-300">
@@ -123,6 +142,19 @@ function importFile(event: Event) {
     <p v-if="!campaigns.summaries.length && !campaigns.loading" class="mb-8 text-sm opacity-60">
       No campaigns yet. Name one above, or import a backup.
     </p>
+
+    <ul v-if="notYetLocal.length" class="mb-6 space-y-2">
+      <li
+        v-for="c in notYetLocal"
+        :key="c.id"
+        class="flex items-center justify-between gap-3 rounded border border-dashed border-neutral-700 bg-neutral-900/30 p-3 text-sm"
+      >
+        <span>{{ c.name }} <span class="text-xs opacity-55">— synced from another device</span></span>
+        <button class="shrink-0 rounded bg-neutral-700 px-3 py-1.5 text-xs font-medium" @click="download(c.id)">
+          Download
+        </button>
+      </li>
+    </ul>
 
     <ul class="space-y-3">
       <li

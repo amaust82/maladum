@@ -49,3 +49,17 @@ export async function deleteCampaign(db: MaladumDB, campaignId: string): Promise
     await db.campaigns.delete(campaignId)
   })
 }
+
+/** How many of this campaign's local events have already been pushed to Supabase (0 if never synced). */
+export async function getSyncState(db: MaladumDB, campaignId: string): Promise<number> {
+  const row = await db.syncState.get(campaignId)
+  return row?.pushedCount ?? 0
+}
+
+export async function setSyncState(
+  db: MaladumDB,
+  campaignId: string,
+  pushedCount: number,
+): Promise<void> {
+  await db.syncState.put({ campaignId, pushedCount })
+}

@@ -31,6 +31,12 @@ import {
   type ManifestIssue,
   type PackRef,
 } from '../content/manifest'
+import { pushPending, syncCampaign } from '../sync/syncService'
+
+/** Fire-and-forget: sync is best-effort and must never block or fail a local write. */
+function backgroundSync(fn: () => Promise<void>): void {
+  void fn().catch(() => {})
+}
 
 export { exportCampaign, importCampaign } from '../db/exportImport'
 
@@ -112,6 +118,7 @@ export function createCampaignService({
       }
       await putCampaignRow(db, metaFromState(projectCampaign([event]), createdAt))
       await appendEvents(db, id, [event], createdAt)
+      backgroundSync(() => pushPending(db, id))
       return id
     },
 
@@ -144,6 +151,7 @@ export function createCampaignService({
       const copied = duplicateEvents(events, id, copyName)
       await putCampaignRow(db, metaFromState(projectCampaign(copied), at))
       await appendEvents(db, id, copied, at)
+      backgroundSync(() => pushPending(db, id))
       return id
     },
 
@@ -174,6 +182,7 @@ export function createCampaignService({
         initialState: emptyCampaign(),
       })
       store.hydrate(events)
+      backgroundSync(() => syncCampaign(db, campaignId))
       return {
         store,
         manifestIssues: compareManifests(store.state.contentPacks, manifestFrom(library)),
@@ -190,6 +199,7 @@ export function createCampaignService({
       await appendEvents(db, campaignId, events, at)
       const state = projectCampaign(await loadEvents(db, campaignId))
       await putCampaignRow(db, metaFromState(state, at))
+      backgroundSync(() => pushPending(db, campaignId))
       return state
     },
 
