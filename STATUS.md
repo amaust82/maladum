@@ -26,11 +26,11 @@ clone with `git config core.hooksPath .githooks` (also listed in `README.md`); b
 genuine exception — a formatting sweep, a revert — with `git commit --no-verify`.
 `CLAUDE.md` states the same rule for agent sessions.
 
-## Status — updated 2026-08-19 (starting equipment goes to the party pool)
+## Status — updated 2026-08-19 (party pool is now the only way an item enters play)
 
 **Phase 0 is complete; Phase 1 is under way.** Campaign management, the party builder
 and the Rules reference are in. `npm run build` is clean and `npm test` is green:
-**501 tests across 35 files**.
+**502 tests across 35 files**.
 
 **Starting equipment now goes to the party's pool at creation, not to any
 Adventurer.** Adam's call (2026-08-19): the Party Builder's Guilder-only
@@ -44,11 +44,14 @@ items to the party pool was Base Camp, after the fact. Now:
   modal, for both regular and Secure Storage adds — same picker everywhere gear enters
   the game, one UI to learn instead of two.
 
-**Next in this same push**: hide the Character Sheet's "Add item" entry point. Once
-that's gone, the party pool is the only way a new item enters play — everything starts
-there and gets divvied out to characters at mission setup (still manual, via the
-existing "Assign to…" picker; no dedicated quest-setup screen yet). Not done yet as of
-this paragraph — see the next Status update.
+**The Character Sheet's "Add item" entry point is gone.** With it hidden, the party
+pool (Party Builder at creation, Base Camp's `ItemPicker` after) is the *only* way a
+new item enters play — the intended model, since found loot physically goes on the
+board first, then gets added to the pool or sold from a post-quest screen, never typed
+straight onto a character. The Character Sheet still shows the inventory list itself
+(equip, move to party, remove) — only the direct-add picker is gone. Divvying pool
+gear out to characters before a mission is still manual, via the existing "Assign to…"
+picker on Base Camp; no dedicated quest-setup screen yet.
 
 **Seeding board-default skill marks (above) immediately exposed two more real bugs**,
 both found live at the table setting up tonight's party:

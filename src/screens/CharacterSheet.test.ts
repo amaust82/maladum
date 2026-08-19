@@ -174,10 +174,10 @@ describe('CharacterSheet', () => {
 
   it('carries an item, moves it to an armour slot, and takes it off again', async () => {
     const { campaigns, id } = await openCampaignWithAdventurer()
+    // Items enter play through the party pool now, not a Character Sheet picker —
+    // seed the carried item directly, same as an "Assign to…" from Base Camp would.
+    await campaigns.commit([{ t: 'ITEM_ACQUIRED', advId: 'a1', item: { itemId: 'dagger' }, via: 'assigned' }])
     const wrapper = mountSheet(id)
-    await wrapper.findAll('button').find((b) => b.text().includes('Add item'))!.trigger('click')
-    await wrapper.find('input[placeholder="Search items…"]').setValue('Dagger')
-    await wrapper.findAll('button').find((b) => b.text().includes('Dagger'))!.trigger('click')
     await settleUntil(() => adventurer(campaigns).inventory.length === 1, 'carried item')
 
     await wrapper.findAll('button').find((b) => b.text() === 'To armour slot')!.trigger('click')
@@ -192,16 +192,21 @@ describe('CharacterSheet', () => {
 
   it('moves a carried item to the party pool — gear is owned by the party between missions', async () => {
     const { campaigns, id } = await openCampaignWithAdventurer()
+    await campaigns.commit([{ t: 'ITEM_ACQUIRED', advId: 'a1', item: { itemId: 'dagger' }, via: 'assigned' }])
     const wrapper = mountSheet(id)
-    await wrapper.findAll('button').find((b) => b.text().includes('Add item'))!.trigger('click')
-    await wrapper.find('input[placeholder="Search items…"]').setValue('Dagger')
-    await wrapper.findAll('button').find((b) => b.text().includes('Dagger'))!.trigger('click')
     await settleUntil(() => adventurer(campaigns).inventory.length === 1, 'carried item')
 
     await wrapper.findAll('button').find((b) => b.text() === 'Move to party')!.trigger('click')
     await settleUntil(() => campaigns.parties[0].storage.length === 1, 'moved to party')
     expect(adventurer(campaigns).inventory).toHaveLength(0)
     expect(campaigns.parties[0].storage[0]).toEqual({ item: { itemId: 'dagger' }, secure: false })
+  })
+
+  it('has no direct "add item" entry point — items enter through the party pool', async () => {
+    const { id } = await openCampaignWithAdventurer()
+    const wrapper = mountSheet(id)
+    expect(wrapper.findAll('button').some((b) => b.text().includes('Add item'))).toBe(false)
+    expect(wrapper.text()).toContain('party pool')
   })
 
   it('records armour covering a board grant, and the skill level drops', async () => {

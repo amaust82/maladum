@@ -21,12 +21,11 @@
  * packs on every render rather than stored, so a transcription fix reaches an existing
  * campaign instead of leaving a stale copy behind.
  */
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useCampaignStore } from '../stores/campaigns'
 import { useContentStore } from '../stores/content'
 import { buildCharacterSheet } from '../rules/characterSheet'
 import type { LevellableStat, SkillSource } from '../store/campaign/events'
-import ItemPicker from '../components/ItemPicker.vue'
 
 const props = defineProps<{ campaignId: string; advId: string }>()
 
@@ -72,8 +71,6 @@ const setMarks = (skill: string, source: SkillSource, marks: number) =>
   campaigns.commit([{ t: 'SKILL_MARKS_SET', advId: props.advId, skill, source, marks }])
 const setStat = (stat: LevellableStat, increase: number) =>
   campaigns.commit([{ t: 'STAT_INCREASE_SET', advId: props.advId, stat, increase }])
-const addItem = (itemId: string) =>
-  campaigns.commit([{ t: 'ITEM_ACQUIRED', advId: props.advId, item: { itemId }, via: 'found' }])
 const dropItem = (itemId: string, instanceId?: string) =>
   campaigns.commit([{ t: 'ITEM_REMOVED', advId: props.advId, item: { itemId, instanceId } }])
 /**
@@ -97,10 +94,6 @@ const setCovered = (grant: string, covered: boolean) =>
   campaigns.commit([{ t: 'GRANT_COVERED_SET', advId: props.advId, grant, covered }])
 
 const itemName = (itemId: string) => content.library.items.get(itemId)?.name ?? itemId
-const itemPickerOpen = ref(false)
-function pickItem(itemId: string) {
-  addItem(itemId)
-}
 
 const learn = (spell: string) =>
   campaigns.commit([{ t: 'SPELL_LEARNED', advId: props.advId, spell }])
@@ -345,13 +338,10 @@ const sourceLabel: Record<string, string> = {
         </li>
       </ul>
       <p v-if="!sheet.inventory.length" class="text-xs opacity-50">Carrying nothing.</p>
-      <button
-        class="mt-2 rounded border border-neutral-700 px-3 py-1.5 text-xs hover:bg-neutral-800"
-        @click="itemPickerOpen = true"
-      >
-        + Add item…
-      </button>
-      <ItemPicker :open="itemPickerOpen" @select="pickItem" @close="itemPickerOpen = false" />
+      <p class="mt-2 text-xs opacity-50">
+        Items enter play through the party pool (Camp tab) — found loot goes on the
+        physical board first, then gets added to the pool or sold from there.
+      </p>
     </section>
 
     <!-- Armour slots -->
