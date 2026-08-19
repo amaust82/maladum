@@ -31,9 +31,11 @@ async function openCampaign() {
       characterId: 'syrio',
       classId: 'assassin',
       displayName: 'Syrio',
-      startingXp: 3,
+      // Syrio's real xpRows are [5, 4, 4, 3] (transcribed 2026-08-19); 6 XP fills row 1
+      // and starts row 2, which derives to rank 2 — RANK_SET no longer has any effect
+      // once a board's Experience rows are known, so this replaces it.
+      startingXp: 6,
     },
-    { t: 'RANK_SET', advId: 'a1', rank: 2 },
     { t: 'SKILL_MARKS_SET', advId: 'a1', skill: 'Reflexes', source: 'class', marks: 2 },
     { t: 'STASH_SET', partyId: 'p1', amount: 120 },
   ])

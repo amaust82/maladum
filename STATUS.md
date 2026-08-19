@@ -26,11 +26,38 @@ clone with `git config core.hooksPath .githooks` (also listed in `README.md`); b
 genuine exception — a formatting sweep, a revert — with `git commit --no-verify`.
 `CLAUDE.md` states the same rule for agent sessions.
 
-## Status — updated 2026-08-19 (searchable item picker)
+## Status — updated 2026-08-19 (party-owned gear between missions)
 
 **Phase 0 is complete; Phase 1 is under way.** Campaign management, the party builder
 and the Rules reference are in. `npm run build` is clean and `npm test` is green:
-**494 tests across 36 files**.
+**496 tests across 35 files**.
+
+**Gear can now move between an Adventurer's inventory and the party as a whole.**
+Adam's call, and explicitly **not a transcribed rule** — the rulebook confirms
+loot goes into a specific Adventurer's inventory *during* a quest (the `Stash`
+ability's text only makes sense against that default), but says nothing either way
+about equipment ownership *between* missions. Adam's judgment: thematically the
+party camps and acts as a unit between games, and a roster that can exceed the
+4-Adventurer quest limit (design.md p.68) means gear has to be reassignable to
+whoever's actually playing the next mission. `Party.baseCampStorage` (the Camp tab's
+"Storage" section) already modelled a party-level item bucket for an unrelated rule
+(p.86 Secure Storage) — it's now doing double duty as that pool, unconditionally
+(the `secure` flag stays scoped to its original punch-out meaning). Character Sheet
+gets a **"Move to party"** button per inventory item; Base Camp's Storage list gets an
+**"Assign to…"** picker. Both commit two events in one `campaigns.commit()` call
+(`ITEM_REMOVED`+`ITEM_STORED`, or `ITEM_UNSTORED`+`ITEM_ACQUIRED` with the new
+`via: 'assigned'`) so the item never appears to vanish in the log between them.
+
+Deliberately not built yet, per Adam (2026-08-19): a per-character inventory that
+"pulls from" the pool automatically, and a dedicated quest-setup screen for divvying
+out gear before a mission (Phase 2's "quest setup" item already covers that ground).
+Revisit if the two-screen manual flow (Character Sheet ↔ Base Camp) turns out to be
+too much friction at the table.
+
+**Rank is now a derived value for all 20 Adventurers.** Adam transcribed each board's
+Experience row layout (`AdventurerDef.xpRows`) straight from the physical components,
+Syrio included; every row-size list sums exactly to the board's existing `xp.max`,
+which is a strong cross-check on the read. See "Experience row layout" below.
 
 **Item picker is now a searchable modal with trait icons** (`src/components/ItemPicker.vue`),
 replacing the flat `<select>` on the Character Sheet — search by name/notes, filter by
@@ -402,17 +429,16 @@ Experience/marks invariant below.
 fills one track space *and* buys one Skill or Spell mark. So marks total should equal
 `xpFilled`, and a mismatch is the cheapest way to catch a half-entered restore.
 
-### Content gap found: Experience row layout (`xpRows`)
+### Experience row layout (`xpRows`) — closed 2026-08-19, all 20 boards
 
-**Rank is not currently derivable.** p.80 defines rank as "the number of rows with at least
-one space filled", and the transcription captured only `xp.default` and total `xp.max` —
-not the row sizes. p.81 adds that row *counts* vary too: "some Adventurers do not have all
-five ranks".
-
-Rank gates Class-skill caps, spell levels, upkeep and party value, so this is the last
-load-bearing derived value the app can't compute. `AdventurerDef.xpRows` is defined and
-waiting; until it's filled the sheet asks the player to read rank off the board and says
-why. It's ~20 boards × a handful of numbers.
+**Rank is now derivable for every Adventurer.** p.80 defines rank as "the number of rows
+with at least one space filled"; the original transcription captured only `xp.default`
+and total `xp.max`, not the row sizes, so `rankFor()` (`src/rules/characterSheet.ts`) had
+to fall back to whatever rank the player recorded. Adam read the row sizes off the
+physical boards and pasted them in (19 boards, then Syrio's separately); every board's
+rows sum exactly to its existing `xp.max`, which is the same cross-check Syrio's stat
+block passed earlier in this file — good evidence the read is accurate. This was the
+last load-bearing derived value the app couldn't compute.
 
 ### Base Camp (done)
 
@@ -502,10 +528,10 @@ equipment lost, ransom) and skips itself entirely when everyone got out; Advance
 who earns Experience and *why not* when they don't; Market totals upkeep (1/rank +1 for
 playing) and flags a Stash shortfall; Rest prices the Inn and toggles Secure Storage.
 
-**Rank stands in for the Experience row**, since `xpRows` isn't transcribed. That's exact
-except when a row happens to be exactly full, and the screen says so rather than presenting
-it as certain — the same honest-gap handling as everywhere else. An unrecorded rank makes
-upkeep and Experience eligibility *unknown*, never free.
+**Rank now derives from the Experience row for every Adventurer** (`xpRows` transcribed
+complete 2026-08-19). The recorded-rank fallback in the wizard is now purely a defensive
+path — the honest-gap handling stays in place, it just shouldn't trigger on stock content
+any more.
 
 New durable state: `PartyState.quests` (a `QuestRecord` per quest — this is the Log tab's
 raw material, already accumulating), and per-Adventurer `alive` / `questsMissed`.
@@ -687,8 +713,8 @@ that wasn't in the source and wasn't invented. Crafted stubs have `name`/`type`/
 
 Content gaps:
 
-1. **`xpRows`** — Experience row layout per Adventurer board, the last thing blocking a
-   derived rank. Deferred by Adam (2026-08-19): typing the rank in is fine for now.
+1. ~~`xpRows`~~ — **closed 2026-08-19, all 20 Adventurers.** Rank derives from the
+   Experience row for every board now; no manual rank entry needed on stock content.
 2. **Item `size`** — the 273-item core price list has none, so carried-space totals only
    count the 68 crafted items. Capacity isn't enforced either way (it's a physical tray),
    so this only affects the tally's completeness.

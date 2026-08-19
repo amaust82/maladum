@@ -75,6 +75,19 @@ const addItem = (itemId: string) =>
   campaigns.commit([{ t: 'ITEM_ACQUIRED', advId: props.advId, item: { itemId }, via: 'found' }])
 const dropItem = (itemId: string, instanceId?: string) =>
   campaigns.commit([{ t: 'ITEM_REMOVED', advId: props.advId, item: { itemId, instanceId } }])
+/**
+ * Between missions the party owns its gear, not individual Adventurers (a thematic
+ * call, not a transcribed rule — see STATUS.md) — this is that hand-off, one commit
+ * so the item never appears to vanish between the two events.
+ */
+const moveToParty = (itemId: string, instanceId?: string) => {
+  const partyId = located.value?.party.id
+  if (!partyId) return
+  campaigns.commit([
+    { t: 'ITEM_REMOVED', advId: props.advId, item: { itemId, instanceId } },
+    { t: 'ITEM_STORED', partyId, item: { itemId, instanceId }, secure: false },
+  ])
+}
 const equip = (itemId: string, instanceId?: string) =>
   campaigns.commit([{ t: 'ARMOUR_EQUIPPED', advId: props.advId, item: { itemId, instanceId } }])
 const unequip = (itemId: string, instanceId?: string) =>
@@ -314,6 +327,9 @@ const sourceLabel: Record<string, string> = {
           <span>{{ itemName(ref_.itemId) }}</span>
           <button class="ml-auto opacity-70 hover:underline" @click="equip(ref_.itemId, ref_.instanceId)">
             To armour slot
+          </button>
+          <button class="opacity-70 hover:underline" @click="moveToParty(ref_.itemId, ref_.instanceId)">
+            Move to party
           </button>
           <button class="text-rose-400 hover:underline" @click="dropItem(ref_.itemId, ref_.instanceId)">
             Remove

@@ -114,6 +114,24 @@ describe('BaseCamp', () => {
     await settleUntil(() => party(campaigns).storage.length === 0, 'item removed')
   })
 
+  it('assigns a stored item to a party member — the party owns gear between missions', async () => {
+    const { campaigns, id } = await openCampaignWithParty()
+    const wrapper = mountCamp(id)
+    await wrapper.find('select').setValue('dagger')
+    await wrapper.findAll('button').find((b) => b.text() === 'Store')!.trigger('click')
+    await settleUntil(() => party(campaigns).storage.length === 1, 'stored item')
+
+    const assignSelect = wrapper
+      .findAll('select')
+      .find((s) => s.findAll('option').some((o) => o.text() === 'assign to…'))!
+    await assignSelect.setValue('a2')
+    await wrapper.findAll('button').find((b) => b.text() === 'Assign')!.trigger('click')
+
+    await settleUntil(() => party(campaigns).storage.length === 0, 'unstored')
+    const ariah = party(campaigns).adventurers.find((a) => a.id === 'a2')!
+    expect(ariah.inventory).toEqual([{ itemId: 'dagger', instanceId: undefined }])
+  })
+
   it('refuses Secure Storage until the Inn is paid for', async () => {
     const { id } = await openCampaignWithParty()
     const wrapper = mountCamp(id)

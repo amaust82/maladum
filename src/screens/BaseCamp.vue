@@ -77,6 +77,24 @@ const storableItems = computed(() =>
   [...content.library.items.values()].sort((a, b) => a.name.localeCompare(b.name)),
 )
 
+/**
+ * Between missions the party owns its gear, not individual Adventurers (a thematic
+ * call, not a transcribed rule — see STATUS.md). Assigning a stored item to whoever's
+ * going on the next quest is the hand-off back the other way from
+ * `CharacterSheet.vue`'s "Move to party": one commit, so it never appears to vanish
+ * between the two events.
+ */
+const assignPick = ref<Record<string, string>>({})
+function assign(partyId: string, entryKey: string, itemId: string, instanceId: string | undefined) {
+  const advId = assignPick.value[entryKey]
+  if (!advId) return
+  campaigns.commit([
+    { t: 'ITEM_UNSTORED', partyId, item: { itemId, instanceId } },
+    { t: 'ITEM_ACQUIRED', advId, item: { itemId, instanceId }, via: 'assigned' },
+  ])
+  delete assignPick.value[entryKey]
+}
+
 const num = (e: Event) => Number((e.target as HTMLInputElement).value)
 </script>
 
@@ -186,8 +204,22 @@ const num = (e: Event) => Number((e.target as HTMLInputElement).value)
             >
               stranded
             </span>
+            <select
+              v-model="assignPick[party.id + ':' + i]"
+              class="ml-auto rounded border border-neutral-700 bg-neutral-900 px-1.5 py-1 text-xs text-neutral-100"
+            >
+              <option value="">assign to…</option>
+              <option v-for="a in party.adventurers" :key="a.id" :value="a.id">{{ a.displayName }}</option>
+            </select>
             <button
-              class="ml-auto text-rose-400 hover:underline"
+              class="opacity-70 hover:underline disabled:opacity-30"
+              :disabled="!assignPick[party.id + ':' + i]"
+              @click="assign(party.id, party.id + ':' + i, entry.item.itemId, entry.item.instanceId)"
+            >
+              Assign
+            </button>
+            <button
+              class="text-rose-400 hover:underline"
               @click="unstore(party.id, entry.item.itemId, entry.item.instanceId)"
             >
               Remove

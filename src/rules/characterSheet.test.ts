@@ -246,21 +246,24 @@ describe('against real boards', () => {
     }
   })
 
-  it('reports rank as unknown for every board, since no xpRows are transcribed', () => {
+  it('derives rank from the real Experience row layout (xpRows transcribed 2026-08-19)', () => {
     const char = library.adventurers.get('syrio')!
+    // Syrio's rows are [5, 4, 4, 3]; 10 XP fills rows 1-2 and starts row 3 → rank 3.
     const s = buildCharacterSheet({
-      state: state(),
+      state: state({ xpFilled: 10 }),
       character: char,
       klass: library.classes.get('barbarian')!,
     })
-    expect(s.rank).toBeNull()
-    expect(s.rankIsDerived).toBe(false)
-    expect(kinds(s)).toContain('rank-unknown')
+    expect(s.rank).toBe(3)
+    expect(s.rankIsDerived).toBe(true)
+    expect(kinds(s)).not.toContain('rank-unknown')
   })
 
   it('surfaces the class wheel with its real per-slot caps', () => {
+    // rank is derived from Syrio's real xpRows now, so a stored `rank` no longer has
+    // any effect — set xpFilled to land on rank 3 instead (see the test above).
     const s = buildCharacterSheet({
-      state: state({ rank: 3 }),
+      state: state({ xpFilled: 10 }),
       character: library.adventurers.get('syrio')!,
       klass: library.classes.get('assassin')!,
     })

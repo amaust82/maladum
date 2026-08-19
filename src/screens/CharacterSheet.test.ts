@@ -154,16 +154,15 @@ describe('CharacterSheet', () => {
     expect(adventurer(campaigns).statIncreases.health).toBe(2)
   })
 
-  it('lets rank be typed in, because this board has no transcribed Experience rows', async () => {
-    const { campaigns, id } = await openCampaignWithAdventurer()
+  it('derives rank from the Experience rows instead of letting it be typed in', async () => {
+    // Syrio's rows are [5, 4, 4, 3] (transcribed 2026-08-19); startingXp: 3 lands in
+    // row 1, which is rank 1.
+    const { id } = await openCampaignWithAdventurer()
     const wrapper = mountSheet(id)
-    expect(wrapper.text()).toContain("row layout isn't transcribed")
+    expect(wrapper.text()).toContain('Derived from the Experience rows')
     const rankInput = wrapper.findAll('input[type="number"]')[1]
-    expect(rankInput.attributes('disabled')).toBeUndefined()
-    await rankInput.setValue('3')
-    await rankInput.trigger('change')
-    await settleUntil(() => adventurer(campaigns).rank !== null, 'rank')
-    expect(adventurer(campaigns).rank).toBe(3)
+    expect(rankInput.attributes('disabled')).toBeDefined()
+    expect((rankInput.element as HTMLInputElement).value).toBe('1')
   })
 
   it('warns when marks and Experience disagree — the half-entered restore case', async () => {
@@ -189,6 +188,20 @@ describe('CharacterSheet', () => {
     await wrapper.findAll('button').find((b) => b.text() === 'Back to inventory')!.trigger('click')
     await settleUntil(() => adventurer(campaigns).armour.length === 0, 'unequipped')
     expect(adventurer(campaigns).inventory).toHaveLength(1)
+  })
+
+  it('moves a carried item to the party pool — gear is owned by the party between missions', async () => {
+    const { campaigns, id } = await openCampaignWithAdventurer()
+    const wrapper = mountSheet(id)
+    await wrapper.findAll('button').find((b) => b.text().includes('Add item'))!.trigger('click')
+    await wrapper.find('input[placeholder="Search items…"]').setValue('Dagger')
+    await wrapper.findAll('button').find((b) => b.text().includes('Dagger'))!.trigger('click')
+    await settleUntil(() => adventurer(campaigns).inventory.length === 1, 'carried item')
+
+    await wrapper.findAll('button').find((b) => b.text() === 'Move to party')!.trigger('click')
+    await settleUntil(() => campaigns.parties[0].storage.length === 1, 'moved to party')
+    expect(adventurer(campaigns).inventory).toHaveLength(0)
+    expect(campaigns.parties[0].storage[0]).toEqual({ item: { itemId: 'dagger' }, secure: false })
   })
 
   it('records armour covering a board grant, and the skill level drops', async () => {

@@ -144,6 +144,7 @@
           "max": 21
         }
       },
+      "xpRows": [6, 4, 5, 3, 3],
       "armourSlots": 2,
       "hasDenizenSide": true,
       "_placeholder": [],
@@ -194,6 +195,7 @@
           "max": 14
         }
       },
+      "xpRows": [4, 4, 3, 3],
       "armourSlots": 2,
       "hasDenizenSide": true,
       "_placeholder": [],
@@ -237,6 +239,7 @@
           "max": 20
         }
       },
+      "xpRows": [6, 5, 3, 3, 3],
       "armourSlots": 2,
       "hasDenizenSide": true,
       "_placeholder": [],
@@ -287,6 +290,7 @@
           "max": 23
         }
       },
+      "xpRows": [6, 5, 5, 4, 3],
       "armourSlots": 2,
       "hasDenizenSide": true,
       "_placeholder": [],
@@ -350,6 +354,7 @@
           "max": 13
         }
       },
+      "xpRows": [4, 3, 4, 2],
       "armourSlots": 2,
       "hasDenizenSide": true,
       "_placeholder": [],
@@ -393,6 +398,7 @@
           "max": 18
         }
       },
+      "xpRows": [6, 3, 4, 5],
       "armourSlots": 2,
       "hasDenizenSide": true,
       "_placeholder": [],
@@ -435,6 +441,7 @@
           "max": 23
         }
       },
+      "xpRows": [6, 6, 3, 4, 4],
       "armourSlots": 2,
       "hasDenizenSide": true,
       "_placeholder": [],
@@ -490,6 +497,7 @@
           "max": 17
         }
       },
+      "xpRows": [6, 5, 3, 3],
       "armourSlots": 2,
       "hasDenizenSide": true,
       "_placeholder": [],
@@ -533,6 +541,7 @@
           "max": 16
         }
       },
+      "xpRows": [5, 4, 3, 4],
       "armourSlots": 2,
       "hasDenizenSide": true,
       "_placeholder": [],
@@ -582,6 +591,7 @@
           "max": 19
         }
       },
+      "xpRows": [5, 5, 4, 3, 2],
       "armourSlots": 2,
       "hasDenizenSide": true,
       "_placeholder": [],
@@ -632,6 +642,7 @@
           "max": 15
         }
       },
+      "xpRows": [4, 4, 4, 3],
       "armourSlots": 2,
       "hasDenizenSide": true,
       "_placeholder": [],
@@ -688,6 +699,7 @@
           "max": 18
         }
       },
+      "xpRows": [4, 5, 4, 3, 2],
       "armourSlots": 2,
       "hasDenizenSide": true,
       "_placeholder": [],
@@ -744,6 +756,7 @@
           "max": 18
         }
       },
+      "xpRows": [5, 4, 4, 5],
       "armourSlots": 2,
       "hasDenizenSide": true,
       "_placeholder": [],
@@ -800,6 +813,7 @@
           "max": 18
         }
       },
+      "xpRows": [5, 4, 4, 3, 2],
       "armourSlots": 2,
       "hasDenizenSide": true,
       "_placeholder": [],
@@ -842,6 +856,7 @@
           "max": 21
         }
       },
+      "xpRows": [6, 5, 4, 3, 3],
       "armourSlots": 2,
       "hasDenizenSide": true,
       "_placeholder": [],
@@ -899,6 +914,7 @@
           "max": 17
         }
       },
+      "xpRows": [5, 4, 3, 3, 2],
       "armourSlots": 2,
       "hasDenizenSide": true,
       "_placeholder": [],
@@ -956,6 +972,7 @@
           "max": 21
         }
       },
+      "xpRows": [5, 5, 4, 4, 3],
       "armourSlots": 2,
       "hasDenizenSide": true,
       "_placeholder": [],
@@ -1011,6 +1028,7 @@
           "max": 24
         }
       },
+      "xpRows": [6, 5, 4, 5, 4],
       "armourSlots": 2,
       "hasDenizenSide": true,
       "_placeholder": [],
@@ -1065,6 +1083,7 @@
           "max": 16
         }
       },
+      "xpRows": [5, 4, 4, 3],
       "armourSlots": 2,
       "hasDenizenSide": true,
       "_placeholder": [],
@@ -1114,6 +1133,7 @@
           "max": 19
         }
       },
+      "xpRows": [6, 5, 4, 4],
       "armourSlots": 2,
       "hasDenizenSide": true,
       "_placeholder": [],

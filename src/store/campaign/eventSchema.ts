@@ -15,7 +15,7 @@ const ItemRef = z.object({
 })
 
 const XpReason = z.enum(['survived', 'escaped', 'objective', 'feat', 'other'])
-const AcquireVia = z.enum(['found', 'bought', 'reward', 'crafted'])
+const AcquireVia = z.enum(['found', 'bought', 'reward', 'crafted', 'assigned'])
 const SkillSource = z.enum(['character', 'class'])
 const LevellableStat = z.enum(['health', 'skill', 'magic', 'actions'])
 const EscapeCounterName = z.enum(['wounded', 'poisoned', 'burning'])

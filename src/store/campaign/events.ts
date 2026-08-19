@@ -37,7 +37,8 @@ export type EscapeCounterName = 'wounded' | 'poisoned' | 'burning'
 
 /** How a quest ended — drives Experience eligibility in the Advancement Phase (p.80). */
 export type QuestOutcome = 'primary-complete' | 'partial' | 'failed'
-export type AcquireVia = 'found' | 'bought' | 'reward' | 'crafted'
+/** 'assigned' = pulled from the party's Base Camp storage pool, not newly acquired. */
+export type AcquireVia = 'found' | 'bought' | 'reward' | 'crafted' | 'assigned'
 
 export type CampaignEvent =
   | {

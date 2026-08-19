@@ -600,6 +600,9 @@ interface Party {
   companions: Companion[];      // [Deluxe] p.61-63
   stash: number;               // Guilders
   renown: number;              // 0..12, hard clamped
+  // Doubles as the party-owned gear pool between missions (Adam's thematic call,
+  // 2026-08-19 — NOT a transcribed rule; see STATUS.md). `secure` on an entry is only
+  // the p.86 punch-out flag, unrelated to this broader use.
   baseCampStorage: ItemRef[];
   secureStorageUnlocked: boolean;   // punched out after paying for an Inn
   activeSideQuests: SideQuestRecord[];   // [Deluxe] p.73-75
