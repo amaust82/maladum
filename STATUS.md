@@ -26,11 +26,28 @@ clone with `git config core.hooksPath .githooks` (also listed in `README.md`); b
 genuine exception — a formatting sweep, a revert — with `git commit --no-verify`.
 `CLAUDE.md` states the same rule for agent sessions.
 
-## Status — updated 2026-08-19 (party pool is now the only way an item enters play)
+## Status — updated 2026-08-19 (two sync-signin bugs: localhost redirect + Cloudflare env vars)
 
 **Phase 0 is complete; Phase 1 is under way.** Campaign management, the party builder
 and the Rules reference are in. `npm run build` is clean and `npm test` is green:
-**502 tests across 35 files**.
+**503 tests across 36 files**.
+
+**Sync sign-in was broken two ways, both found live by Adam:**
+1. `VITE_SUPABASE_URL` on both Cloudflare Pages projects was set to the REST API
+   endpoint (`.../rest/v1/`) instead of the project base URL — every Supabase request
+   built a malformed/doubled path ("Invalid path specified in request URL"). Fixed via
+   the Cloudflare API directly and rebuilt both projects.
+2. The magic-link email pointed at `http://localhost:3000` — `signInWithOtp` never
+   passed `emailRedirectTo`, so Supabase fell back to the project's default Auth
+   "Site URL". Fixed in `src/sync/authService.ts`: now passes
+   `emailRedirectTo: window.location.origin + '/'`.
+
+**Still needs a manual step Adam has to do himself** (no Supabase dashboard access
+from here): add the real deployed origins to each Supabase project's **Auth → URL
+Configuration → Redirect URLs** allow-list —
+`https://maladum.bgbutler.com/` and `https://stage-maladum.bgbutler.com/` on their
+respective projects. Without that, Supabase silently ignores `emailRedirectTo` and
+falls back to the Site URL again, even with the code fix live.
 
 **Starting equipment now goes to the party's pool at creation, not to any
 Adventurer.** Adam's call (2026-08-19): the Party Builder's Guilder-only

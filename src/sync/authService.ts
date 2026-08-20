@@ -11,7 +11,15 @@ export const syncAvailable = supabase !== null
 
 export async function signInWithEmail(email: string): Promise<void> {
   if (!supabase) return
-  const { error } = await supabase.auth.signInWithOtp({ email })
+  // Without this, Supabase falls back to the project's configured Auth "Site URL"
+  // (default: http://localhost:3000) regardless of where the request came from —
+  // the magic link would point at localhost instead of wherever the player actually
+  // is. The target origin still has to be in the project's Auth → URL Configuration
+  // → Redirect URLs allow-list, or Supabase ignores this and falls back anyway.
+  const { error } = await supabase.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: window.location.origin + '/' },
+  })
   if (error) throw error
 }
 
