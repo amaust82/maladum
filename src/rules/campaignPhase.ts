@@ -21,9 +21,17 @@
 
 import type { AdventurerState, PartyState } from '../store/campaign/projection'
 import type { QuestOutcome } from '../store/campaign/events'
+import type { AdventurerDef } from '../content/schema'
 import { earnsXp, xpRequirementForRow, type XpRequirement } from './advancement'
 import { adventurerUpkeep } from './upkeep'
 import { innCost } from './baseCamp'
+import { rankFor } from './characterSheet'
+
+/** `characterId` -> board, so rank can be derived the same way the Character Sheet does. */
+type CharacterLibrary = Map<string, AdventurerDef>
+
+const rankOf = (a: AdventurerState, characters: CharacterLibrary): number | null =>
+  rankFor(a, characters.get(a.characterId)).rank
 
 export const PHASES = ['escape', 'advancement', 'market', 'rest'] as const
 export type Phase = (typeof PHASES)[number]
@@ -66,10 +74,14 @@ export interface EscapeTask {
  * Who the Escape Phase applies to. "If your Adventurers all made it out you can skip this
  * phase" (p.78), so an empty list means the phase is genuinely done, not merely untouched.
  */
-export function escapeTasks(party: PartyState, report: QuestReport): EscapeTask[] {
+export function escapeTasks(
+  party: PartyState,
+  report: QuestReport,
+  characters: CharacterLibrary,
+): EscapeTask[] {
   return party.adventurers
     .filter((a) => a.alive && report.leftBehind.includes(a.id))
-    .map((a) => ({ advId: a.id, displayName: a.displayName, rank: a.rank }))
+    .map((a) => ({ advId: a.id, displayName: a.displayName, rank: rankOf(a, characters) }))
 }
 
 export interface AdvancementTask {
@@ -85,27 +97,35 @@ export interface AdvancementTask {
 }
 
 /**
- * Total Experience rows a board has. Not transcribed (`AdventurerDef.xpRows`), and the
- * rulebook's own tracks run to five (p.81 notes some boards have fewer), so five is the
- * ceiling used when working from rank alone.
+ * Total Experience rows a board has, for boards where `xpRows` isn't transcribed
+ * (none of the 20 core boards, as of 2026-08-19, but custom content might lack it).
+ * The rulebook's own tracks run to five (p.81 notes some boards have fewer) — but
+ * note that once rank derives from a real `xpRows`, it's already capped at that
+ * board's own row count by construction, so this ceiling only ever matters on the
+ * `state.rank` fallback path below, where nothing bounds the stored value.
  */
 const MAX_XP_ROWS = 5
 
 /**
  * What each Adventurer stands to gain in the Advancement Phase.
  *
- * The row being filled should come from the Experience track's row layout, which isn't
- * transcribed — so this works from the recorded rank instead. That is exact except when
- * the current row happens to be exactly full, in which case the next Experience opens the
- * following row. The screen says so rather than presenting it as certain.
+ * Ideally "row" comes from the Experience track's own row layout; this approximates it
+ * with rank instead, which is exact except when the current row happens to be exactly
+ * full (the next Experience opens the following row) — a gap the screen states rather
+ * than hiding.
  */
-export function advancementTasks(party: PartyState, report: QuestReport): AdvancementTask[] {
+export function advancementTasks(
+  party: PartyState,
+  report: QuestReport,
+  characters: CharacterLibrary,
+): AdvancementTask[] {
   return party.adventurers
     .filter((a) => a.alive)
     .map((a) => {
       const survived = !report.leftBehind.includes(a.id)
       const tookPart = report.tookPart.includes(a.id)
-      if (a.rank === null) {
+      const rank = rankOf(a, characters)
+      if (rank === null) {
         return {
           advId: a.id,
           displayName: a.displayName,
@@ -115,7 +135,7 @@ export function advancementTasks(party: PartyState, report: QuestReport): Advanc
           blockedBy: 'Rank not recorded, so the Experience requirement is unknown',
         }
       }
-      const row = a.rank
+      const row = rank
       const requirement = xpRequirementForRow(row, MAX_XP_ROWS)
       if (!tookPart) {
         return {
@@ -181,15 +201,20 @@ export interface MarketSummary {
  * part in the most recent quest. An unrecorded rank makes a line unknowable rather than
  * free — same rule as everywhere else, an unknown never becomes 0.
  */
-export function marketSummary(party: PartyState, report: QuestReport): MarketSummary {
+export function marketSummary(
+  party: PartyState,
+  report: QuestReport,
+  characters: CharacterLibrary,
+): MarketSummary {
   const lines: UpkeepLine[] = party.adventurers
     .filter((a) => a.alive)
     .map((a) => {
       const playedLastQuest = report.tookPart.includes(a.id)
+      const rank = rankOf(a, characters)
       return {
         advId: a.id,
         displayName: a.displayName,
-        cost: a.rank === null ? null : adventurerUpkeep({ rank: a.rank, playedLastQuest }),
+        cost: rank === null ? null : adventurerUpkeep({ rank, playedLastQuest }),
         playedLastQuest,
       }
     })

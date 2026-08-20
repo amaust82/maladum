@@ -16,6 +16,7 @@
  */
 import { computed, reactive, ref } from 'vue'
 import { useCampaignStore } from '../stores/campaigns'
+import { useContentStore } from '../stores/content'
 import {
   advancementTasks,
   escapeTasks,
@@ -33,6 +34,7 @@ import type { QuestOutcome } from '../store/campaign/events'
 defineProps<{ campaignId: string }>()
 
 const campaigns = useCampaignStore()
+const content = useContentStore()
 
 const partyId = ref<string>('')
 const party = computed(
@@ -58,11 +60,15 @@ const report = computed<QuestReport>(() => ({
   guildersGained: guildersGained.value ?? 0,
 }))
 
-const escapes = computed(() => (party.value ? escapeTasks(party.value, report.value) : []))
-const advancement = computed(() =>
-  party.value ? advancementTasks(party.value, report.value) : [],
+const escapes = computed(() =>
+  party.value ? escapeTasks(party.value, report.value, content.library.adventurers) : [],
 )
-const market = computed(() => (party.value ? marketSummary(party.value, report.value) : null))
+const advancement = computed(() =>
+  party.value ? advancementTasks(party.value, report.value, content.library.adventurers) : [],
+)
+const market = computed(() =>
+  party.value ? marketSummary(party.value, report.value, content.library.adventurers) : null,
+)
 const rest = computed(() => (party.value ? restOptions(party.value) : []))
 
 /** Per-Adventurer escape entry: the reported die roll and the counters they carried. */

@@ -26,11 +26,36 @@ clone with `git config core.hooksPath .githooks` (also listed in `README.md`); b
 genuine exception — a formatting sweep, a revert — with `git commit --no-verify`.
 `CLAUDE.md` states the same rule for agent sessions.
 
-## Status — updated 2026-08-19 (sign-in was silently swallowed by the hash router)
+## Status — updated 2026-08-20 (upkeep/Escape/Advancement now use derived rank, not stale state)
 
 **Phase 0 is complete; Phase 1 is under way.** Campaign management, the party builder
 and the Rules reference are in. `npm run build` is clean and `npm test` is green:
-**503 tests across 36 files**.
+**506 tests across 36 files**.
+
+**Bug found live: Market Phase couldn't compute upkeep, because it never learned
+rank could be derived.** `src/rules/campaignPhase.ts` predates `xpRows` — `escapeTasks`,
+`advancementTasks`, and `marketSummary` all read the raw stored `AdventurerState.rank`
+directly, which only a manual `RANK_SET` ever populated. Once the Character Sheet
+started deriving rank from `xpRows` (2026-08-19) it also **disabled manual rank
+entry** whenever a board supplies it — so for every one of the 20 core boards,
+`state.rank` now stays `null` forever, and upkeep, Escape ransom, and Advancement
+eligibility all silently read as unknown even though the Character Sheet shows a real
+rank right next to them.
+
+Fixed by threading the same `rankFor()` (`src/rules/characterSheet.ts`) that the
+Character Sheet already uses through all three functions — they now take a third
+`characters: Map<characterId, AdventurerDef>` argument and derive rank the same way,
+instead of trusting the stored field. `CampaignPhase.vue` passes
+`content.library.adventurers`. Same shape of bug as the skill-marks and spell-rank
+fixes from 2026-08-19 — a screen quietly depending on a stored value that a
+board-data fix elsewhere made permanently stale.
+
+**Swept for other instances**: `src/rules/difficulty.ts`'s `partyValue`/
+`difficultyFor` take a plain `rank: number` too, but they're not wired to any screen
+yet — that's the not-yet-built Quest setup screen (Phase 2). Worth remembering to
+pass derived rank when that screen finally gets built, not a live bug today.
+Everywhere else reading `.rank` (chronicle log entries, `partySheet.ts`, the
+Character Sheet itself) already goes through the derived value correctly.
 
 **A third sync sign-in bug, after the redirect-URL and Cloudflare env var fixes**:
 clicking the magic link did nothing, no error, no feedback. Root cause: `router.ts`
