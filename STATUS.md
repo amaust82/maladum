@@ -26,11 +26,29 @@ clone with `git config core.hooksPath .githooks` (also listed in `README.md`); b
 genuine exception — a formatting sweep, a revert — with `git commit --no-verify`.
 `CLAUDE.md` states the same rule for agent sessions.
 
-## Status — updated 2026-08-19 (two sync-signin bugs: localhost redirect + Cloudflare env vars)
+## Status — updated 2026-08-19 (sign-in was silently swallowed by the hash router)
 
 **Phase 0 is complete; Phase 1 is under way.** Campaign management, the party builder
 and the Rules reference are in. `npm run build` is clean and `npm test` is green:
 **503 tests across 36 files**.
+
+**A third sync sign-in bug, after the redirect-URL and Cloudflare env var fixes**:
+clicking the magic link did nothing, no error, no feedback. Root cause: `router.ts`
+uses `createWebHashHistory()` (`#/campaigns/...`) — offline-friendly deep links, no
+server rewrite rules needed. Supabase's *default* ("implicit") auth flow **also**
+puts the session in a URL hash fragment (`#access_token=...`). The two hashes
+collide: Vue Router claims `location.hash` first and tries to route the token blob as
+a path, so Supabase's client never sees the session and sign-in silently no-ops.
+
+Fixed in `src/sync/supabaseClient.ts`: the client now uses Supabase's **PKCE** flow
+(`flowType: 'pkce'`), which carries the auth code as a query parameter instead of a
+hash fragment — doesn't touch `location.hash` at all, so the router leaves it alone.
+**Tradeoff worth knowing**: PKCE ties the code exchange to the browser that requested
+the link (a `code_verifier` in that browser's localStorage), so the magic link has to
+be opened in the *same browser/device* you requested it from — clicking a link
+requested on your laptop from your phone's mail app won't work. Implicit flow didn't
+have that restriction, but couldn't coexist with hash routing at all. Revisit only if
+the same-device requirement turns out to be a real problem in practice.
 
 **Sync sign-in was broken two ways, both found live by Adam:**
 1. `VITE_SUPABASE_URL` on both Cloudflare Pages projects was set to the REST API

@@ -12,4 +12,16 @@ const url = import.meta.env.VITE_SUPABASE_URL
 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 export const supabase: SupabaseClient | null =
-  url && anonKey ? createClient(url, anonKey) : null
+  url && anonKey
+    ? createClient(url, anonKey, {
+        auth: {
+          // The router uses hash-based history (#/campaigns/...) for offline-friendly
+          // deep links with no server rewrite rules. Supabase's default ("implicit")
+          // auth flow ALSO puts the session in a URL hash fragment (#access_token=...)
+          // — the router grabs that hash first and tries to route it, so the session
+          // never reaches Supabase and sign-in silently does nothing. PKCE carries the
+          // code as a query param instead, which the hash router doesn't touch.
+          flowType: 'pkce',
+        },
+      })
+    : null
