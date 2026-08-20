@@ -227,3 +227,23 @@ describe('syncCampaign', () => {
     expect(await getSyncState(db, 'c1')).toBe(0)
   })
 })
+
+describe('syncStatus (visible feedback, 2026-08-20)', () => {
+  it('reflects a successful push and a failed one', async () => {
+    const { syncStatus } = await import('./syncStatus')
+    await seedCampaign(db, 'c1', 'The Descent', [created('c1', 'The Descent')])
+    await pushPending(db, 'c1')
+    expect(syncStatus.phase).toBe('idle')
+    expect(syncStatus.lastSyncedAt).not.toBeNull()
+    expect(syncStatus.error).toBeNull()
+
+    const original = fakeSupabase.from
+    fakeSupabase.from = () => {
+      throw new Error('network down')
+    }
+    await appendEvents(db, 'c1', [{ t: 'CAMPAIGN_RENAMED', name: 'Renamed' }])
+    await expect(pushPending(db, 'c1')).rejects.toThrow('network down')
+    expect(syncStatus.error).toBe('network down')
+    fakeSupabase.from = original
+  })
+})

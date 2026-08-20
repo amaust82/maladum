@@ -33,6 +33,7 @@ import type { CampaignEvent } from '../store/campaign/events'
 import { campaignReducer, emptyCampaign } from '../store/campaign/projection'
 import { getSession } from './authService'
 import { supabase } from './supabaseClient'
+import { markSyncError, markSyncStart, markSyncSuccess } from './syncStatus'
 
 /**
  * Fold a log into the read-model row (mirrors `campaignService.metaFromState` /
@@ -67,44 +68,58 @@ export async function pushPending(db: MaladumDB, campaignId: string): Promise<vo
   const owner = await currentUserId()
   if (!owner || !supabase) return
 
-  const events = await loadEvents(db, campaignId)
-  const pushedCount = await getSyncState(db, campaignId)
-  const pending = events.slice(pushedCount)
-  if (pending.length === 0) return
+  markSyncStart()
+  try {
+    const events = await loadEvents(db, campaignId)
+    const pushedCount = await getSyncState(db, campaignId)
+    const pending = events.slice(pushedCount)
+    if (pending.length === 0) {
+      markSyncSuccess()
+      return
+    }
 
-  const meta = await getCampaign(db, campaignId)
-  if (!meta) return
+    const meta = await getCampaign(db, campaignId)
+    if (!meta) {
+      markSyncSuccess()
+      return
+    }
 
-  const { error: campaignError } = await supabase
-    .from('campaigns')
-    .upsert({ id: campaignId, owner, name: meta.name })
-  if (campaignError) throw campaignError
+    const { error: campaignError } = await supabase
+      .from('campaigns')
+      .upsert({ id: campaignId, owner, name: meta.name })
+    if (campaignError) throw campaignError
 
-  const insertAt = async (base: number) => {
-    const rows = pending.map((event, i) => ({
-      campaign_id: campaignId,
-      seq: base + i,
-      payload: event,
-    }))
-    return supabase!.from('events').insert(rows)
+    const insertAt = async (base: number) => {
+      const rows = pending.map((event, i) => ({
+        campaign_id: campaignId,
+        seq: base + i,
+        payload: event,
+      }))
+      return supabase!.from('events').insert(rows)
+    }
+
+    const { error } = await insertAt(pushedCount)
+    if (!error) {
+      await setSyncState(db, campaignId, pushedCount + pending.length)
+      markSyncSuccess()
+      return
+    }
+    if (error.code !== '23505') throw error
+
+    // Another device claimed some of these seq numbers first: pull its events in, then
+    // retry with the SAME in-memory `pending` list at the new base — never re-slice the
+    // local log here, since it now has our still-unpushed tail sitting before whatever
+    // pullNew just appended, and slicing by count would grab the wrong events.
+    await pullNew(db, campaignId)
+    const newBase = await getSyncState(db, campaignId)
+    const { error: retryError } = await insertAt(newBase)
+    if (retryError) throw retryError
+    await setSyncState(db, campaignId, newBase + pending.length)
+    markSyncSuccess()
+  } catch (e) {
+    markSyncError(e instanceof Error ? e.message : String(e))
+    throw e
   }
-
-  const { error } = await insertAt(pushedCount)
-  if (!error) {
-    await setSyncState(db, campaignId, pushedCount + pending.length)
-    return
-  }
-  if (error.code !== '23505') throw error
-
-  // Another device claimed some of these seq numbers first: pull its events in, then
-  // retry with the SAME in-memory `pending` list at the new base — never re-slice the
-  // local log here, since it now has our still-unpushed tail sitting before whatever
-  // pullNew just appended, and slicing by count would grab the wrong events.
-  await pullNew(db, campaignId)
-  const newBase = await getSyncState(db, campaignId)
-  const { error: retryError } = await insertAt(newBase)
-  if (retryError) throw retryError
-  await setSyncState(db, campaignId, newBase + pending.length)
 }
 
 /** Pull any events at or after our last-confirmed-synced point that we don't have locally yet. */
@@ -112,20 +127,30 @@ export async function pullNew(db: MaladumDB, campaignId: string): Promise<void> 
   const owner = await currentUserId()
   if (!owner || !supabase) return
 
-  const pushedCount = await getSyncState(db, campaignId)
-  const { data, error } = await supabase
-    .from('events')
-    .select('seq, payload')
-    .eq('campaign_id', campaignId)
-    .gte('seq', pushedCount)
-    .order('seq', { ascending: true })
-  if (error) throw error
-  if (!data || data.length === 0) return
+  markSyncStart()
+  try {
+    const pushedCount = await getSyncState(db, campaignId)
+    const { data, error } = await supabase
+      .from('events')
+      .select('seq, payload')
+      .eq('campaign_id', campaignId)
+      .gte('seq', pushedCount)
+      .order('seq', { ascending: true })
+    if (error) throw error
+    if (!data || data.length === 0) {
+      markSyncSuccess()
+      return
+    }
 
-  const newEvents = data.map((row) => row.payload as CampaignEvent)
-  await appendEvents(db, campaignId, newEvents)
-  await refreshReadModel(db, campaignId)
-  await setSyncState(db, campaignId, pushedCount + newEvents.length)
+    const newEvents = data.map((row) => row.payload as CampaignEvent)
+    await appendEvents(db, campaignId, newEvents)
+    await refreshReadModel(db, campaignId)
+    await setSyncState(db, campaignId, pushedCount + newEvents.length)
+    markSyncSuccess()
+  } catch (e) {
+    markSyncError(e instanceof Error ? e.message : String(e))
+    throw e
+  }
 }
 
 /** Flush anything pending, then pull whatever's new. Errors are swallowed — best-effort only. */

@@ -6,7 +6,7 @@
  * configured, `sync.available` is false and the panel says so instead of offering a
  * sign-in that can't work.
  */
-import { ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useSyncSession, useSyncStore } from '../stores/sync'
 
 const sync = useSyncStore()
@@ -20,6 +20,26 @@ function submit() {
   if (!address) return
   return sync.signIn(address)
 }
+
+/** Ticks so "3m ago" keeps advancing without needing another sync to trigger a re-render. */
+const now = ref(Date.now())
+let tick: ReturnType<typeof setInterval> | undefined
+onMounted(() => {
+  tick = setInterval(() => (now.value = Date.now()), 30_000)
+})
+onUnmounted(() => clearInterval(tick))
+
+const statusText = computed(() => {
+  if (sync.status.phase === 'syncing') return 'Syncing…'
+  if (sync.status.error) return `Sync failed: ${sync.status.error}`
+  if (!sync.status.lastSyncedAt) return 'Not synced yet'
+  const seconds = Math.max(0, Math.round((now.value - sync.status.lastSyncedAt) / 1000))
+  if (seconds < 60) return 'Synced just now'
+  const minutes = Math.round(seconds / 60)
+  if (minutes < 60) return `Synced ${minutes}m ago`
+  const hours = Math.round(minutes / 60)
+  return `Synced ${hours}h ago`
+})
 </script>
 
 <template>
@@ -28,8 +48,18 @@ function submit() {
 
     <template v-else-if="sync.signedIn()">
       <button class="opacity-70 hover:underline" @click="open = !open">
-        Synced as {{ sync.email }}
+        {{ sync.email }}
       </button>
+      <div class="mt-1 flex items-center gap-2">
+        <span :class="sync.status.error ? 'text-rose-300' : 'opacity-50'">{{ statusText }}</span>
+        <button
+          class="opacity-70 hover:underline disabled:opacity-30"
+          :disabled="sync.status.phase === 'syncing'"
+          @click="sync.syncNow()"
+        >
+          Sync now
+        </button>
+      </div>
       <div v-if="open" class="mt-2">
         <button class="opacity-70 hover:underline" @click="sync.signOut()">Sign out</button>
       </div>

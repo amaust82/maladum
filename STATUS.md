@@ -26,11 +26,22 @@ clone with `git config core.hooksPath .githooks` (also listed in `README.md`); b
 genuine exception — a formatting sweep, a revert — with `git commit --no-verify`.
 `CLAUDE.md` states the same rule for agent sessions.
 
-## Status — updated 2026-08-20 ("Story so far" recap added to the Log tab)
+## Status — updated 2026-08-20 (sync now shows visible status instead of total silence)
 
 **Phase 0 is complete; Phase 1 is under way.** Campaign management, the party builder
 and the Rules reference are in. `npm run build` is clean and `npm test` is green:
-**510 tests across 36 files**.
+**511 tests across 36 files**.
+
+**Sync had no feedback at all** — every push/pull was genuinely silent, success and
+failure looked identical from the UI, which Adam correctly read as "doesn't seem to
+do anything." Fixed with a small reactive singleton, `src/sync/syncStatus.ts`
+(`{ phase, lastSyncedAt, error }`), that `pushPending`/`pullNew`
+(`src/sync/syncService.ts`) update directly — not routed through whichever caller
+happened to invoke them, since most sync calls are fire-and-forget from
+`campaignService.ts`, not from a component. `AccountSync.vue` now shows "Synced Xm
+ago" / "Syncing…" / the actual error text next to the signed-in email, plus a manual
+**Sync now** button (`useSyncStore().syncNow()`, syncs whichever campaign is
+currently open).
 
 **Log tab now leads with a "Story so far" recap** — one line per quest (name, date,
 outcome, Renown/Guilders gained), above the full event-by-event chronicle. Adam,

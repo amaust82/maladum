@@ -7,6 +7,7 @@
 import { defineStore } from 'pinia'
 import { onMounted, onUnmounted, ref } from 'vue'
 import { db } from '../db/database'
+import { useCampaignStore } from './campaigns'
 import {
   onAuthStateChange,
   signInWithEmail as sendMagicLink,
@@ -16,8 +17,10 @@ import {
 import {
   downloadCampaign,
   listRemoteCampaigns,
+  syncCampaign,
   type RemoteCampaignSummary,
 } from '../sync/syncService'
+import { syncStatus } from '../sync/syncStatus'
 
 export const useSyncStore = defineStore('sync', () => {
   const email = ref<string | null>(null)
@@ -35,6 +38,13 @@ export const useSyncStore = defineStore('sync', () => {
 
   async function download(campaignId: string): Promise<void> {
     await downloadCampaign(db, campaignId)
+  }
+
+  /** Manual trigger for the currently-open campaign — reassurance, and a way to force it. */
+  async function syncNow(): Promise<void> {
+    const campaignId = useCampaignStore().activeId
+    if (!campaignId) return
+    await syncCampaign(db, campaignId)
   }
 
   function attach(): void {
@@ -79,6 +89,7 @@ export const useSyncStore = defineStore('sync', () => {
     busy,
     error,
     remoteCampaigns,
+    status: syncStatus,
     signedIn,
     attach,
     detach,
@@ -86,6 +97,7 @@ export const useSyncStore = defineStore('sync', () => {
     signOut,
     refreshRemote,
     download,
+    syncNow,
   }
 })
 
