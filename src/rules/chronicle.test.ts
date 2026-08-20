@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { buildChronicle, chronicleToMarkdown, filterByAdventurer } from './chronicle'
+import { buildChronicle, chronicleToMarkdown, filterByAdventurer, storySoFar } from './chronicle'
 import type { CampaignEvent } from '../store/campaign/events'
+import type { PartyState } from '../store/campaign/projection'
 
 const created: CampaignEvent = {
   t: 'CAMPAIGN_CREATED',
@@ -196,5 +197,63 @@ describe('chronicleToMarkdown', () => {
 
   it('handles a campaign with no events yet', () => {
     expect(chronicleToMarkdown('Empty', [])).toBe('# Empty\n')
+  })
+})
+
+describe('storySoFar', () => {
+  const party = (over: Partial<PartyState> = {}): PartyState => ({
+    id: 'p1',
+    name: 'The Party',
+    renown: 0,
+    stash: 0,
+    adventurers: [],
+    storage: [],
+    secureStorageUnlocked: false,
+    notes: '',
+    quests: [],
+    ...over,
+  })
+
+  it('is empty before the first quest', () => {
+    expect(storySoFar(party())).toEqual([])
+  })
+
+  it('numbers quests in play order and labels their outcome the same way the full log does', () => {
+    const p = party({
+      quests: [
+        { name: 'Of Coin and Glory', outcome: 'primary-complete', renownGained: 5, guildersGained: 40, at: 1 },
+        { name: 'The Hollow Cairn', outcome: 'partial', renownGained: 2, guildersGained: 15, at: 2 },
+        { name: 'A Grim Reckoning', outcome: 'failed', renownGained: 0, guildersGained: 0, at: 3 },
+      ],
+    })
+    expect(storySoFar(p)).toEqual([
+      {
+        chapter: 1,
+        name: 'Of Coin and Glory',
+        outcome: 'primary-complete',
+        outcomeLabel: 'primary objective completed',
+        at: 1,
+        renownGained: 5,
+        guildersGained: 40,
+      },
+      {
+        chapter: 2,
+        name: 'The Hollow Cairn',
+        outcome: 'partial',
+        outcomeLabel: 'partly completed',
+        at: 2,
+        renownGained: 2,
+        guildersGained: 15,
+      },
+      {
+        chapter: 3,
+        name: 'A Grim Reckoning',
+        outcome: 'failed',
+        outcomeLabel: 'failed',
+        at: 3,
+        renownGained: 0,
+        guildersGained: 0,
+      },
+    ])
   })
 })

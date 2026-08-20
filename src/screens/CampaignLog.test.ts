@@ -99,6 +99,32 @@ describe('CampaignLog', () => {
     expect(wrapper.text()).toContain('Q1')
   })
 
+  it('shows a "Story so far" recap, separate from the full event-by-event log', async () => {
+    const { campaigns, id } = await openCampaign()
+    await campaigns.commit([
+      {
+        t: 'QUEST_RECORDED',
+        partyId: 'p1',
+        name: 'Of Coin and Glory',
+        outcome: 'primary-complete',
+        renownGained: 2,
+        guildersGained: 40,
+        at: Date.now(),
+      },
+    ])
+    const wrapper = mountLog(id)
+    expect(wrapper.text()).toContain('Story so far')
+    expect(wrapper.text()).toContain('Of Coin and Glory')
+    expect(wrapper.text()).toContain('primary objective completed')
+    expect(wrapper.text()).toContain('+2 Renown')
+    expect(wrapper.text()).toContain('+40 Guilders')
+  })
+
+  it('has no "Story so far" section before any quest is recorded', async () => {
+    const { id } = await openCampaign()
+    expect(mountLog(id).text()).not.toContain('Story so far')
+  })
+
   it('exports Markdown that carries the campaign name and its entries', async () => {
     const { id } = await openCampaign()
     const wrapper = mountLog(id)

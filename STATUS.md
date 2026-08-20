@@ -26,11 +26,30 @@ clone with `git config core.hooksPath .githooks` (also listed in `README.md`); b
 genuine exception — a formatting sweep, a revert — with `git commit --no-verify`.
 `CLAUDE.md` states the same rule for agent sessions.
 
-## Status — updated 2026-08-20 (upkeep/Escape/Advancement now use derived rank, not stale state)
+## Status — updated 2026-08-20 ("Story so far" recap added to the Log tab)
 
 **Phase 0 is complete; Phase 1 is under way.** Campaign management, the party builder
 and the Rules reference are in. `npm run build` is clean and `npm test` is green:
-**506 tests across 36 files**.
+**510 tests across 36 files**.
+
+**Log tab now leads with a "Story so far" recap** — one line per quest (name, date,
+outcome, Renown/Guilders gained), above the full event-by-event chronicle. Adam,
+2026-08-20: the full log is "almost too detailed" for a quick "what's happened so
+far" check. Needed zero new state — `PartyState.quests` already collected everything
+this needs at the end of each Campaign Phase wizard run; `storySoFar()`
+(`src/rules/chronicle.ts`) just reads it, sharing its outcome-label wording with the
+full chronicle via a new `outcomeLabel()` export so the two views never disagree.
+Deliberately left out for now (Adam's picks, same conversation): per-quest
+casualties/who-escaped and freeform journal notes — both real options if the
+one-liner turns out to be too thin.
+
+**Two open threads from the same conversation, not yet actioned:**
+- Post-quest (Campaign Phase wizard) UX was called "not ideal" but the specifics
+  weren't pinned down — waiting on what exactly was clunky before changing anything.
+- A "saving" message appeared when entering Renown that isn't from this app's own
+  code (searched — nothing in the UI says "saving" anywhere near Renown); likely a
+  browser/OS-level notification that coincided with the click. Waiting on exact
+  wording or a screenshot before chasing further.
 
 **Bug found live: Market Phase couldn't compute upkeep, because it never learned
 rank could be derived.** `src/rules/campaignPhase.ts` predates `xpRows` — `escapeTasks`,

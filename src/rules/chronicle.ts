@@ -20,7 +20,8 @@
  *   is worse than one that reads awkwardly.
  */
 
-import type { CampaignEvent } from '../store/campaign/events'
+import type { CampaignEvent, QuestOutcome } from '../store/campaign/events'
+import type { PartyState } from '../store/campaign/projection'
 
 export interface ChronicleEntry {
   /** Position in the log, oldest = 0. Stable regardless of display order. */
@@ -43,6 +44,14 @@ export interface ChronicleContext {
 }
 
 const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`
+
+/** Shared with `storySoFar` below, so the two views never disagree on wording. */
+export const outcomeLabel = (outcome: QuestOutcome): string =>
+  outcome === 'primary-complete'
+    ? 'primary objective completed'
+    : outcome === 'partial'
+      ? 'partly completed'
+      : 'failed'
 
 /**
  * Build the chronicle. Returns entries **oldest first** — the screen reverses for
@@ -93,12 +102,7 @@ export function buildChronicle(
         break
       case 'QUEST_RECORDED': {
         chapter += 1
-        const outcome =
-          event.outcome === 'primary-complete'
-            ? 'primary objective completed'
-            : event.outcome === 'partial'
-              ? 'partly completed'
-              : 'failed'
+        const outcome = outcomeLabel(event.outcome)
         const rewards = [
           // Renown is uncountable — "2 Renowns" reads wrong.
           event.renownGained ? `${event.renownGained} Renown` : null,
@@ -248,6 +252,36 @@ export function buildChronicle(
 /** Entries concerning one Adventurer — "show me everything Syrio has ever done". */
 export function filterByAdventurer(entries: ChronicleEntry[], advId: string): ChronicleEntry[] {
   return entries.filter((e) => e.advId === advId)
+}
+
+export interface StoryEntry {
+  /** 1-based, in play order — the same numbering the full chronicle's chapters use. */
+  chapter: number
+  name: string
+  outcome: QuestOutcome
+  outcomeLabel: string
+  at: number
+  renownGained: number
+  guildersGained: number
+}
+
+/**
+ * One line per quest — "which quests were done and what happened," distinct from the
+ * full chronicle's every-event detail. Adam, 2026-08-20: the Log tab's full timeline
+ * is "almost too detailed" for a quick recap; this reads straight off `PartyState.quests`
+ * (already collected at the end of each Campaign Phase wizard run), so it needs no new
+ * event type or state — just a shorter way of looking at what's already there.
+ */
+export function storySoFar(party: PartyState): StoryEntry[] {
+  return party.quests.map((q, i) => ({
+    chapter: i + 1,
+    name: q.name,
+    outcome: q.outcome,
+    outcomeLabel: outcomeLabel(q.outcome),
+    at: q.at,
+    renownGained: q.renownGained,
+    guildersGained: q.guildersGained,
+  }))
 }
 
 /**

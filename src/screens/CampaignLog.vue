@@ -15,7 +15,7 @@
 import { computed, ref } from 'vue'
 import { useCampaignStore } from '../stores/campaigns'
 import { useContentStore } from '../stores/content'
-import { buildChronicle, chronicleToMarkdown, filterByAdventurer } from '../rules/chronicle'
+import { buildChronicle, chronicleToMarkdown, filterByAdventurer, storySoFar } from '../rules/chronicle'
 
 defineProps<{ campaignId: string }>()
 
@@ -24,6 +24,13 @@ const content = useContentStore()
 
 const filter = ref('')
 const copied = ref(false)
+
+/** One line per quest per party — the recap, distinct from the full event-by-event log below. */
+const stories = computed(() =>
+  campaigns.parties
+    .map((party) => ({ party, entries: storySoFar(party) }))
+    .filter((s) => s.entries.length),
+)
 
 const everyone = computed(() =>
   campaigns.parties.flatMap((p) => p.adventurers.map((a) => ({ id: a.id, name: a.displayName }))),
@@ -92,6 +99,28 @@ const formatDate = (at: number) => new Date(at).toLocaleDateString()
       rows="12"
       class="mb-4 w-full rounded border border-neutral-700 bg-neutral-900 px-2 py-1.5 font-mono text-xs text-neutral-100"
     />
+
+    <section v-if="stories.length" class="mb-6">
+      <h3 class="mb-2 text-sm font-medium opacity-80">Story so far</h3>
+      <div v-for="s in stories" :key="s.party.id" class="mb-3">
+        <p v-if="stories.length > 1" class="mb-1 text-xs font-medium opacity-60">{{ s.party.name }}</p>
+        <ol class="space-y-1">
+          <li
+            v-for="e in s.entries"
+            :key="e.chapter"
+            class="flex flex-wrap items-baseline gap-2 rounded border border-neutral-800 bg-neutral-900/40 px-2 py-1.5 text-sm"
+          >
+            <span class="opacity-40">Q{{ e.chapter }}</span>
+            <span class="font-medium">{{ e.name }}</span>
+            <span class="opacity-70">— {{ e.outcomeLabel }}</span>
+            <span v-if="e.renownGained || e.guildersGained" class="opacity-50">
+              ({{ [e.renownGained ? `+${e.renownGained} Renown` : null, e.guildersGained ? `+${e.guildersGained} Guilders` : null].filter(Boolean).join(', ') }})
+            </span>
+            <span class="ml-auto opacity-40">{{ formatDate(e.at) }}</span>
+          </li>
+        </ol>
+      </div>
+    </section>
 
     <p v-if="!shown.length" class="text-sm opacity-70">
       Nothing logged yet. Play a quest and record it from the Play tab.
